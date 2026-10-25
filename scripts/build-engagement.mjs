@@ -4,7 +4,8 @@
 //
 // <docs-dir> holds the documents of the claude.ai artifact's "engagement" collection as JSON files, one per metric
 // (<metric id>.json, e.g. as written by ArtifactData `list` with `out_dir`: <out_dir>/engagement/). Each document is
-// { updatedAt, points: [{ d: "YYYY-MM-DD", v: number, n?: number, of?: number }] } — one point per UTC day, the whole
+// { updatedAt, points: [{ d: "YYYY-MM-DD", v: number, n?: number, of?: number, parts?: { <key>: number } }] } — one point
+// per UTC day (parts = the components v is made of, labelled by the metric's `parts` in metrics.json), the whole
 // history kept so the page can draw timelines without asking Amplitude/RevenueCat again.
 // Metric ids must be listed in engagement/metrics.json. Writes engagement.enc.json, sealed like data.enc.json.
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
@@ -35,9 +36,10 @@ for (const file of existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith("
     if (!/^\d{4}-\d{2}-\d{2}$/.test(p?.d || "") || !num(p.v)) fail(`${id}.points: ${JSON.stringify(p)}`);
     if (p.d <= prev) fail(`${id}.points must be sorted by day without duplicates (${p.d})`);
     if ((p.n !== undefined && !num(p.n)) || (p.of !== undefined && !num(p.of))) fail(`${id}.points n/of: ${p.d}`);
+    if (p.parts !== undefined && (typeof p.parts !== "object" || !Object.values(p.parts).every(num))) fail(`${id}.points parts: ${p.d}`);
     prev = p.d;
   }
-  metrics[id] = { updatedAt: doc.updatedAt, points: doc.points.map(({ d, v, n, of }) => ({ d, v, ...(num(n) ? { n } : {}), ...(num(of) ? { of } : {}) })) };
+  metrics[id] = { updatedAt: doc.updatedAt, points: doc.points.map(({ d, v, n, of, parts }) => ({ d, v, ...(num(n) ? { n } : {}), ...(num(of) ? { of } : {}), ...(parts ? { parts } : {}) })) };
 }
 
 const { subtle } = globalThis.crypto;

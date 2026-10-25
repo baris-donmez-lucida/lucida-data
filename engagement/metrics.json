@@ -1,4 +1,87 @@
 {
   "v": 1,
-  "metrics": []
+  "metrics": [
+    {
+      "id": "activation-users",
+      "group": "Aktivasyon",
+      "label": "Aktivasyon aşamasındaki user sayısı",
+      "description": "Her gün, o güne kadarki son 8 gün: first seen'i bu 8 günde olup rc_non_subscription_purchase_event atan kullanıcılar + bu 8 günde onboarding_placement paywall'ında paywall_paid olan kullanıcılar.",
+      "unit": "count",
+      "better": "up",
+      "parts": [
+        {
+          "key": "a",
+          "label": "yeni + RC satın alma"
+        },
+        {
+          "key": "b",
+          "label": "onboarding paywall_paid"
+        }
+      ],
+      "source": "amplitude",
+      "backfillDays": 20,
+      "recipe": "Her gün D için ayrı bir sorgu (D = tamamlanmış UTC günü). Pencere W = D-7 … D (8 gün). START = D-7 günü 00:00:00 UTC (unix saniye), END = D günü 23:59:59 UTC (unix saniye). `definition` içindeki <START>/<END> yer tutucularını (4 yerde, sayı olarak) ve name'deki <D>'yi değiştirip query_amplitude_data ile çalıştır (interval 1 kalmalı: haftalık/aylık aralık pencereyi genişletir). Yanıt: overallSeries ile seriesMetadata aynı sırada. A = {segmentIndex 0, eventIndex 0} serisinin overallSeries değeri (pencerede yeni olup rc_non_subscription_purchase_event atan tekil kullanıcı). B = {segmentIndex 1, eventIndex 1} serisinin overallSeries değeri (pencerede onboarding_placement ile paywall_paid olan tekil kullanıcı). Nokta: {d: D, v: A + B, parts: {a: A, b: B}}. Not: rc_non_subscription_purchase_event 2026-09-28'de toplu aktarımla başladı; 2026-10-06'dan önceki günleri hesaplama.",
+      "definition": {
+        "app": "773708",
+        "type": "eventsSegmentation",
+        "name": "Aktivasyon <D>",
+        "params": {
+          "start": "<START>",
+          "end": "<END>",
+          "interval": 1,
+          "timezone": "UTC",
+          "countGroup": "User",
+          "metric": "uniques",
+          "groupBy": [],
+          "events": [
+            {
+              "event_type": "rc_non_subscription_purchase_event",
+              "filters": [],
+              "group_by": []
+            },
+            {
+              "event_type": "paywall_paid",
+              "filters": [
+                {
+                  "group_type": "User",
+                  "subfilters": [],
+                  "subprop_op": "is",
+                  "subprop_key": "placement",
+                  "subprop_type": "event",
+                  "subprop_value": [
+                    "onboarding_placement"
+                  ]
+                }
+              ],
+              "group_by": []
+            }
+          ],
+          "segments": [
+            {
+              "label": "new_in_window",
+              "conditions": [
+                {
+                  "type": "event",
+                  "event_type": "_new",
+                  "filters": [],
+                  "group_by": [],
+                  "time_type": "absolute",
+                  "time_value": [
+                    "<START>",
+                    "<END>"
+                  ],
+                  "op": ">=",
+                  "value": 1
+                }
+              ]
+            },
+            {
+              "label": "all",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    }
+  ]
 }

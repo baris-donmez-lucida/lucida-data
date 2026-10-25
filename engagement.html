@@ -269,6 +269,7 @@
   .m-delta.bad { color: var(--s2); }
   .m-card .chart { margin: 0 -6px; }
   .m-card .chart .line { stroke: var(--s1); }
+  .m-parts { margin: -6px 0 0; font-size: 12px; color: var(--ink-2); }
   .m-empty { font-size: 13px; color: var(--muted); padding: 24px 0; text-align: center; }
   .eng-empty { margin-top: 28px; background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 36px 20px; text-align: center; color: var(--ink-2); font-size: 14px; }
   .eng-empty b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
@@ -333,6 +334,8 @@ const fmtDate = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", mont
 const fmtDayShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
 const fmtDayLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+// components of a point (metric.parts = [{ key, label }]), e.g. "1.544 yeni web alımı + 142 onboarding"
+const partsText = (m, p) => (Array.isArray(m.parts) && p.parts ? m.parts.filter((x) => Number.isFinite(p.parts[x.key])).map((x) => `${nf.format(p.parts[x.key])} ${esc(x.label)}`).join(" + ") : "");
 
 // unit: "pct" (v is a percentage, 34.2 = %34,2), "count", "min" (minutes), "usd", "ratio" (plain number)
 const numFmt = (dec) => new Intl.NumberFormat("tr-TR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
@@ -422,6 +425,8 @@ function renderMetric(m, data) {
     <div class="m-kpi"><div class="rate-lbl">Son gün</div><div class="m-val">${fmtVal(m, last.v)}</div><div class="m-sub">${fmtDayShort(last.d)}${Number.isFinite(last.n) && Number.isFinite(last.of) ? ` · ${nf.format(last.n)} / ${nf.format(last.of)}` : ""}</div></div>
     <div class="m-kpi"><div class="rate-lbl">${current.days} gün ${aggLbl}</div><div class="m-val">${Number.isFinite(cur) ? fmtVal(m, cur) : "—"}</div><div class="m-sub">${pts.length} gün</div></div>
     <div class="m-kpi"><div class="rate-lbl">Önceki ${current.days} güne göre</div><div class="m-val m-delta ${delta.cls}">${delta.text}</div><div class="m-sub">${Number.isFinite(before) ? "önce " + fmtVal(m, before) : "yeterli geçmiş yok"}</div></div>`;
+  const pt = partsText(m, last);
+  if (pt) kpis.insertAdjacentHTML("afterend", `<p class="m-parts">Son gün: ${pt}</p>`);
   lineChart(host, card.querySelector("[data-tip]"), m, pts);
 }
 
@@ -467,7 +472,8 @@ function lineChart(host, tip, m, pts) {
     hd.setAttribute("cx", px); hd.setAttribute("cy", py); hd.style.opacity = 1;
     const rect = svg.getBoundingClientRect(), card = host.parentElement.getBoundingClientRect();
     const sx = rect.width / W, sy = rect.height / H;
-    tip.innerHTML = `${fmtDayLong(p.d)}<br><b>${fmtVal(m, p.v)}</b>${Number.isFinite(p.n) && Number.isFinite(p.of) ? ` · ${nf.format(p.n)} / ${nf.format(p.of)}` : ""}`;
+    const pt = partsText(m, p);
+    tip.innerHTML = `${fmtDayLong(p.d)}<br><b>${fmtVal(m, p.v)}</b>${Number.isFinite(p.n) && Number.isFinite(p.of) ? ` · ${nf.format(p.n)} / ${nf.format(p.of)}` : ""}${pt ? `<br>${pt}` : ""}`;
     const left = rect.left - card.left + px * sx;
     tip.style.left = `${Math.min(Math.max(left, 80), card.width - 80)}px`;
     tip.style.top = `${rect.top - card.top + py * sy}px`;
