@@ -46,7 +46,8 @@ for (const id of ["we8ecx07", "mkec0q4p"]) if (!num(c.sizes?.[id]?.size)) fail(`
 const l = docs["a1-session-time"];
 if (!Array.isArray(l.items) || l.items.length !== 5 || !l.items.every((it) => it.id && ["started", "completed", "medianMs", "avgMs"].every((k) => num(it[k])))) fail("a1-session-time.items");
 const r = docs.retention;
-for (const k of ["1", "2", "3", "7", "14", "21"]) if (!num(r.values?.[k])) fail(`retention.values.${k}`);
+if (!num(r.total)) fail("retention.total");
+for (const k of ["1", "2", "3", "4", "5", "6", "7", "8", "14", "15", "21", "22"]) if (!num(r.values?.[k])) fail(`retention.values.${k}`);
 if (r.byCountry && !Array.isArray(r.byCountry)) fail("retention.byCountry");
 const w = docs["weekly-lessons"];
 if (!Array.isArray(w.items) || !w.items.length || !w.items.every((it) => COUNTRIES.includes(it.id) && num(it.start) && num(it.done))) fail("weekly-lessons.items");
