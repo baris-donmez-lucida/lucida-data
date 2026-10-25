@@ -238,6 +238,28 @@
   .lock-err { font-size: 13px; color: var(--s2); min-height: 1.2em; }
   .lock-out { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
 
+  /* Retention hero: D1 / D3 / D7 as rings, plain-language line under each */
+  .ret-hero { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .ret-kpi { display: grid; justify-items: center; align-content: start; text-align: center; gap: 8px; padding: 18px 10px 16px; border-radius: 12px; background: color-mix(in srgb, var(--s3) 8%, var(--surface)); }
+  .ret-ring { width: 92px; height: 92px; position: relative; }
+  .ret-ring svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ret-ring .trk { stroke: color-mix(in srgb, var(--s3) 20%, transparent); }
+  .ret-ring .arc { stroke: var(--s3); stroke-linecap: round; }
+  .ret-ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 21px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .ret-kpi-lbl { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .ret-kpi-lbl span { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--muted); margin-left: 4px; }
+  .ret-kpi-sub { font-size: 12px; color: var(--ink-2); line-height: 1.35; max-width: 15ch; }
+  .ret-kpi-sub b { color: var(--ink); font-weight: 600; }
+  .ret-hero + .tbl-wrap.inner { border-top: 1px solid var(--grid); margin-top: 4px; }
+  @media (max-width: 519px) {
+    .ret-hero { gap: 8px; }
+    .ret-kpi { padding: 14px 6px 12px; gap: 6px; }
+    .ret-ring { width: 74px; height: 74px; }
+    .ret-ring b { font-size: 16px; }
+    .ret-kpi-lbl { font-size: 13px; }
+    .ret-kpi-lbl span { display: none; }
+    .ret-kpi-sub { font-size: 11px; }
+  }
   /* Retention: one table, the 5-country total on top */
   .ret-card .tbl-wrap.inner { border-top: 0; margin-top: 6px; }
   .ret-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
@@ -585,6 +607,20 @@ function renderLessons(l) {
 // Chart 9abjsm95: first dashboard_page_viewed -> dashboard_page_viewed on exactly day N, last 30 days, by country.
 // Top row = the 5 countries combined (sum of retained / sum of eligible).
 function renderRetention(r) {
+  const HERO = [{ d: 1, label: "Ertesi gün" }, { d: 3, label: "3. gün" }, { d: 7, label: "1 hafta sonra" }];
+  const ring = (v) => {
+    const c = 2 * Math.PI * 40, p = Math.max(0, Math.min(100, Number(v) || 0)) / 100;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="40" fill="none" stroke-width="9"/><circle class="arc" cx="50" cy="50" r="40" fill="none" stroke-width="9" stroke-dasharray="${(c * p).toFixed(1)} ${c.toFixed(1)}"/></svg>`;
+  };
+  const hero = HERO.map(({ d, label }) => {
+    const v = Number(r.values ? r.values[String(d)] : NaN), ok = Number.isFinite(v);
+    return `
+      <div class="ret-kpi">
+        <div class="ret-ring" role="img" aria-label="D${d}: ${ok ? "%" + pf.format(v) : "veri yok"}">${ring(ok ? v : 0)}<b>${ok ? "%" + pf.format(v) : "—"}</b></div>
+        <div class="ret-kpi-lbl">${label}<span>D${d}</span></div>
+        <div class="ret-kpi-sub">${ok ? `100 kişiden <b>${Math.round(v)}</b> kişi geri döndü` : "&nbsp;"}</div>
+      </div>`;
+  }).join("");
   const fmtP = (v) => (Number.isFinite(Number(v)) ? `<span class="pc">%</span>${pf.format(Number(v))}` : "—");
   const byCountry = (Array.isArray(r.byCountry) ? r.byCountry : []).filter((c) => c && COUNTRIES.includes(c.id));
   const row = (label, values, cls) => `<tr${cls ? ` class="${cls}"` : ""}><td>${label}</td>${r.days.map((d) => `<td>${fmtP(values ? values[String(d)] : null)}</td>`).join("")}</tr>`;
@@ -592,6 +628,7 @@ function renderRetention(r) {
     <div class="seg-head">
       <h2 class="seg-title"><span class="swatch" style="--c:var(--s3)"></span>Retention <span class="pc-note">(%)</span></h2>
     </div>
+    <div class="ret-hero">${hero}</div>
     <div class="tbl-wrap inner">
       <table class="ret-table">
         <thead><tr><th></th>${r.days.map((d) => `<th>D${d}</th>`).join("")}</tr></thead>
