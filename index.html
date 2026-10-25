@@ -237,6 +237,25 @@
   .lock-card button:disabled { opacity: 0.6; cursor: progress; }
   .lock-err { font-size: 13px; color: var(--s2); min-height: 1.2em; }
   .lock-out { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+  /* Retention: one table, the 5-country total on top */
+  .ret-card .tbl-wrap.inner { border-top: 0; margin-top: 6px; }
+  .ret-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .tbl-wrap.inner .ret-table th, .tbl-wrap.inner .ret-table td { padding: 11px 8px; text-align: right; white-space: nowrap; }
+  .tbl-wrap.inner .ret-table th:first-child, .tbl-wrap.inner .ret-table td:first-child { text-align: left; padding-left: 0; }
+  .tbl-wrap.inner .ret-table th:last-child, .tbl-wrap.inner .ret-table td:last-child { padding-right: 0; }
+  .ret-table thead th { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .ret-table tbody td { font-size: 14px; color: var(--ink-2); border-bottom: 1px solid var(--grid); }
+  .ret-table tbody tr:last-child td { border-bottom: 0; }
+  .tbl-wrap.inner .ret-table tr.total td { font-size: 17px; font-weight: 600; color: var(--ink); padding-top: 14px; padding-bottom: 14px; }
+  @media (max-width: 519px) {
+    .tbl-wrap.inner .ret-table th, .tbl-wrap.inner .ret-table td { padding-left: 3px; padding-right: 3px; }
+    .ret-table tbody td { font-size: 13px; }
+    .tbl-wrap.inner .ret-table tr.total td { font-size: 15px; }
+    .ret-table .pc { display: none; }
+  }
+  .pc-note { display: none; font-weight: 400; color: var(--muted); }
+  @media (max-width: 519px) { .pc-note { display: inline; } }
 </style>
 
 <div class="wrap lock" id="lock">
@@ -272,7 +291,7 @@
 
     <section id="retention" aria-label="Aktif abone retention">
       <div class="seg ret-card" id="retention-card"></div>
-      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?source=copy+url</a></p>
+      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?sharingId=aZYAr8vJ&source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?sharingId=aZYAr8vJ&source=copy+url</a></p>
     </section>
 
     <section id="dau" aria-label="Günlük aktif abone">
@@ -370,7 +389,7 @@ const DATA = {
         url: "https://app.amplitude.com/audiences/applucida-342855/cohort/mkec0q4p/details?source=copy+url" }
     ]
   },
-  retention: { windowDays: 60, days: [1, 2, 3, 7, 14, 30] },
+  retention: { windowDays: 30, days: [1, 2, 3, 7, 14, 21] },
   weekly: { order: ["South Korea", "Czech Republic", "United States", "Poland", "Japan"] },
   lessons: {
     items: [
@@ -563,36 +582,22 @@ function renderLessons(l) {
 }
 
 // ---------- render: retention ----------
+// Chart 9abjsm95: first dashboard_page_viewed -> dashboard_page_viewed on exactly day N, last 30 days, by country.
+// Top row = the 5 countries combined (sum of retained / sum of eligible).
 function renderRetention(r) {
-  const color = "var(--s3)", name = "Aktif Aboneler Retention";
-  const tiles = r.days.map((d) => {
-    const v = Number(r.values[String(d)]);
-    const ok = Number.isFinite(v);
-    return `
-      <div class="rate">
-        <div class="rate-lbl">D${d}</div>
-        <div class="rate-val">${ok ? "%" + pf.format(v) : "—"}</div>
-        <div class="meter" role="img" aria-label="${ok ? "%" + pf.format(v) : "—"}"><i style="--c:${color}; width:${ok ? v.toFixed(1) : 0}%"></i></div>
-      </div>`;
-  }).join("");
-  const fmtP = (v) => (Number.isFinite(Number(v)) ? "%" + pf.format(Number(v)) : "—");
-  const byCountry = Array.isArray(r.byCountry) ? r.byCountry : [];
-  const rows = COUNTRIES.map((id) => {
-    const c = byCountry.find((x) => x && x.id === id);
-    return `<tr><td>${COUNTRY_TR[id] || id}</td>${r.days.map((d) => `<td class="pct">${fmtP(c && c.values ? c.values[String(d)] : null)}</td>`).join("")}</tr>`;
-  }).join("");
+  const fmtP = (v) => (Number.isFinite(Number(v)) ? `<span class="pc">%</span>${pf.format(Number(v))}` : "—");
+  const byCountry = (Array.isArray(r.byCountry) ? r.byCountry : []).filter((c) => c && COUNTRIES.includes(c.id));
+  const row = (label, values, cls) => `<tr${cls ? ` class="${cls}"` : ""}><td>${label}</td>${r.days.map((d) => `<td>${fmtP(values ? values[String(d)] : null)}</td>`).join("")}</tr>`;
   document.getElementById("retention-card").innerHTML = `
     <div class="seg-head">
-      <h2 class="seg-title"><span class="swatch" style="--c:${color}"></span>${name}</h2>
+      <h2 class="seg-title"><span class="swatch" style="--c:var(--s3)"></span>Retention <span class="pc-note">(%)</span></h2>
     </div>
-    <div class="ret-grid">${tiles}</div>
-    ${byCountry.length ? `
     <div class="tbl-wrap inner">
-      <table>
-        <thead><tr class="sub"><th>Ülke</th>${r.days.map((d) => `<th>D${d}</th>`).join("")}</tr></thead>
-        <tbody>${rows}</tbody>
+      <table class="ret-table">
+        <thead><tr><th></th>${r.days.map((d) => `<th>D${d}</th>`).join("")}</tr></thead>
+        <tbody>${row("5 ülke", r.values, "total")}${byCountry.map((c) => row(COUNTRY_TR[c.id] || c.id, c.values)).join("")}</tbody>
       </table>
-    </div>` : ""}`;
+    </div>`;
 }
 
 // ---------- render: weekly lessons per user by country ----------
