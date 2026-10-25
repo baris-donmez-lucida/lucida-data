@@ -18,6 +18,7 @@
     --s1: #2a78d6;   /* Eski Aboneler / aboneler */
     --s2: #eb6834;   /* Yeni Aboneler */
     --s3: #1baf7a;   /* Aktif Aboneler (retention) */
+    --cc1: #2a78d6; --cc2: #7cb342; --cc3: #7e3fb8; --cc4: #3bb8c4; --cc5: #e8705f;   /* ülkeler: Güney Kore, Çekya, ABD, Polonya, Japonya */
     --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
     --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
@@ -34,6 +35,7 @@
       --s1: #3987e5;
       --s2: #d95926;
       --s3: #199e70;
+      --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
       color-scheme: dark;
     }
   }
@@ -49,6 +51,7 @@
     --s1: #3987e5;
     --s2: #d95926;
     --s3: #199e70;
+    --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
     color-scheme: dark;
   }
 
@@ -151,15 +154,36 @@
   td.base-pct { font-weight: 500; }
   td.strong { color: var(--ink); font-weight: 600; }
   #lessons thead tr.sub th, #weekly thead tr.sub th { padding-top: 10px; }
-  td.bar-cell { width: 40%; min-width: 140px; }
-  td.bar-cell .meter { height: 8px; border-radius: 4px; }
-  td.bar-cell .meter.dual { position: relative; }
-  td.bar-cell .meter.dual i { position: absolute; left: 0; top: 0; }
-  td.bar-cell .meter.dual i.bg { opacity: 0.3; }
+  /* Weekly chart: two groups (start / completion), one bar per country, legend below */
+  .weekly-card { padding-top: 10px; padding-bottom: 12px; }
+  .weekly-card .chart .bar { stroke: var(--surface); stroke-width: 1; }
+  .weekly-card .chart .val { font-size: 12px; fill: var(--ink); font-weight: 600; }
+  .weekly-card .chart .grp { font-size: 13px; fill: var(--ink-2); }
+  .weekly-card .chart .hit { fill: transparent; }
+  .wk-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 6px 0; border-top: 1px solid var(--grid); margin-top: 6px; }
+  .wk-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
+  .wk-legend .lg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
   .tbl-wrap.inner { border: 0; border-top: 1px solid var(--grid); border-radius: 0; background: transparent; margin-top: 18px; }
   .tbl-wrap.inner th, .tbl-wrap.inner td { padding-left: 0; padding-right: 10px; }
   .tbl-wrap.inner th:last-child, .tbl-wrap.inner td:last-child { padding-right: 0; }
   .tbl-wrap.inner thead tr.sub th { padding-top: 12px; }
+  /* Funnel: both segments + step table in one card */
+  .funnel-card { gap: 0; padding: 18px 20px 8px; }
+  .fn-segs { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .fn-seg { display: grid; gap: 12px; min-width: 0; align-content: start; }
+  .fn-seg .seg-title { font-size: 16px; }
+  .fn-seg .rates { gap: 12px; }
+  .fn-seg .rate { gap: 5px; }
+  .fn-seg .rate-val { font-size: clamp(20px, 3.4vw, 26px); }
+  .fn-seg .meter { height: 5px; }
+  @media (min-width: 720px) {
+    .fn-segs { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .fn-seg + .fn-seg { border-left: 1px solid var(--grid); padding-left: 28px; }
+  }
+  .funnel-card .tbl-wrap.inner { margin-top: 16px; }
+  .funnel-card .tbl-wrap.inner th, .funnel-card .tbl-wrap.inner td { padding-top: 8px; padding-bottom: 8px; }
+  .funnel-card .tbl-wrap.inner thead tr.grp th { padding-top: 12px; }
+  .funnel-card .tbl-wrap.inner thead tr.sub th { padding-top: 2px; }
 
   .ref { margin: 4px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
   .ref a { color: var(--ink-2); }
@@ -251,24 +275,6 @@
       <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?source=copy+url</a></p>
     </section>
 
-    <section id="derse-girme" aria-labelledby="h-derse">
-      <div class="sec-head">
-        <h1 id="h-derse">Ders Başlatma Oranları</h1>
-      </div>
-
-      <div class="segments" id="segments"></div>
-
-      <div class="block">
-        <div class="tbl-wrap">
-          <table id="steps">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url</a></p>
-      </div>
-    </section>
-
     <section id="dau" aria-label="Günlük aktif abone">
       <div class="kpis" id="dau-kpis"></div>
 
@@ -284,15 +290,31 @@
         <h1 id="h-weekly">Haftalık Ders Başlatma ve Tamamlama</h1>
       </div>
       <div class="block" style="margin-top:0">
-        <div class="seg-base"><span class="swatch" style="--c:var(--s2); display:inline-block; vertical-align:-1px; margin-right:8px"></span>Yeni Aboneler</div>
-        <div class="tbl-wrap">
-          <table id="weekly">
+        <div class="seg-base"><span class="swatch" style="--c:var(--s1); display:inline-block; vertical-align:-1px; margin-right:8px"></span>Eski Aboneler</div>
+        <div class="chart-card weekly-card">
+          <div class="chart" id="weekly-chart"></div>
+          <div class="tip" id="weekly-tip"></div>
+          <div class="wk-legend" id="weekly-legend"></div>
+        </div>
+        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/wf6x32q6?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/wf6x32q6?source=copy+url</a></p>
+      </div>
+    </section>
+
+    <section id="derse-girme" aria-labelledby="h-derse">
+      <div class="sec-head">
+        <h1 id="h-derse">Ders Başlatma Oranları</h1>
+      </div>
+
+      <div class="seg funnel-card">
+        <div class="fn-segs" id="segments"></div>
+        <div class="tbl-wrap inner">
+          <table id="steps">
             <thead></thead>
             <tbody></tbody>
           </table>
         </div>
-        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/ni1b280d?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/ni1b280d?source=copy+url</a></p>
       </div>
+      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url</a></p>
     </section>
 
     <section id="a1-sureler" aria-labelledby="h-a1">
@@ -349,6 +371,7 @@ const DATA = {
     ]
   },
   retention: { windowDays: 60, days: [1, 2, 3, 7, 14, 30] },
+  weekly: { order: ["South Korea", "Czech Republic", "United States", "Poland", "Japan"] },
   lessons: {
     items: [
       { id: "live_lesson_en_a1_1", label: "A1 · Ders 1" },
@@ -397,7 +420,7 @@ function renderFunnel(f) {
         </div>`;
     }).join("");
     return `
-      <article class="seg" aria-labelledby="seg-${seg.id}">
+      <article class="fn-seg" aria-labelledby="seg-${seg.id}">
         <div class="seg-head">
           <h2 class="seg-title" id="seg-${seg.id}"><span class="swatch" style="--c:${seg.color}"></span>${seg.name}</h2>
           <div class="seg-base"><b>${nf.format(base)}</b> session anasayfayı gördü</div>
@@ -573,26 +596,70 @@ function renderRetention(r) {
 }
 
 // ---------- render: weekly lessons per user by country ----------
+// Grouped bars like the Amplitude chart: two groups (start / completion), one bar per country, value on top.
+const COUNTRY_COLOR = { "South Korea": "var(--cc1)", "Czech Republic": "var(--cc2)", "United States": "var(--cc3)", "Poland": "var(--cc4)", "Japan": "var(--cc5)" };
 function renderWeekly(w) {
-  const seg = DATA.funnel.segments[1];
-  const items = COUNTRIES.map((id) => w.items.find((x) => x && x.id === id)).filter(Boolean);
-  const max = Math.max(...items.map((it) => Number(it.start) || 0), 0.0001);
-  document.querySelector("#weekly thead").innerHTML = `<tr class="sub"><th>Ülke</th><th>Başlatma / kullanıcı</th><th>Tamamlama / kullanıcı</th><th></th></tr>`;
-  document.querySelector("#weekly tbody").innerHTML = items.map((it) => {
-    const s = Number(it.start) || 0, d = Number(it.done) || 0;
-    return `<tr>
-      <td>${COUNTRY_TR[it.id] || it.id}</td>
-      <td>${pf.format(s)}</td>
-      <td class="strong">${pf.format(d)}</td>
-      <td class="bar-cell"><div class="meter dual"><i class="bg" style="--c:${seg.color}; width:${((s / max) * 100).toFixed(1)}%"></i><i style="--c:${seg.color}; width:${((d / max) * 100).toFixed(1)}%"></i></div></td>
-    </tr>`;
+  const host = document.getElementById("weekly-chart");
+  if (!host) return;
+  const order = Array.isArray(w.order) && w.order.length ? w.order : COUNTRIES;
+  const items = order.map((id) => w.items.find((x) => x && x.id === id)).filter(Boolean);
+  if (!items.length) return;
+  const groups = [{ key: "start", label: "Ders Başlatma" }, { key: "done", label: "Ders Tamamlama" }];
+  const vals = items.flatMap((it) => [Number(it.start), Number(it.done)]).filter(Number.isFinite);
+  const step = niceStep(Math.max(...vals, 0.0001) / 1.3);
+  const yMax = Math.ceil((Math.max(...vals, 0.0001) * 1.12) / step) * step;
+
+  const W = Math.max(320, Math.round(host.clientWidth || 880)), H = 300;
+  const padL = 34, padR = 10, padT = 18, padB = 34;
+  const plotW = W - padL - padR, plotH = H - padT - padB, base = padT + plotH;
+  const groupW = plotW / groups.length, gapOuter = Math.min(groupW * 0.12, 40);
+  const innerW = groupW - 2 * gapOuter, barGap = 6, barW = Math.min((innerW - barGap * (items.length - 1)) / items.length, 72);
+  const used = barW * items.length + barGap * (items.length - 1);
+  const y = (v) => base - ((Number(v) || 0) / yMax) * plotH;
+  const ticks = []; for (let t = 0; t <= yMax + 1e-9; t += step) ticks.push(t);
+  const pf2 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtV = (v) => pf2.format(v);
+
+  const bars = groups.map((g, gi) => {
+    const x0 = padL + gi * groupW + (groupW - used) / 2;
+    return items.map((it, k) => {
+      const v = Number(it[g.key]); if (!Number.isFinite(v)) return "";
+      const x = x0 + k * (barW + barGap);
+      return `
+        <rect class="hit" data-k="${k}" data-g="${gi}" x="${(x - barGap / 2).toFixed(1)}" y="${padT}" width="${(barW + barGap).toFixed(1)}" height="${plotH}"/>
+        <rect class="bar" x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${barW.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3" style="fill:${COUNTRY_COLOR[it.id] || "var(--s1)"}"/>
+        ${barW >= 22 ? `<text class="val" x="${(x + barW / 2).toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${fmtV(v)}</text>` : ""}`;
+    }).join("") + `<text class="grp" x="${(padL + gi * groupW + groupW / 2).toFixed(1)}" y="${H - 10}" text-anchor="middle">${g.label}</text>`;
   }).join("");
+
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ders başlatma ve tamamlama, ülkeye göre, son 4 hafta">
+      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${fmtV(t)}</text>`).join("")}
+      ${bars}
+    </svg>`;
+  document.getElementById("weekly-legend").innerHTML = items.map((it) => `<span class="lg"><i style="background:${COUNTRY_COLOR[it.id] || "var(--s1)"}"></i>${COUNTRY_TR[it.id] || it.id}</span>`).join("");
+
+  const svg = host.querySelector("svg"), tip = document.getElementById("weekly-tip"), card = host.parentElement;
+  const hide = () => { tip.style.display = "none"; };
+  svg.addEventListener("pointermove", (ev) => {
+    const hit = ev.target.closest("rect.hit, rect.bar");
+    const h = hit && hit.classList.contains("bar") ? hit.previousElementSibling : hit;
+    if (!h || !h.dataset) return hide();
+    const it = items[Number(h.dataset.k)], g = groups[Number(h.dataset.g)];
+    if (!it || !g) return hide();
+    tip.innerHTML = `${COUNTRY_TR[it.id] || it.id} · ${g.label}<br><b>${fmtV(Number(it[g.key]))}</b> / unique user`;
+    const r = h.getBoundingClientRect(), cr = card.getBoundingClientRect();
+    tip.style.left = `${r.left - cr.left + r.width / 2}px`;
+    tip.style.top = `${r.top - cr.top + 8}px`;
+    tip.style.display = "block";
+  });
+  svg.addEventListener("pointerleave", hide);
 }
 
 
 function renderAll() { renderHeader(); renderFunnel(current.funnel); renderDau(current.dau); renderCohorts(current.cohorts); renderLessons(current.lessons); renderRetention(current.retention); renderWeekly(current.weekly); }
 let resizeTimer = null;
-window.addEventListener("resize", () => { if (!current.dau) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(() => renderDau(current.dau), 150); });
+window.addEventListener("resize", () => { if (!current.dau) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { renderDau(current.dau); renderWeekly(current.weekly); }, 150); });
 
 // Decrypted payload = the six documents of the claude.ai artifact's data store, keyed by doc id.
 function load(docs) {
@@ -602,7 +669,7 @@ function load(docs) {
   current.cohorts = { updatedAt: c.updatedAt, items: DATA.cohorts.items.map((it) => ({ ...it, size: Number(c.sizes?.[it.id]?.size) || 0 })) };
   current.lessons = { updatedAt: l.updatedAt, items: DATA.lessons.items.map((it) => ({ ...it, ...(l.items.find((x) => x && x.id === it.id) || { started: 0, completed: 0, medianMs: 0, avgMs: 0 }) })) };
   current.retention = { ...DATA.retention, updatedAt: r.updatedAt, values: r.values || {}, byCountry: Array.isArray(r.byCountry) ? r.byCountry : [] };
-  current.weekly = { updatedAt: w.updatedAt, range: w.range, items: Array.isArray(w.items) ? w.items : [] };
+  current.weekly = { updatedAt: w.updatedAt, order: Array.isArray(w.order) && w.order.length ? w.order : DATA.weekly.order, items: Array.isArray(w.items) ? w.items : [] };
 }
 
 // ---------- decryption ----------
