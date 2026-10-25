@@ -265,6 +265,14 @@
     .ret-ring { width: 76px; height: 76px; }
     .ret-ring b { font-size: 16px; }
   }
+
+  /* Page tabs (shared with engagement.html) */
+  .site { align-items: center; }
+  .site-l { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+  .tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
+  .tabs a { font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none; padding: 5px 12px; border-radius: 8px; line-height: 1.4; }
+  .tabs a:hover { color: var(--ink); }
+  .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
 </style>
 
 <div class="wrap lock" id="lock">
@@ -283,7 +291,10 @@
 
 <div class="wrap" id="app" hidden>
   <header class="site">
-    <p class="brand">Lucida Data</p>
+    <div class="site-l">
+      <p class="brand">Lucida Data</p>
+      <nav class="tabs" aria-label="Sayfalar"><a href="./" aria-current="page">Genel</a><a href="engagement.html">Engagement</a></nav>
+    </div>
     <div class="site-meta">
       <span>Takip aralığı: <b id="range-text">—</b> · Son güncelleme: <b id="updated-at">—</b></span>
       <button type="button" class="lock-out" id="lock-out">Kilitle</button>

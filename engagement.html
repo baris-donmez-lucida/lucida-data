@@ -1,0 +1,549 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lucida Engagement</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one reading column (max 960px); sections stack in the order they were added.
+     Funnel: two segment cards side by side from 720px, each with a 3-up row of rate tiles.
+     DAU: a 3-up KPI row over one full-width line chart. Cohorts: two cards side by side. */
+  :root {
+    --bg: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --border: rgba(11, 11, 11, 0.10);
+    --track: #ebeae4;
+    --s1: #2a78d6;   /* Eski Aboneler / aboneler */
+    --s2: #eb6834;   /* Yeni Aboneler */
+    --s3: #1baf7a;   /* Aktif Aboneler (retention) */
+    --cc1: #2a78d6; --cc2: #7cb342; --cc3: #7e3fb8; --cc4: #3bb8c4; --cc5: #e8705f;   /* ülkeler: Güney Kore, Çekya, ABD, Polonya, Japonya */
+    --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --border: rgba(255, 255, 255, 0.10);
+      --track: #2c2c2a;
+      --s1: #3987e5;
+      --s2: #d95926;
+      --s3: #199e70;
+      --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --border: rgba(255, 255, 255, 0.10);
+    --track: #2c2c2a;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 56px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+  /* Site header */
+  .site {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px;
+    padding-block: 22px 18px;
+    border-bottom: 1px solid var(--grid);
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .site-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .site-meta b { color: var(--ink-2); font-weight: 500; }
+  .refresh {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink-2); cursor: pointer; padding: 0;
+  }
+  .refresh:hover { color: var(--ink); border-color: var(--ink-2); }
+  .refresh:disabled { cursor: not-allowed; opacity: 0.55; }
+  .refresh.busy:disabled { cursor: progress; opacity: 0.8; }
+  .refresh.busy svg { animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .refresh.busy svg { animation: none; } }
+  .status { font-size: 12px; color: var(--muted); }
+  .status.err { color: var(--ink); }
+
+  /* Section */
+  section { padding-block: 32px 0; }
+  .sec-head { display: grid; gap: 10px; margin-bottom: 22px; }
+  h1 {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.1; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+  }
+
+  /* Segment cards */
+  .segments { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 720px) { .segments { grid-template-columns: 1fr 1fr; } }
+  .seg {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; min-width: 0; display: grid; gap: 18px; align-content: start;
+  }
+  .seg-head { display: grid; gap: 4px; }
+  .seg-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 18px; font-weight: 600; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
+  .seg-base { font-size: 13px; color: var(--ink-2); }
+  .seg-base b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .rate { display: grid; gap: 6px; min-width: 0; }
+  .rate-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .rate-val { font-size: clamp(26px, 5vw, 36px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+  .meter { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--c); transition: width .5s ease; }
+  @media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+  .rate-sub { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+  .rate-sub b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* Retention tiles */
+  .ret-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 719px) { .ret-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ret-card .rate-val { font-size: clamp(22px, 4vw, 30px); }
+
+  /* Step table */
+  .block { margin-top: 28px; display: grid; gap: 10px; }
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 13px; font-weight: 600; color: var(--ink); }
+  thead tr.grp th:first-child { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  thead tr.grp th span { display: inline-flex; align-items: center; gap: 8px; }
+  thead tr.grp th .swatch { width: 10px; height: 10px; }
+  thead tr.grp th { border-bottom: 0; padding-bottom: 2px; }
+  thead tr.sub th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  thead th.gap, td.gap { border-left: 1px solid var(--grid); }
+  tbody td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  tbody td:first-child { color: var(--ink); }
+  tbody tr.lesson td { color: var(--ink); font-weight: 600; background: color-mix(in srgb, var(--surface) 90%, var(--ink) 10%); }
+  tbody tr.lesson td:first-child::before { content: "●"; font-size: 8px; vertical-align: 2px; margin-right: 8px; color: var(--muted); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.pct { color: var(--ink-2); }
+  td.base-pct { font-weight: 500; }
+  td.strong { color: var(--ink); font-weight: 600; }
+  #lessons thead tr.sub th, #weekly thead tr.sub th { padding-top: 10px; }
+  /* Weekly chart: two groups (start / completion), one bar per country, legend below */
+  .weekly-card { padding-top: 10px; padding-bottom: 12px; }
+  .weekly-card .chart .bar { stroke: var(--surface); stroke-width: 1; }
+  .weekly-card .chart .val { font-size: 12px; fill: var(--ink); font-weight: 600; }
+  .weekly-card .chart .grp { font-size: 13px; fill: var(--ink-2); }
+  .weekly-card .chart .hit { fill: transparent; }
+  .wk-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 6px 0; border-top: 1px solid var(--grid); margin-top: 6px; }
+  .wk-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
+  .wk-legend .lg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .tbl-wrap.inner { border: 0; border-top: 1px solid var(--grid); border-radius: 0; background: transparent; margin-top: 18px; }
+  .tbl-wrap.inner th, .tbl-wrap.inner td { padding-left: 0; padding-right: 10px; }
+  .tbl-wrap.inner th:last-child, .tbl-wrap.inner td:last-child { padding-right: 0; }
+  .tbl-wrap.inner thead tr.sub th { padding-top: 12px; }
+  /* Funnel: both segments + step table in one card */
+  .funnel-card { gap: 0; padding: 18px 20px 8px; }
+  .fn-segs { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .fn-seg { display: grid; gap: 12px; min-width: 0; align-content: start; }
+  .fn-seg .seg-title { font-size: 16px; }
+  .fn-seg .rates { gap: 12px; }
+  .fn-seg .rate { gap: 5px; }
+  .fn-seg .rate-val { font-size: clamp(20px, 3.4vw, 26px); }
+  .fn-seg .meter { height: 5px; }
+  @media (min-width: 720px) {
+    .fn-segs { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .fn-seg + .fn-seg { border-left: 1px solid var(--grid); padding-left: 28px; }
+  }
+  .funnel-card .tbl-wrap.inner { margin-top: 16px; }
+  .funnel-card .tbl-wrap.inner th, .funnel-card .tbl-wrap.inner td { padding-top: 8px; padding-bottom: 8px; }
+  .funnel-card .tbl-wrap.inner thead tr.grp th { padding-top: 12px; }
+  .funnel-card .tbl-wrap.inner thead tr.sub th { padding-top: 2px; }
+
+  .ref { margin: 4px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+  .ref a { color: var(--ink-2); }
+
+  /* DAU */
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: grid; gap: 6px; min-width: 0; align-content: start;
+  }
+  .kpi-val { font-size: clamp(24px, 4.5vw, 32px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi-sub { font-size: 12px; color: var(--ink-2); }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px 6px; position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .chart .lbl { fill: var(--ink); font-weight: 600; }
+  .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  .chart .baseline { stroke: var(--grid); stroke-width: 1; }
+  .chart .area { fill: var(--s1); opacity: 0.12; }
+  .chart .line { fill: none; stroke: var(--s1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+  .chart .hover-line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+  .chart .hover-dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; opacity: 0; }
+  .chart .hit { fill: transparent; }
+  .tip {
+    position: absolute; pointer-events: none; display: none; z-index: 2;
+    background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.35;
+    padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px));
+  }
+  .tip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  /* Lock screen */
+  .lock { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-block: 32px; }
+  .lock-card {
+    width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 24px; display: grid; gap: 16px;
+  }
+  .lock-card .brand { font-size: 24px; }
+  .lock-card p { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .lock-card label { font-size: 13px; font-weight: 500; color: var(--ink-2); display: grid; gap: 6px; }
+  .lock-card input[type=password] {
+    font: inherit; font-size: 16px; padding: 11px 12px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink); width: 100%;
+  }
+  .lock-card .remember { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+  .lock-card button {
+    font: inherit; font-weight: 600; font-size: 15px; padding: 11px 14px; border-radius: 9px; border: 0;
+    background: var(--ink); color: var(--bg); cursor: pointer;
+  }
+  .lock-card button:disabled { opacity: 0.6; cursor: progress; }
+  .lock-err { font-size: 13px; color: var(--s2); min-height: 1.2em; }
+  .lock-out { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+  /* Page tabs (shared with index.html) */
+  .site { align-items: center; }
+  .site-l { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+  .tabs, .seg-ctl { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
+  .tabs a, .seg-ctl button {
+    font: inherit; font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none;
+    padding: 5px 12px; border-radius: 8px; border: 0; background: none; cursor: pointer; line-height: 1.4;
+  }
+  .tabs a:hover, .seg-ctl button:hover { color: var(--ink); }
+  .tabs a[aria-current="page"], .seg-ctl button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+
+  /* Engagement: one card per metric — last day, period average, change vs previous period, daily timeline */
+  .eng-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 4px; }
+  .eng-bar p { margin: 0; font-size: 13px; color: var(--muted); }
+  .eng-group { padding-top: 28px; }
+  .eng-group h2 { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+  .eng-list { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 720px) { .eng-list { grid-template-columns: 1fr 1fr; } }
+  .m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 8px; display: grid; gap: 14px; min-width: 0; position: relative; align-content: start; }
+  .m-head { display: grid; gap: 3px; }
+  .m-title { margin: 0; font-size: 16px; font-weight: 600; }
+  .m-desc { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+  .m-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .m-kpi { display: grid; gap: 4px; min-width: 0; align-content: start; }
+  .m-val { font-size: clamp(22px, 4vw, 28px); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .m-kpi:not(:first-child) .m-val { font-size: clamp(17px, 3vw, 20px); padding-top: 4px; }
+  .m-sub { font-size: 12px; color: var(--ink-2); }
+  .m-delta.good { color: var(--s3); }
+  .m-delta.bad { color: var(--s2); }
+  .m-card .chart { margin: 0 -6px; }
+  .m-card .chart .line { stroke: var(--s1); }
+  .m-empty { font-size: 13px; color: var(--muted); padding: 24px 0; text-align: center; }
+  .eng-empty { margin-top: 28px; background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 36px 20px; text-align: center; color: var(--ink-2); font-size: 14px; }
+  .eng-empty b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+</style>
+
+<div class="wrap lock" id="lock">
+  <form class="lock-card" id="lock-form" autocomplete="on">
+    <p class="brand">Lucida Data</p>
+    <p>Rakamları görmek için şifreyi gir.</p>
+    <input type="text" name="username" value="lucida-data" autocomplete="username" hidden>
+    <label>Şifre
+      <input type="password" id="lock-pass" name="password" autocomplete="current-password" required>
+    </label>
+    <label class="remember"><input type="checkbox" id="lock-remember" checked> Bu cihazda hatırla</label>
+    <button type="submit" id="lock-btn">Aç</button>
+    <div class="lock-err" id="lock-err" role="alert"></div>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header class="site">
+    <div class="site-l">
+      <p class="brand">Lucida Data</p>
+      <nav class="tabs" aria-label="Sayfalar"><a href="./">Genel</a><a href="engagement.html" aria-current="page">Engagement</a></nav>
+    </div>
+    <div class="site-meta">
+      <span>Son güncelleme: <b id="updated-at">—</b></span>
+      <button type="button" class="lock-out" id="lock-out">Kilitle</button>
+    </div>
+  </header>
+
+  <main>
+    <section aria-labelledby="h-eng">
+      <div class="sec-head">
+        <h1 id="h-eng">Product Engagement</h1>
+      </div>
+      <div class="eng-bar">
+        <p id="eng-range">—</p>
+        <div class="seg-ctl" id="eng-days" role="group" aria-label="Zaman aralığı">
+          <button type="button" data-days="10">10 gün</button><button type="button" data-days="30">30 gün</button><button type="button" data-days="90">90 gün</button>
+        </div>
+      </div>
+      <div id="eng"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Kaynak: Amplitude (Lucida Prod) ve RevenueCat ham event'leri · günler UTC</span>
+    <span>Her sabah 09:00'da dünün değeri eklenir, son 7 gün yeniden hesaplanır</span>
+  </footer>
+</div>
+
+
+<script>
+// ============================================================
+// ENGAGEMENT — metrik listesi engagement/metrics.json'da (etiket, birim, açıklama, hesaplama tarifi);
+// günlük geçmiş engagement.enc.json içinde şifreli: { metrics: { <id>: { updatedAt, points: [{ d, v, n?, of? }] } } }.
+// Her sabah 09:00 (İstanbul) Claude rutini dünü ekler, son 7 günü yeniden hesaplar; eski günlere dokunmaz.
+// ============================================================
+const nf = new Intl.NumberFormat("tr-TR");
+const fmtDate = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Istanbul" }).format(new Date(iso));
+const fmtDayShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+const fmtDayLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+
+// unit: "pct" (v is a percentage, 34.2 = %34,2), "count", "min" (minutes), "usd", "ratio" (plain number)
+const numFmt = (dec) => new Intl.NumberFormat("tr-TR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+function fmtVal(m, v) {
+  const dec = m.decimals ?? (m.unit === "count" || m.unit === "usd" ? 0 : 1);
+  const s = numFmt(dec).format(v);
+  return m.unit === "pct" ? "%" + s : m.unit === "min" ? s + " dk" : m.unit === "usd" ? "$" + s : s;
+}
+function fmtDelta(m, a, b) {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return { text: "—", cls: "" };
+  const diff = a - b;
+  const dec = m.decimals ?? (m.unit === "count" || m.unit === "usd" ? 0 : 1);
+  const arrow = Math.abs(diff) < 0.5 * 10 ** -dec ? "" : diff > 0 ? "▲ " : "▼ ";
+  // percentages change in points; everything else in relative %
+  const text = m.unit === "pct"
+    ? arrow + numFmt(dec).format(Math.abs(diff)) + " puan"
+    : b ? arrow + "%" + numFmt(1).format(Math.abs(diff / b) * 100) : "—";
+  const better = m.better === "down" ? diff < 0 : diff > 0;
+  return { text, cls: arrow ? (better ? "good" : "bad") : "" };
+}
+
+const niceStep = (span) => {
+  const raw = span / 4, mag = 10 ** Math.floor(Math.log10(raw || 1));
+  return [1, 2, 2.5, 5, 10].map((k) => k * mag).find((s) => s >= raw) || mag * 10;
+};
+
+// ---------- state ----------
+const current = { registry: [], metrics: {}, days: 30 };
+const DAYS_KEY = "lucida-data:eng-days";
+try { const d = Number(localStorage.getItem(DAYS_KEY)); if ([10, 30, 90].includes(d)) current.days = d; } catch (e) { /* ignore */ }
+
+// ---------- render ----------
+function renderAll() {
+  const reg = current.registry;
+  const updated = Object.values(current.metrics).map((m) => m.updatedAt).sort().pop();
+  document.getElementById("updated-at").textContent = updated ? fmtDate(updated) : "—";
+  document.querySelectorAll("#eng-days button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.days) === current.days)));
+  const host = document.getElementById("eng");
+  if (!reg.length) {
+    document.getElementById("eng-range").textContent = "";
+    host.innerHTML = `<div class="eng-empty"><b>Henüz metrik yok</b>Metrikler tanımlandıkça burada günlük zaman çizelgesiyle görünecek.</div>`;
+    return;
+  }
+  const lastDays = Object.values(current.metrics).map((m) => m.points.at(-1)?.d).filter(Boolean).sort();
+  const end = lastDays.at(-1);
+  document.getElementById("eng-range").textContent = end ? `Son ${current.days} gün · ${fmtDayShort(shiftDay(end, 1 - current.days))} – ${fmtDayShort(end)}` : "";
+  const groups = [];
+  for (const m of reg) { let g = groups.find((x) => x.name === (m.group || "")); if (!g) groups.push(g = { name: m.group || "", items: [] }); g.items.push(m); }
+  host.innerHTML = groups.map((g) => `
+    <div class="eng-group">${g.name ? `<h2>${esc(g.name)}</h2>` : ""}
+      <div class="eng-list">${g.items.map((m) => `
+        <article class="m-card" id="m-${esc(m.id)}">
+          <div class="m-head"><h3 class="m-title">${esc(m.label)}</h3>${m.description ? `<p class="m-desc">${esc(m.description)}</p>` : ""}</div>
+          <div class="m-kpis" data-kpis></div>
+          <div class="chart" data-chart></div>
+          <div class="tip" data-tip></div>
+        </article>`).join("")}
+      </div>
+    </div>`).join("");
+  for (const m of reg) renderMetric(m, current.metrics[m.id]);
+}
+
+const shiftDay = (ymd, n) => new Date(Date.parse(ymd + "T00:00:00Z") + n * 86400000).toISOString().slice(0, 10);
+const avgOf = (pts) => (pts.length ? pts.reduce((a, p) => a + p.v, 0) / pts.length : NaN);
+// ratio metrics with n/of: the period value is pooled (Σn / Σof), not the mean of daily ratios
+const periodVal = (m, pts) => {
+  if (m.unit === "pct" && pts.length && pts.every((p) => Number.isFinite(p.n) && Number.isFinite(p.of))) {
+    const of = pts.reduce((a, p) => a + p.of, 0);
+    return of ? (pts.reduce((a, p) => a + p.n, 0) / of) * 100 : NaN;
+  }
+  return m.aggregate === "sum" ? pts.reduce((a, p) => a + p.v, 0) : avgOf(pts);
+};
+
+function renderMetric(m, data) {
+  const card = document.getElementById("m-" + m.id);
+  const kpis = card.querySelector("[data-kpis]"), host = card.querySelector("[data-chart]");
+  const all = data?.points || [];
+  if (!all.length) { kpis.remove(); host.innerHTML = `<div class="m-empty">Veri henüz çekilmedi.</div>`; return; }
+  const end = all.at(-1).d, from = shiftDay(end, 1 - current.days), prevFrom = shiftDay(from, -current.days);
+  const pts = all.filter((p) => p.d >= from);
+  const prev = all.filter((p) => p.d >= prevFrom && p.d < from);
+  const last = all.at(-1);
+  const cur = periodVal(m, pts), before = prev.length >= Math.ceil(current.days / 2) ? periodVal(m, prev) : NaN;
+  const delta = fmtDelta(m, cur, before);
+  const aggLbl = m.aggregate === "sum" ? "toplam" : "ortalama";
+  kpis.innerHTML = `
+    <div class="m-kpi"><div class="rate-lbl">Son gün</div><div class="m-val">${fmtVal(m, last.v)}</div><div class="m-sub">${fmtDayShort(last.d)}${Number.isFinite(last.n) && Number.isFinite(last.of) ? ` · ${nf.format(last.n)} / ${nf.format(last.of)}` : ""}</div></div>
+    <div class="m-kpi"><div class="rate-lbl">${current.days} gün ${aggLbl}</div><div class="m-val">${Number.isFinite(cur) ? fmtVal(m, cur) : "—"}</div><div class="m-sub">${pts.length} gün</div></div>
+    <div class="m-kpi"><div class="rate-lbl">Önceki ${current.days} güne göre</div><div class="m-val m-delta ${delta.cls}">${delta.text}</div><div class="m-sub">${Number.isFinite(before) ? "önce " + fmtVal(m, before) : "yeterli geçmiş yok"}</div></div>`;
+  lineChart(host, card.querySelector("[data-tip]"), m, pts);
+}
+
+function lineChart(host, tip, m, pts) {
+  const n = pts.length, vals = pts.map((p) => p.v);
+  const maxV = Math.max(...vals), minV = Math.min(...vals);
+  const W = Math.max(300, Math.round(host.clientWidth || 440)), H = 200;
+  const padL = 46, padR = 12, padT = 12, padB = 28;
+  const step = niceStep(maxV - minV || Math.abs(maxV) || 10);
+  let y0 = Math.floor((minV - step * 0.4) / step) * step;
+  if (minV >= 0) y0 = Math.max(0, y0);
+  const y1 = Math.max(Math.ceil((maxV + step * 0.4) / step) * step, y0 + step);
+  const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
+  const y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
+  const ticks = [];
+  for (let t = y0; t <= y1 + 1e-9; t += step) ticks.push(t);
+  const tickFmt = (t) => (m.unit === "pct" ? "%" : m.unit === "usd" ? "$" : "") + nf.format(Math.round(t * 100) / 100);
+  const xy = vals.map((v, i) => [x(i), y(v)]);
+  const linePath = xy.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L${x(n - 1).toFixed(1)} ${y(y0).toFixed(1)} L${x(0).toFixed(1)} ${y(y0).toFixed(1)} Z`;
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 52)));
+  const xLabels = pts.map((p, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
+    ? `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(p.d)}</text>` : "").join("");
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(m.label)}, ${fmtDayShort(pts[0].d)} – ${fmtDayShort(pts[n - 1].d)}">
+      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${tickFmt(t)}</text>`).join("")}
+      <path class="area" d="${areaPath}"/>
+      <path class="line" d="${linePath}"/>
+      ${n <= 31 ? xy.map(([px, py]) => `<circle class="dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${n <= 12 ? 3.5 : 2.5}"/>`).join("") : `<circle class="dot" cx="${xy[n - 1][0].toFixed(1)}" cy="${xy[n - 1][1].toFixed(1)}" r="3.5"/>`}
+      ${xLabels}
+      <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${(H - padB).toFixed(1)}"/>
+      <circle class="hover-dot" r="5" cx="0" cy="0"/>
+      ${xy.map(([px], i) => {
+        const left = i === 0 ? padL : (xy[i - 1][0] + px) / 2;
+        const right = i === n - 1 ? W - padR : (px + xy[i + 1][0]) / 2;
+        return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
+      }).join("")}
+    </svg>`;
+  const svg = host.querySelector("svg"), hl = svg.querySelector(".hover-line"), hd = svg.querySelector(".hover-dot");
+  const show = (i) => {
+    const [px, py] = xy[i], p = pts[i];
+    hl.setAttribute("x1", px); hl.setAttribute("x2", px); hl.style.opacity = 1;
+    hd.setAttribute("cx", px); hd.setAttribute("cy", py); hd.style.opacity = 1;
+    const rect = svg.getBoundingClientRect(), card = host.parentElement.getBoundingClientRect();
+    const sx = rect.width / W, sy = rect.height / H;
+    tip.innerHTML = `${fmtDayLong(p.d)}<br><b>${fmtVal(m, p.v)}</b>${Number.isFinite(p.n) && Number.isFinite(p.of) ? ` · ${nf.format(p.n)} / ${nf.format(p.of)}` : ""}`;
+    const left = rect.left - card.left + px * sx;
+    tip.style.left = `${Math.min(Math.max(left, 80), card.width - 80)}px`;
+    tip.style.top = `${rect.top - card.top + py * sy}px`;
+    tip.style.display = "block";
+  };
+  const hide = () => { hl.style.opacity = 0; hd.style.opacity = 0; tip.style.display = "none"; };
+  svg.addEventListener("pointermove", (ev) => { const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide(); });
+  svg.addEventListener("pointerleave", hide);
+}
+
+document.getElementById("eng-days").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button[data-days]"); if (!b) return;
+  current.days = Number(b.dataset.days);
+  try { localStorage.setItem(DAYS_KEY, String(current.days)); } catch (e) { /* ignore */ }
+  renderAll();
+});
+let resizeTimer = null;
+window.addEventListener("resize", () => { if (appEl.hidden) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 150); });
+
+// ---------- decryption (same keys as index.html) ----------
+const b64 = (s) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
+const getJson = async (path) => {
+  const res = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${path} yüklenemedi (${res.status})`);
+  return res.json();
+};
+async function unlock(password) {
+  const [keys, box, registry] = await Promise.all([getJson("keys.json"), getJson("engagement.enc.json"), getJson("engagement/metrics.json")]);
+  const s = keys.sealedPrivateKey;
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  const kek = await crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: b64(s.salt), iterations: s.iterations }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  let jwkBytes;
+  try { jwkBytes = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(s.iv) }, kek, b64(s.ct)); }
+  catch (e) { const err = new Error("Şifre yanlış."); err.wrong = true; throw err; }
+  const priv = await crypto.subtle.importKey("jwk", JSON.parse(new TextDecoder().decode(jwkBytes)), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["unwrapKey"]);
+  const dek = await crypto.subtle.unwrapKey("raw", b64(box.wrappedKey), priv, { name: "RSA-OAEP" }, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(box.iv) }, dek, b64(box.ct));
+  return { registry: Array.isArray(registry.metrics) ? registry.metrics : [], data: JSON.parse(new TextDecoder().decode(plain)) };
+}
+function load({ registry, data }) {
+  current.registry = registry;
+  current.metrics = data.metrics || {};
+}
+
+// ---------- lock screen (password shared with index.html) ----------
+const STORE_KEY = "lucida-data:pass";
+const store = {
+  get() { try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem(STORE_KEY, v); } catch (e) { /* private mode */ } },
+  clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ } }
+};
+const lockEl = document.getElementById("lock"), appEl = document.getElementById("app");
+const form = document.getElementById("lock-form"), passEl = document.getElementById("lock-pass");
+const rememberEl = document.getElementById("lock-remember"), btnEl = document.getElementById("lock-btn"), errEl = document.getElementById("lock-err");
+
+async function open(password, remember) {
+  btnEl.disabled = true; errEl.textContent = ""; btnEl.textContent = "Açılıyor…";
+  try {
+    load(await unlock(password));
+    if (remember) store.set(password);
+    lockEl.hidden = true; appEl.hidden = false;
+    renderAll();
+  } catch (e) {
+    if (e.wrong) store.clear();
+    errEl.textContent = e.wrong ? "Şifre yanlış." : "Veri yüklenemedi: " + (e.message || e);
+    lockEl.hidden = false; appEl.hidden = true;
+  } finally {
+    btnEl.disabled = false; btnEl.textContent = "Aç";
+  }
+}
+form.addEventListener("submit", (ev) => { ev.preventDefault(); open(passEl.value, rememberEl.checked); });
+document.getElementById("lock-out").addEventListener("click", () => {
+  store.clear(); passEl.value = ""; appEl.hidden = true; lockEl.hidden = false; passEl.focus();
+});
+const saved = store.get();
+if (saved) open(saved, true); else passEl.focus();
+</script>
+
+</body></html>
