@@ -5,6 +5,8 @@
 // <raw-dir> holds one raw tool result per query in dashboard/queries.json (<id>.json, exactly as
 // query_amplitude_data returned it: the {content:[{text}]} wrapper or the inner JSON) plus rc.json.
 // Every query covers the same 90 complete UTC days, so the whole history is rebuilt on each run.
+// The queries carry all / paid / free segments (keeps every response big enough to be saved to a file);
+// only the paid segment is published — the page is about subscribers.
 // Writes dashboard.enc.json: the payload under a fresh AES-256-GCM key, wrapped with keys.json.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -33,7 +35,7 @@ const day = (s) => String(s).slice(0, 10);
 
 // Segmentation queries list 4 slices per base event: all, platform, country, version.
 const SLICE = ["all", "p", "c", "v"];
-const segQueries = { dau: ["dau"], wau: ["wau"], mau: ["mau"], speakers: ["speakers"], speech: ["speech"], nodes: ["nstart", "ndone"] };
+const segQueries = { dau: ["dau", "openers"], wau: ["wau"], mau: ["mau"], speakers: ["speakers"], speech: ["speech"], nodes: ["nstart", "ndone"] };
 
 let days = null;
 const m = {};
@@ -98,11 +100,14 @@ for (const seg of SEGS) {
 const semver = (v) => v.split(".").map((n) => parseInt(n, 10) || 0);
 const cmp = (a, b) => { const x = semver(a), y = semver(b); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return y[i] - x[i]; return 0; };
 const recent = (arr) => arr.slice(-14).reduce((s, v) => s + v, 0);
-const versions = Object.entries(m.dau.all).filter(([k, v]) => k.startsWith("v:") && recent(v) >= 140)
+const versions = Object.entries(m.dau.paid).filter(([k, v]) => k.startsWith("v:") && recent(v) >= 70)
   .map(([k]) => k.slice(2)).sort(cmp).slice(0, 6);
 // Keep only offered versions to keep the payload small.
-for (const metric of Object.values(m)) for (const seg of Object.values(metric))
-  for (const k of Object.keys(seg)) if (k.startsWith("v:") && !versions.includes(k.slice(2))) delete seg[k];
+const paid = {};
+for (const [metric, bySeg] of Object.entries(m)) {
+  paid[metric] = bySeg.paid;
+  for (const k of Object.keys(paid[metric])) if (k.startsWith("v:") && !versions.includes(k.slice(2))) delete paid[metric][k];
+}
 
 // RevenueCat: weekly store subscriptions (end-of-week snapshot; last week may be partial).
 const rc = JSON.parse(readFileSync(join(dir, "rc.json"), "utf8"));
@@ -116,7 +121,7 @@ const rcWeeks = rc.weeks.map((w) => {
 });
 
 if (days.length < 28) fail("need at least 28 days");
-const payload = { v: 1, generatedAt: new Date().toISOString(), days, countries: COUNTRIES, versions, m, rc: rcWeeks };
+const payload = { v: 2, generatedAt: new Date().toISOString(), days, countries: COUNTRIES, versions, m: paid, rc: rcWeeks };
 
 const { subtle } = globalThis.crypto;
 const keys = JSON.parse(readFileSync(join(root, "keys.json"), "utf8"));
@@ -128,5 +133,5 @@ const wrappedKey = await subtle.wrapKey("raw", dek, pub, { name: "RSA-OAEP" });
 const b64 = (buf) => Buffer.from(buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf).toString("base64");
 writeFileSync(join(root, "dashboard.enc.json"), JSON.stringify({ v: 1, sealedAt: new Date().toISOString(), wrappedKey: b64(wrappedKey), iv: b64(iv), ct: b64(ct) }) + "\n");
 if (process.env.DASHBOARD_PLAIN) writeFileSync(process.env.DASHBOARD_PLAIN, JSON.stringify(payload));
-const dau = m.dau.all.all;
-console.log(`dashboard.enc.json written: ${days[0]}…${last}, DAU ${dau[dau.length - 1]}, versions ${versions.join(" ")}`);
+const dau = paid.dau.all;
+console.log(`dashboard.enc.json written: ${days[0]}…${last}, aktif abone (DAU) ${dau[dau.length - 1]}, versions ${versions.join(" ")}`);

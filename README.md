@@ -9,8 +9,9 @@ gösteren, şifreyle açılan statik sayfa. GitHub Pages'te yayında.
   günlük değerler zaman çizelgesi olarak gösterilir.
 - `engagement/metrics.json` — Engagement metriklerinin listesi: etiket, birim, açıklama ve rutinin uyguladığı hesaplama tarifi. Rakam içermez.
 - `engagement.enc.json` — Engagement metriklerinin günlük geçmişi, `data.enc.json` ile aynı şekilde şifreli.
-- `dashboard.html` — üçüncü sayfa (Product Dashboard, Overview sekmesi): DAU/WAU/MAU, konuşma süresi, node'lar,
-  session süresi ve aboneler; tarih, kullanıcı (tümü/abone/ücretsiz) ve platform/ülke/versiyon filtreleriyle.
+- `dashboard.html` — üçüncü sayfa (Product Dashboard, Overview sekmesi), yalnız aboneler: aktif abone (node başlatan)
+  DAU/WAU/MAU, konuşma süresi, node'lar, uygulamada geçen süre, mağaza abonelikleri. Her kartın kendi tarih ve
+  platform/ülke/versiyon seçimi var.
 - `dashboard/queries.json` — Product Dashboard'un Amplitude sorguları (90 gün, her filtre kırılımı tek sorguda) ve RevenueCat talimatı. Rakam içermez.
 - `dashboard.enc.json` — Product Dashboard verisi, aynı şekilde şifreli.
 - `keys.json` — açık anahtar + şifreyle (PBKDF2-SHA256) kilitlenmiş özel anahtar. Şifrenin kendisi hiçbir yerde saklanmaz.

@@ -246,47 +246,32 @@
   .tabs a:hover { color: var(--ink); }
   .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
 
-  /* Product dashboard */
-  .pd-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; }
+  /* Product dashboard: one card per metric, each with its own range + breakdown */
+  .pd-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 14px; }
   .pd-head h1 { margin: 0; }
-  .subtabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .pd-head small { font-size: 13px; color: var(--muted); }
+  .subtabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
   .subtabs span { font-size: 14px; font-weight: 600; padding: 0 0 9px; border-bottom: 2px solid var(--ink); margin-bottom: -1px; }
 
-  .filters { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 12px; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; border-bottom: 1px solid var(--border); }
-  .fgroup { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .flabel { font-size: 12px; color: var(--muted); }
+  .cards { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 760px) { .cards { grid-template-columns: 1fr 1fr; } .card.wide { grid-column: 1 / -1; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 6px; display: grid; gap: 6px; min-width: 0; position: relative; align-content: start; }
+  .card-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 10px; }
+  .card-top h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .ctls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .seg-ctl { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--track); }
-  .seg-ctl button { font: inherit; font-size: 13px; font-weight: 500; color: var(--ink-2); background: none; border: 0; padding: 4px 10px; border-radius: 7px; cursor: pointer; line-height: 1.4; }
+  .seg-ctl button { font: inherit; font-size: 12px; font-weight: 500; color: var(--ink-2); background: none; border: 0; padding: 3px 8px; border-radius: 7px; cursor: pointer; line-height: 1.4; }
   .seg-ctl button:hover { color: var(--ink); }
   .seg-ctl button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
-  .filters select, .filters input[type="date"] { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; min-width: 0; max-width: 100%; }
-  .filters input[type="date"] { width: 9.2em; }
-  .custom { display: none; align-items: center; gap: 6px; }
-  .custom.on { display: flex; }
-  .custom span { color: var(--muted); font-size: 12px; }
-
-  .pd-sec { margin-bottom: 30px; }
-  .pd-sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 12px; }
-  .pd-sec-h h2 { margin: 0; font-size: 17px; font-weight: 600; }
-  .pd-sec-h small { font-size: 12px; color: var(--muted); }
-
-  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
-  @media (min-width: 720px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } .tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  .tiles.three .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  @media (min-width: 720px) { .tiles.three .tile:last-child:nth-child(odd) { grid-column: auto; } }
-  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; }
-  .tile-t { font-size: 12px; color: var(--ink-2); font-weight: 500; }
-  .tile-v { font-size: clamp(22px, 4.6vw, 28px); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
-  .tile-s { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+  .card select { font: inherit; font-size: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 6px; min-width: 0; max-width: 100%; }
+  .pk { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 2px; }
+  .pk-v { font-size: clamp(28px, 5vw, 36px); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .pk-s { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+  .pk-s b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta.up { color: var(--s3); }
   .delta.down { color: var(--s2); }
-  .tile.na .tile-v { color: var(--muted); }
-
-  .charts { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  @media (min-width: 720px) { .charts.two { grid-template-columns: 1fr 1fr; } }
-  .chart-card h3 { margin: 2px 4px 2px; font-size: 13px; font-weight: 600; color: var(--ink-2); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink-2); font-weight: 400; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink-2); }
   .legend i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; background: var(--c); margin-right: 5px; vertical-align: middle; }
   .chart .ln { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
   .chart .ar { fill: var(--c); opacity: 0.10; }
@@ -294,10 +279,9 @@
   .chart .bar.last { opacity: 1; }
   .chart .val { font-size: 11px; fill: var(--ink); font-weight: 600; }
   .chart-empty { font-size: 13px; color: var(--muted); padding: 40px 0; text-align: center; }
-  .seg-ctl.mini button { font-size: 12px; padding: 2px 8px; }
 
-  details.defs { margin-top: 8px; font-size: 13px; color: var(--ink-2); }
-  details.defs summary { cursor: pointer; color: var(--ink-2); font-weight: 500; }
+  details.defs { margin-top: 18px; font-size: 13px; color: var(--ink-2); }
+  details.defs summary { cursor: pointer; font-weight: 500; }
   details.defs ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; }
   details.defs code { font-size: 12px; }
 </style>
@@ -329,60 +313,20 @@
   </header>
 
   <main>
-    <div class="pd-head"><h1>Product Dashboard</h1></div>
+    <div class="pd-head"><h1>Product Dashboard</h1><small>Aboneler</small></div>
     <div class="subtabs" role="tablist"><span role="tab" aria-selected="true">Overview</span></div>
-
-    <div class="filters" id="filters">
-      <div class="fgroup">
-        <div class="seg-ctl" id="f-range">
-          <button type="button" data-v="7">7G</button><button type="button" data-v="14">14G</button><button type="button" data-v="30">30G</button><button type="button" data-v="90">90G</button><button type="button" data-v="custom">Özel</button>
-        </div>
-        <div class="custom" id="f-custom"><input type="date" id="f-from" aria-label="Başlangıç"><span>–</span><input type="date" id="f-to" aria-label="Bitiş"></div>
-      </div>
-      <div class="fgroup">
-        <div class="seg-ctl" id="f-seg">
-          <button type="button" data-v="all">Tümü</button><button type="button" data-v="paid">Abone</button><button type="button" data-v="free">Ücretsiz</button>
-        </div>
-      </div>
-      <div class="fgroup">
-        <select id="f-slice" aria-label="Kırılım"></select>
-      </div>
-    </div>
-
-    <section class="pd-sec" aria-labelledby="h-act">
-      <div class="pd-sec-h"><h2 id="h-act">Kullanıcı aktivitesi</h2><small data-when></small></div>
-      <div class="tiles" id="t-act"></div>
-      <div class="charts"><div class="chart-card" id="c-act"></div></div>
-    </section>
-
-    <section class="pd-sec" aria-labelledby="h-learn">
-      <div class="pd-sec-h"><h2 id="h-learn">Konuşma ve node'lar</h2><small data-when></small></div>
-      <div class="tiles" id="t-learn"></div>
-      <div class="charts two"><div class="chart-card" id="c-speech"></div><div class="chart-card" id="c-nodes"></div></div>
-    </section>
-
-    <section class="pd-sec" aria-labelledby="h-use">
-      <div class="pd-sec-h"><h2 id="h-use">Uygulama kullanımı</h2><small data-when></small></div>
-      <div class="tiles three" id="t-use"></div>
-      <div class="charts"><div class="chart-card" id="c-use"></div></div>
-    </section>
-
-    <section class="pd-sec" aria-labelledby="h-sub">
-      <div class="pd-sec-h"><h2 id="h-sub">Aboneler</h2><small id="sub-note"></small></div>
-      <div class="tiles" id="t-sub"></div>
-      <div class="charts two"><div class="chart-card" id="c-sub"></div><div class="chart-card" id="c-rc"></div></div>
-    </section>
+    <div class="cards" id="cards"></div>
 
     <details class="defs">
       <summary>Tanımlar</summary>
       <ul>
-        <li><b>Aktif kullanıcı</b>: <code>session_start</code> yapan tekil kullanıcı. WAU/MAU o güne kadarki 7/30 gün. (Amplitude'un "Any Active"i sunucudan giden <code>push_sent</code> yüzünden günde ~100 bin gösterir, kullanılmadı.)</li>
-        <li><b>Abone</b>: event anındaki RevenueCat durumu active, promotional, cancelled, grace_period veya intro. Ücretsiz: geri kalan herkes (deneme ve süresi bitenler dahil).</li>
-        <li><b>Konuşma süresi</b>: <code>anm_conv_session_ended</code> üzerindeki <code>speech_duration</code> toplamı (saniye). Konuşan kullanıcı: bu event'i atan tekil kullanıcı.</li>
+        <li><b>Abone</b>: event anındaki RevenueCat durumu active, promotional, cancelled, grace_period veya intro. Sayfadaki her rakam yalnız aboneler.</li>
+        <li><b>Aktif abone</b>: o gün <code>anm_conv_page_viewed</code> atan (node başlatan) tekil abone. WAU/MAU o güne kadarki 7/30 gün. <code>call_ok</code> neredeyse aynı sayıyı verir.</li>
+        <li><b>Konuşma süresi</b>: <code>anm_conv_session_ended</code> üzerindeki <code>speech_duration</code> toplamı. Konuşan abone: bu event'i atan tekil abone.</li>
         <li><b>Node başlatma / tamamlama</b>: <code>anm_conv_page_viewed</code> / <code>post_call_report_shown</code> toplam adet.</li>
-        <li><b>Session süresi</b>: Amplitude session'larının toplam süresi. iOS'ta günde ~20 session 1 saati aşıyor, toplamı biraz şişirir.</li>
-        <li><b>Mağaza abonelikleri</b>: RevenueCat aktif abonelik, App Store + Google Play, hafta sonu itibarıyla. Web (promo) aboneleri burada yok; Stripe sayısı 28 Eylül'den beri donuk olduğu için dışarıda.</li>
-        <li>Kırılımlar tek boyutlu: platform, ülke veya versiyon. "5 ana pazar" = ABD, Güney Kore, Japonya, Polonya, Çekya. Günler UTC.</li>
+        <li><b>Session süresi</b>: Amplitude session'larının toplamı; kişi başı değer uygulamayı açan (<code>session_start</code>) abone sayısına bölünür. iOS'ta günde ~20 session 1 saati aşıyor, toplamı biraz şişirir.</li>
+        <li><b>Mağaza abonelikleri</b>: RevenueCat aktif abonelik, App Store + Google Play, hafta sonu itibarıyla. Web (promo) aboneleri yok; Stripe sayısı 28 Eylül'den beri donuk olduğu için dışarıda.</li>
+        <li>Her kartın tarih ve kırılım seçimi yalnız o kartı etkiler. Kırılımlar tek boyutlu; "5 ana pazar" = ABD, Güney Kore, Japonya, Polonya, Çekya. Değişim: son günün 7 gün öncesine göre farkı. Günler UTC.</li>
       </ul>
     </details>
   </main>
@@ -396,10 +340,9 @@
 
 <script>
 // ============================================================
-// PRODUCT DASHBOARD — dashboard.enc.json: { days:[YYYY-MM-DD], countries, versions,
-//   m: { <metric>: { all|paid|free: { all | p:<platform> | c:<country> | v:<version>: [value per day] } } },
-//   rc: [{ d, ios, android }] }
-// metrics: dau wau mau speakers speech(sn) nstart ndone stime(sn)
+// PRODUCT DASHBOARD (aboneler) — dashboard.enc.json: { days:[YYYY-MM-DD], countries, versions,
+//   m: { <metric>: { all | p:<platform> | c:<country> | v:<version>: [value per day] } }, rc: [{ d, ios, android }] }
+// metrics: dau wau mau (node başlatan abone) openers (uygulamayı açan) speakers speech(sn) nstart ndone stime(sn)
 // ============================================================
 const nf = new Intl.NumberFormat("tr-TR");
 const nf1 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -410,256 +353,223 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", 
 
 const CORE5 = ["United States", "South Korea", "Japan", "Poland", "Czech Republic"];
 const TR_COUNTRY = { "United States": "ABD", "South Korea": "Güney Kore", "Japan": "Japonya", "Poland": "Polonya", "Czech Republic": "Çekya", "Hungary": "Macaristan", "United Kingdom": "Birleşik Krallık", "Philippines": "Filipinler", "Brazil": "Brezilya", "Turkey": "Türkiye" };
-
-// value formats
 const F = {
   count: (v) => nf.format(Math.round(v)),
   hours: (v) => (v < 360000 ? nf1.format(v / 3600) : nf.format(Math.round(v / 3600))) + " sa",
   min: (v) => nf1.format(v / 60) + " dk",
   pct: (v) => "%" + nf1.format(v * 100),
-  ratio: (v) => nf1.format(v),
 };
+const C1 = "var(--s1)", C3 = "var(--s3)";
 
-// ---------- state ----------
 const D = { data: null };
-const state = { range: "30", from: null, to: null, seg: "all", slice: "all", actMetric: "dau" };
 
-// series for the current filters; seg can be forced (subscriber section)
-function series(metric, seg = state.seg) {
-  const bySeg = D.data.m[metric]?.[seg] || {};
-  const n = D.data.days.length, zero = () => new Array(n).fill(0);
-  if (state.slice === "core5") {
-    const out = zero();
-    for (const c of CORE5) (bySeg["c:" + c] || []).forEach((v, i) => { out[i] += v; });
+// one series for a breakdown key ("all", "p:iOS", "c:Japan", "v:2.9.1", "core5")
+function series(metric, slice) {
+  const m = D.data.m[metric] || {}, n = D.data.days.length;
+  if (slice === "core5") {
+    const out = new Array(n).fill(0);
+    for (const c of CORE5) (m["c:" + c] || []).forEach((v, i) => { out[i] += v; });
     return out;
   }
-  return (bySeg[state.slice] || zero()).slice();
+  return (m[slice] || new Array(n).fill(0)).slice();
 }
 const div = (a, b) => a.map((v, i) => (b[i] ? v / b[i] : null));
-
-// selected window → [i0, i1] inclusive indexes into days
-function windowIdx() {
-  const days = D.data.days, last = days.length - 1;
-  if (state.range === "custom" && state.from && state.to) {
-    let i0 = days.indexOf(state.from), i1 = days.indexOf(state.to);
-    if (i0 < 0) i0 = 0; if (i1 < 0) i1 = last;
-    if (i0 > i1) [i0, i1] = [i1, i0];
-    return [i0, i1];
-  }
-  const n = Number(state.range) || 30;
-  return [Math.max(0, last - n + 1), last];
-}
-
-// ---------- tiles ----------
-// spec: { t, v: arr, f, sub?: (i1)=>string, good: "up"|"down"|null, na?: string }
-function tile(spec, i1) {
-  if (spec.na) return `<div class="tile na"><div class="tile-t">${esc(spec.t)}</div><div class="tile-v">—</div><div class="tile-s">${esc(spec.na)}</div></div>`;
-  const v = spec.v[i1], prev = i1 >= 7 ? spec.v[i1 - 7] : null;
-  let delta = "";
-  if (v != null && prev) {
-    const ch = (v - prev) / prev;
-    const cls = Math.abs(ch) < 0.005 ? "" : (ch > 0) === (spec.good !== "down") ? "up" : "down";
-    delta = `<span class="delta ${cls}">${ch > 0 ? "▲" : ch < 0 ? "▼" : ""} %${nf1.format(Math.abs(ch) * 100)}</span><span>geçen haftaya göre</span>`;
-  }
-  return `<div class="tile"><div class="tile-t">${esc(spec.t)}</div><div class="tile-v">${v == null ? "—" : spec.f(v)}</div><div class="tile-s">${delta}${spec.sub ? `<span>${spec.sub}</span>` : ""}</div></div>`;
-}
-const sumRange = (arr, i0, i1) => arr.slice(i0, i1 + 1).reduce((s, v) => s + (v || 0), 0);
-const avgRange = (arr, i0, i1) => { const a = arr.slice(i0, i1 + 1).filter((v) => v != null); return a.length ? a.reduce((s, v) => s + v, 0) / a.length : null; };
+const sumR = (a, i0, i1) => a.slice(i0, i1 + 1).reduce((s, v) => s + (v || 0), 0);
 
 // ---------- charts ----------
 const niceStep = (span) => {
   const raw = span / 4, mag = 10 ** Math.floor(Math.log10(raw || 1));
   return [1, 2, 2.5, 5, 10].map((k) => k * mag).find((s) => s >= raw) || mag * 10;
 };
-// lines: [{ name, color, vals, f }], all sharing one axis
-function lineChart(host, title, lines, days, opts = {}) {
-  const tip = `<div class="tip"></div>`;
+function placeTip(tipEl, card, svg, W, H, px, py, html) {
+  const rect = svg.getBoundingClientRect(), box = card.getBoundingClientRect();
+  tipEl.innerHTML = html;
+  tipEl.style.left = `${Math.min(Math.max(rect.left - box.left + px * rect.width / W, 90), box.width - 90)}px`;
+  tipEl.style.top = `${rect.top - box.top + py * rect.height / H}px`;
+  tipEl.style.display = "block";
+}
+// lines: [{ name, color, vals, f }] on one axis; days: labels; extra(i) → tooltip suffix
+function lineChart(host, card, lines, days, opts = {}) {
+  const tipEl = card.querySelector(".tip");
   const all = lines.flatMap((l) => l.vals).filter((v) => v != null);
-  const head = `<h3><span>${title}</span>${opts.ctl || (lines.length > 1 ? `<span class="legend">${lines.map((l) => `<span><i style="--c:${l.color}"></i>${esc(l.name)}</span>`).join("")}</span>` : "")}</h3>`;
-  if (!all.length) { host.innerHTML = head + `<div class="chart-empty">Bu filtrede veri yok.</div>`; return; }
+  if (!all.length || all.every((v) => v === 0)) { host.innerHTML = `<div class="chart-empty">Bu kırılımda veri yok.</div>`; return; }
   const n = days.length;
-  const W = Math.max(300, Math.round(host.clientWidth - 24 || 600)), H = opts.h || 220;
-  const padL = 50, padR = 14, padT = 16, padB = 26;
-  const maxV = Math.max(...all), minV = Math.min(...all);
-  const step = niceStep(maxV - Math.min(0, minV) || maxV || 1);
-  const y0 = 0, y1 = Math.max(Math.ceil((maxV * 1.08) / step) * step, step);
-  const y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
+  const W = Math.max(300, Math.round(host.clientWidth || 600)), H = 210;
+  const padL = 46, padR = 12, padT = 14, padB = 26;
+  const maxV = Math.max(...all);
+  const step = niceStep(maxV || 1);
+  const y1 = Math.max(Math.ceil((maxV * 1.08) / step) * step, step);
+  const y = (v) => padT + (1 - v / y1) * (H - padT - padB);
   const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
-  const ticks = []; for (let t = y0; t <= y1 + 1e-9; t += step) ticks.push(t);
-  const tf = opts.tick || ((t) => nf.format(t));
+  const ticks = []; for (let t = 0; t <= y1 + 1e-9; t += step) ticks.push(t);
   const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 56)));
   const xl = days.map((d, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
     ? `<text x="${x(i).toFixed(1)}" y="${H - 7}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(d)}</text>` : "").join("");
   const path = (vals) => { let s = "", pen = false; vals.forEach((v, i) => { if (v == null) { pen = false; return; } s += `${pen ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)} `; pen = true; }); return s; };
-  const paths = lines.map((l, k) => {
+  const paths = lines.map((l) => {
     const p = path(l.vals);
-    const area = k === 0 && lines.length === 1 && l.vals.every((v) => v != null) ? `<path class="ar" style="--c:${l.color}" d="${p} L${x(n - 1).toFixed(1)} ${y(0).toFixed(1)} L${x(0).toFixed(1)} ${y(0).toFixed(1)} Z"/>` : "";
+    const area = lines.length === 1 && l.vals.every((v) => v != null) ? `<path class="ar" style="--c:${l.color}" d="${p} L${x(n - 1).toFixed(1)} ${y(0).toFixed(1)} L${x(0).toFixed(1)} ${y(0).toFixed(1)} Z"/>` : "";
     return area + `<path class="ln" style="--c:${l.color}" d="${p}"/>`;
   }).join("");
   const hits = days.map((_, i) => {
     const left = i === 0 ? padL : (x(i - 1) + x(i)) / 2, right = i === n - 1 ? W - padR : (x(i) + x(i + 1)) / 2;
     return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
   }).join("");
-  host.innerHTML = head + `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || title)}">
-    ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${tf(t)}</text>`).join("")}
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "")}">
+    ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${nf.format(t)}</text>`).join("")}
     ${paths}${xl}
     <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}"/>
     ${lines.map((l, k) => `<circle class="hover-dot" data-k="${k}" r="4" cx="0" cy="0" style="fill:${l.color}"/>`).join("")}
-    ${hits}</svg></div>${tip}`;
-  const svg = host.querySelector("svg"), tipEl = host.querySelector(".tip"), hl = svg.querySelector(".hover-line");
-  const dots = [...svg.querySelectorAll(".hover-dot")];
+    ${hits}</svg>`;
+  const svg = host.querySelector("svg"), hl = svg.querySelector(".hover-line"), dots = [...svg.querySelectorAll(".hover-dot")];
   const show = (i) => {
     hl.setAttribute("x1", x(i)); hl.setAttribute("x2", x(i)); hl.style.opacity = 1;
     dots.forEach((dt, k) => { const v = lines[k].vals[i]; if (v == null) { dt.style.opacity = 0; return; } dt.setAttribute("cx", x(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
-    const rect = svg.getBoundingClientRect(), card = host.getBoundingClientRect(), sx = rect.width / W, sy = rect.height / H;
     const top = Math.min(...lines.map((l) => (l.vals[i] == null ? H : y(l.vals[i]))));
-    tipEl.innerHTML = `${fmtDayLong(days[i])}` + lines.map((l) => `<br>${lines.length > 1 ? esc(l.name) + ": " : ""}<b>${l.vals[i] == null ? "—" : l.f(l.vals[i])}</b>`).join("") + (opts.extra ? opts.extra(i) : "");
-    tipEl.style.left = `${Math.min(Math.max(rect.left - card.left + x(i) * sx, 90), card.width - 90)}px`;
-    tipEl.style.top = `${rect.top - card.top + top * sy}px`;
-    tipEl.style.display = "block";
+    placeTip(tipEl, card, svg, W, H, x(i), top, fmtDayLong(days[i]) + lines.map((l) => `<br>${lines.length > 1 ? esc(l.name) + ": " : ""}<b>${l.vals[i] == null ? "—" : l.f(l.vals[i])}</b>`).join("") + (opts.extra ? opts.extra(i) : ""));
   };
   const hide = () => { hl.style.opacity = 0; dots.forEach((dt) => { dt.style.opacity = 0; }); tipEl.style.display = "none"; };
   svg.addEventListener("pointermove", (ev) => { const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide(); });
   svg.addEventListener("pointerleave", hide);
 }
-
-function barChart(host, title, pts, color, f, note) {
-  const head = `<h3><span>${title}</span>${note ? `<span class="legend">${note}</span>` : ""}</h3>`;
-  if (!pts.length) { host.innerHTML = head + `<div class="chart-empty">Bu filtrede veri yok.</div>`; return; }
+function barChart(host, card, pts, color, f) {
+  const tipEl = card.querySelector(".tip");
+  if (!pts.length) { host.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
   const n = pts.length, vals = pts.map((p) => p.v);
-  const W = Math.max(300, Math.round(host.clientWidth - 24 || 440)), H = 220, padL = 6, padR = 6, padT = 22, padB = 26;
+  const W = Math.max(300, Math.round(host.clientWidth || 440)), H = 210, padL = 6, padR = 6, padT = 22, padB = 26;
   const maxV = Math.max(...vals) * 1.15 || 1;
   const y = (v) => padT + (1 - v / maxV) * (H - padT - padB);
   const slot = (W - padL - padR) / n, bw = Math.min(40, slot * 0.62), base = H - padB;
   const xs = vals.map((_, i) => padL + slot * (i + 0.5));
   const every = Math.max(1, Math.ceil(n / Math.floor(W / 64)));
-  const showVal = slot > 34;
-  host.innerHTML = head + `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mağaza abonelikleri">
     <line class="baseline" x1="${padL}" x2="${W - padR}" y1="${base}" y2="${base}"/>
     ${vals.map((v, i) => `<rect class="bar${i === n - 1 ? " last" : ""}" style="--c:${color}" x="${(xs[i] - bw / 2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3"/>
-      ${showVal || i === n - 1 ? `<text class="val" x="${xs[i].toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${f(v)}</text>` : ""}
+      ${slot > 34 || i === n - 1 ? `<text class="val" x="${xs[i].toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${f(v)}</text>` : ""}
       ${(n - 1 - i) % every === 0 ? `<text x="${xs[i].toFixed(1)}" y="${H - 7}" text-anchor="middle">${fmtDayShort(pts[i].d)}</text>` : ""}`).join("")}
     ${xs.map((px, i) => `<rect class="hit" data-i="${i}" x="${(px - slot / 2).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${(base - padT).toFixed(1)}"/>`).join("")}
-  </svg></div><div class="tip"></div>`;
-  const svg = host.querySelector("svg"), tipEl = host.querySelector(".tip");
+  </svg>`;
+  const svg = host.querySelector("svg");
   svg.addEventListener("pointermove", (ev) => {
     const t = ev.target.closest("rect.hit"); if (!t) { tipEl.style.display = "none"; return; }
-    const i = Number(t.dataset.i), rect = svg.getBoundingClientRect(), card = host.getBoundingClientRect(), sx = rect.width / W, sy = rect.height / H;
-    tipEl.innerHTML = `${fmtDayLong(pts[i].d)}<br><b>${f(pts[i].v)}</b>${pts[i].tip ? "<br>" + pts[i].tip : ""}`;
-    tipEl.style.left = `${Math.min(Math.max(rect.left - card.left + xs[i] * sx, 90), card.width - 90)}px`;
-    tipEl.style.top = `${rect.top - card.top + y(pts[i].v) * sy}px`;
-    tipEl.style.display = "block";
+    const i = Number(t.dataset.i);
+    placeTip(tipEl, card, svg, W, H, xs[i], y(pts[i].v), `${fmtDayLong(pts[i].d)}<br><b>${f(pts[i].v)}</b>${pts[i].tip ? "<br>" + pts[i].tip : ""}`);
   });
   svg.addEventListener("pointerleave", () => { tipEl.style.display = "none"; });
 }
 
-// ---------- render ----------
-const C1 = "var(--s1)", C2 = "var(--s2)", C3 = "var(--s3)", C4 = "var(--cc3)";
-function renderAll() {
-  const days = D.data.days, [i0, i1] = windowIdx(), win = days.slice(i0, i1 + 1);
-  const cut = (a) => a.slice(i0, i1 + 1);
-  const whenTxt = `${fmtDayLong(days[i1])} · grafikler ${fmtDayShort(days[i0])} – ${fmtDayShort(days[i1])}`;
-  document.querySelectorAll("[data-when]").forEach((el) => { el.textContent = whenTxt; });
-
-  // activity
-  const dau = series("dau"), wau = series("wau"), mau = series("mau");
-  const stick = div(dau, mau);
-  document.getElementById("t-act").innerHTML = [
-    tile({ t: "DAU", v: dau, f: F.count, sub: `ort. ${F.count(avgRange(dau, i0, i1))}` }, i1),
-    tile({ t: "WAU (son 7 gün)", v: wau, f: F.count }, i1),
-    tile({ t: "MAU (son 30 gün)", v: mau, f: F.count }, i1),
-    tile({ t: "Stickiness (DAU/MAU)", v: stick, f: F.pct }, i1),
-  ].join("");
-  const actSets = { dau: ["DAU", dau], wau: ["WAU", wau], mau: ["MAU", mau] };
-  const [actName, actVals] = actSets[state.actMetric];
-  const ctl = `<span class="seg-ctl mini" id="act-ctl">${Object.entries(actSets).map(([k, [nm]]) => `<button type="button" data-v="${k}" aria-pressed="${k === state.actMetric}">${nm}</button>`).join("")}</span>`;
-  lineChart(document.getElementById("c-act"), "Aktif kullanıcılar", [{ name: actName, color: C1, vals: cut(actVals), f: F.count }], win, { ctl });
-  document.getElementById("act-ctl").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; state.actMetric = b.dataset.v; renderAll(); });
-
-  // speaking & nodes
-  const speech = series("speech"), speakers = series("speakers"), ns = series("nstart"), nd = series("ndone");
-  const perSpeaker = div(speech, speakers), speakRate = div(speakers, dau), compl = div(nd, ns);
-  document.getElementById("t-learn").innerHTML = [
-    tile({ t: "Konuşma süresi", v: speech, f: F.hours, sub: `aralıkta ${F.hours(sumRange(speech, i0, i1))}` }, i1),
-    tile({ t: "Konuşan kullanıcı", v: speakers, f: F.count, sub: `DAU'nun ${speakRate[i1] == null ? "—" : F.pct(speakRate[i1])}'i` }, i1),
-    tile({ t: "Konuşan başına süre", v: perSpeaker, f: F.min }, i1),
-    tile({ t: "Node tamamlama oranı", v: compl, f: F.pct, sub: `${F.count(nd[i1])} / ${F.count(ns[i1])}` }, i1),
-  ].join("");
-  lineChart(document.getElementById("c-speech"), "Konuşma süresi (saat)", [{ name: "Konuşma", color: C1, vals: cut(speech).map((v) => v / 3600), f: (v) => nf.format(Math.round(v)) + " sa" }], win,
-    { extra: (i) => `<br>${F.count(cut(speakers)[i])} konuşan · ${perSpeaker[i0 + i] == null ? "—" : F.min(perSpeaker[i0 + i])}/kişi` });
-  lineChart(document.getElementById("c-nodes"), "Node başlatma ve tamamlama", [
-    { name: "Başlatma", color: C1, vals: cut(ns), f: F.count },
-    { name: "Tamamlama", color: C3, vals: cut(nd), f: F.count },
-  ], win, { extra: (i) => `<br>Oran: <b>${compl[i0 + i] == null ? "—" : F.pct(compl[i0 + i])}</b>` });
-
-  // app usage
-  const stime = series("stime"), perUser = div(stime, dau);
-  document.getElementById("t-use").innerHTML = [
-    tile({ t: "Toplam session süresi", v: stime, f: F.hours, sub: `aralıkta ${F.hours(sumRange(stime, i0, i1))}` }, i1),
-    tile({ t: "Kullanıcı başına süre", v: perUser, f: F.min, sub: `ort. ${perUser.slice(i0, i1 + 1).some((v) => v != null) ? F.min(avgRange(perUser, i0, i1)) : "—"}` }, i1),
-    tile({ t: "Konuşma payı", v: div(speech, stime), f: F.pct, sub: "konuşma / session süresi" }, i1),
-  ].join("");
-  lineChart(document.getElementById("c-use"), "Kullanıcı başına günlük süre (dk)", [{ name: "Süre", color: C1, vals: cut(perUser).map((v) => (v == null ? null : v / 60)), f: (v) => nf1.format(v) + " dk" }], win,
-    { tick: (t) => nf.format(t), extra: (i) => `<br>Toplam ${F.hours(cut(stime)[i])}` });
-
-  // subscribers (always the paid segment; slice filter applies)
-  const pDau = series("dau", "paid"), pWau = series("wau", "paid"), pMau = series("mau", "paid");
-  const pSpk = series("speakers", "paid"), pSpeech = series("speech", "paid");
-  document.getElementById("sub-note").textContent = state.seg !== "all" ? "Kullanıcı filtresinden bağımsız, hep aboneler" : "";
-  const sl = state.slice, rcOk = sl === "all" || sl.startsWith("p:");
-  const rcVal = (w) => (sl === "p:iOS" ? w.ios : sl === "p:Android" ? w.android : w.ios + w.android);
-  const rcPts = D.data.rc.map((w) => ({ d: w.d, v: rcVal(w), tip: sl === "all" ? `iOS ${F.count(w.ios)} · Android ${F.count(w.android)}` : "" }));
-  const rcLast = rcPts.filter((p) => p.d <= days[i1]).at(-1);
-  const rcPrev = rcPts.filter((p) => p.d <= days[i1]).at(-5);
-  document.getElementById("t-sub").innerHTML = [
-    tile({ t: "Aktif abone (30 gün)", v: pMau, f: F.count, sub: "uygulamayı açan" }, i1),
-    tile({ t: "Abone DAU", v: pDau, f: F.count, sub: `WAU ${F.count(pWau[i1])}` }, i1),
-    tile({ t: "Abone konuşma oranı", v: div(pSpk, pDau), f: F.pct, sub: `${F.count(pSpk[i1])} konuşan` }, i1),
-    rcOk && rcLast
-      ? `<div class="tile"><div class="tile-t">Mağaza abonelikleri</div><div class="tile-v">${F.count(rcLast.v)}</div><div class="tile-s">${rcPrev ? (() => { const ch = (rcLast.v - rcPrev.v) / rcPrev.v; return `<span class="delta ${ch >= 0 ? "up" : "down"}">${ch >= 0 ? "▲" : "▼"} %${nf1.format(Math.abs(ch) * 100)}</span><span>4 haftada · RevenueCat</span>`; })() : "<span>RevenueCat</span>"}</div></div>`
-      : tile({ t: "Mağaza abonelikleri", na: "RevenueCat: yalnız platform kırılımı" }, i1),
-  ].join("");
-  lineChart(document.getElementById("c-sub"), "Aktif aboneler", [
-    { name: "DAU", color: C1, vals: cut(pDau), f: F.count },
-    { name: "WAU", color: C4, vals: cut(pWau), f: F.count },
-  ], win, { extra: (i) => `<br>Konuşma ${F.hours(cut(pSpeech)[i])}` });
-  const rcHost = document.getElementById("c-rc");
-  if (rcOk) barChart(rcHost, "Mağaza abonelikleri (haftalık)", rcPts.filter((p) => p.d <= days[i1]).slice(-13), C3, F.count, "App Store + Google Play");
-  else rcHost.innerHTML = `<h3><span>Mağaza abonelikleri (haftalık)</span></h3><div class="chart-empty">RevenueCat verisi ülke/versiyon kırılımında yok.</div>`;
+// ---------- KPI line ----------
+function deltaHtml(cur, prev, label = "7 gün öncesine göre") {
+  if (cur == null || !prev) return "";
+  const ch = (cur - prev) / prev, cls = Math.abs(ch) < 0.005 ? "" : ch > 0 ? "up" : "down";
+  return `<span><span class="delta ${cls}">${ch > 0 ? "▲" : ch < 0 ? "▼" : ""} %${nf1.format(Math.abs(ch) * 100)}</span> ${label}</span>`;
 }
+const kpi = (value, subs) => `<div class="pk"><span class="pk-v">${value}</span><span class="pk-s">${subs.filter(Boolean).join("")}</span></div>`;
+const sub = (html) => `<span>${html}</span>`;
 
-// ---------- filters ----------
-function buildFilters() {
-  const sel = document.getElementById("f-slice");
+// ---------- cards ----------
+// Each card: own range (7/14/30/90 days, ending at the last complete day) and breakdown.
+// toggle: optional metric switch inside the card. rcOnly: breakdown limited to platform.
+const CARDS = [
+  { id: "act", title: "Aktif aboneler", wide: true, toggle: [["dau", "DAU"], ["wau", "WAU"], ["mau", "MAU"]], render: (c, s, w) => {
+      const vals = series(s.metric, s.slice), dau = series("dau", s.slice), mau = series("mau", s.slice), op = series("openers", s.slice);
+      const i1 = w.i1;
+      c.body.innerHTML = kpi(F.count(vals[i1]), [deltaHtml(vals[i1], vals[i1 - 7]), sub(`DAU/MAU <b>${mau[i1] ? F.pct(dau[i1] / mau[i1]) : "—"}</b>`), s.metric === "dau" ? sub(`uygulamayı açan <b>${F.count(op[i1])}</b>`) : ""]);
+      lineChart(c.chart, c.el, [{ name: s.metric.toUpperCase(), color: C1, vals: w.cut(vals), f: F.count }], w.days,
+        { aria: "Aktif aboneler", extra: s.metric === "dau" ? (i) => `<br>uygulamayı açan ${F.count(w.cut(op)[i])}` : null });
+    } },
+  { id: "speech", title: "Konuşma süresi", render: (c, s, w) => {
+      const sp = series("speech", s.slice), spk = series("speakers", s.slice), per = div(sp, spk), i1 = w.i1;
+      c.body.innerHTML = kpi(F.hours(sp[i1]), [deltaHtml(sp[i1], sp[i1 - 7]), sub(`<b>${F.count(spk[i1])}</b> konuşan · kişi başı <b>${per[i1] == null ? "—" : F.min(per[i1])}</b>`), sub(`aralıkta ${F.hours(sumR(sp, w.i0, i1))}`)]);
+      lineChart(c.chart, c.el, [{ name: "Konuşma", color: C1, vals: w.cut(sp).map((v) => v / 3600), f: (v) => nf1.format(v) + " sa" }], w.days,
+        { aria: "Konuşma süresi", extra: (i) => `<br>${F.count(w.cut(spk)[i])} konuşan · ${w.cut(per)[i] == null ? "—" : F.min(w.cut(per)[i])}/kişi` });
+    } },
+  { id: "nodes", title: "Node başlatma ve tamamlama", render: (c, s, w) => {
+      const ns = series("nstart", s.slice), nd = series("ndone", s.slice), r = div(nd, ns), i1 = w.i1;
+      c.body.innerHTML = kpi(r[i1] == null ? "—" : F.pct(r[i1]), [sub("tamamlama oranı"), sub(`<b>${F.count(nd[i1])}</b> / ${F.count(ns[i1])}`), r[i1 - 7] != null && r[i1] != null ? sub(`7 gün önce ${F.pct(r[i1 - 7])}`) : ""])
+        + `<div class="legend"><span><i style="--c:${C1}"></i>Başlatma</span><span><i style="--c:${C3}"></i>Tamamlama</span></div>`;
+      lineChart(c.chart, c.el, [{ name: "Başlatma", color: C1, vals: w.cut(ns), f: F.count }, { name: "Tamamlama", color: C3, vals: w.cut(nd), f: F.count }], w.days,
+        { aria: "Node başlatma ve tamamlama", extra: (i) => `<br>Oran: <b>${w.cut(r)[i] == null ? "—" : F.pct(w.cut(r)[i])}</b>` });
+    } },
+  { id: "use", title: "Uygulamada geçen süre", render: (c, s, w) => {
+      const st = series("stime", s.slice), op = series("openers", s.slice), per = div(st, op), i1 = w.i1;
+      c.body.innerHTML = kpi(per[i1] == null ? "—" : F.min(per[i1]), [sub("abone başına"), deltaHtml(per[i1], per[i1 - 7]), sub(`toplam <b>${F.hours(st[i1])}</b>`)]);
+      lineChart(c.chart, c.el, [{ name: "Süre", color: C1, vals: w.cut(per).map((v) => (v == null ? null : v / 60)), f: (v) => nf1.format(v) + " dk" }], w.days,
+        { aria: "Abone başına günlük süre", extra: (i) => `<br>Toplam ${F.hours(w.cut(st)[i])} · ${F.count(w.cut(op)[i])} abone` });
+    } },
+  { id: "rc", title: "Mağaza abonelikleri", rcOnly: true, render: (c, s, w) => {
+      const pick = (r) => (s.slice === "p:iOS" ? r.ios : s.slice === "p:Android" ? r.android : r.ios + r.android);
+      const last = D.data.days[w.i1];
+      const inRange = D.data.rc.filter((r) => r.d <= last && r.d >= D.data.days[w.i0]);
+      const pts = (inRange.length >= 2 ? inRange : D.data.rc.filter((r) => r.d <= last).slice(-2))
+        .map((r) => ({ d: r.d, v: pick(r), tip: s.slice === "all" ? `iOS ${F.count(r.ios)} · Android ${F.count(r.android)}` : "" }));
+      const cur = pts.at(-1), first = pts[0];
+      c.body.innerHTML = kpi(cur ? F.count(cur.v) : "—", [cur && first && first !== cur ? deltaHtml(cur.v, first.v, `${fmtDayShort(first.d)}'den beri`) : "", sub("App Store + Google Play · RevenueCat")]);
+      barChart(c.chart, c.el, pts, C3, F.count);
+    } },
+];
+
+const RANGES = [["7", "7G"], ["14", "14G"], ["30", "30G"], ["90", "90G"]];
+const cardState = {};
+const STATE_KEY = "lucida-data:pd2";
+function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(cardState)); } catch (e) { /* ignore */ } }
+
+function sliceOptions(card) {
   const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
-  sel.innerHTML = opt("all", "Tüm platform / ülke / versiyon")
+  if (card.rcOnly) return opt("all", "Tüm platformlar") + opt("p:iOS", "iOS") + opt("p:Android", "Android");
+  return opt("all", "Tüm platform / ülke / versiyon")
     + `<optgroup label="Platform">${opt("p:iOS", "iOS")}${opt("p:Android", "Android")}</optgroup>`
     + `<optgroup label="Ülke">${opt("core5", "5 ana pazar")}${D.data.countries.map((c) => opt("c:" + c, TR_COUNTRY[c] || c)).join("")}</optgroup>`
     + `<optgroup label="Versiyon">${D.data.versions.map((v) => opt("v:" + v, v)).join("")}</optgroup>`;
-  const days = D.data.days;
-  for (const id of ["f-from", "f-to"]) { const el = document.getElementById(id); el.min = days[0]; el.max = days.at(-1); }
-  syncControls();
 }
-function syncControls() {
-  document.querySelectorAll("#f-range button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state.range)));
-  document.querySelectorAll("#f-seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state.seg)));
-  document.getElementById("f-slice").value = state.slice;
-  document.getElementById("f-custom").classList.toggle("on", state.range === "custom");
-  const [i0, i1] = windowIdx();
-  document.getElementById("f-from").value = D.data.days[i0];
-  document.getElementById("f-to").value = D.data.days[i1];
-  try { localStorage.setItem("lucida-data:pd", JSON.stringify({ range: state.range, seg: state.seg, slice: state.slice, from: state.from, to: state.to })); } catch (e) { /* ignore */ }
+function validSlice(card, v) {
+  if (v === "all" || v === "p:iOS" || v === "p:Android") return true;
+  if (card.rcOnly) return false;
+  return v === "core5" || (v.startsWith("c:") && D.data.countries.includes(v.slice(2))) || (v.startsWith("v:") && D.data.versions.includes(v.slice(2)));
 }
-document.getElementById("f-range").addEventListener("click", (ev) => {
-  const b = ev.target.closest("button"); if (!b) return;
-  if (b.dataset.v === "custom") { const [i0, i1] = windowIdx(); state.from = D.data.days[i0]; state.to = D.data.days[i1]; }
-  state.range = b.dataset.v; syncControls(); renderAll();
-});
-document.getElementById("f-seg").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; state.seg = b.dataset.v; syncControls(); renderAll(); });
-document.getElementById("f-slice").addEventListener("change", (ev) => { state.slice = ev.target.value; syncControls(); renderAll(); });
-for (const id of ["f-from", "f-to"]) document.getElementById(id).addEventListener("change", () => {
-  state.from = document.getElementById("f-from").value; state.to = document.getElementById("f-to").value; syncControls(); renderAll();
-});
+
+function buildCards() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(STATE_KEY) || "{}") || {}; } catch (e) { saved = {}; }
+  document.getElementById("cards").innerHTML = CARDS.map((cd) => `
+    <article class="card${cd.wide ? " wide" : ""}" id="card-${cd.id}">
+      <div class="card-top">
+        <h2>${esc(cd.title)}</h2>
+        <div class="ctls">
+          ${cd.toggle ? `<div class="seg-ctl" data-role="metric">${cd.toggle.map(([v, t]) => `<button type="button" data-v="${v}">${t}</button>`).join("")}</div>` : ""}
+          <div class="seg-ctl" data-role="range">${RANGES.map(([v, t]) => `<button type="button" data-v="${v}">${t}</button>`).join("")}</div>
+          <select data-role="slice" aria-label="${esc(cd.title)} kırılımı">${sliceOptions(cd)}</select>
+        </div>
+      </div>
+      <div data-body></div>
+      <div class="chart" data-chart></div>
+      <div class="tip"></div>
+    </article>`).join("");
+  for (const cd of CARDS) {
+    const sv = saved[cd.id] || {};
+    cardState[cd.id] = {
+      range: RANGES.some(([v]) => v === sv.range) ? sv.range : "30",
+      slice: typeof sv.slice === "string" && validSlice(cd, sv.slice) ? sv.slice : "all",
+      metric: cd.toggle && cd.toggle.some(([v]) => v === sv.metric) ? sv.metric : cd.toggle ? cd.toggle[0][0] : null,
+    };
+    const el = document.getElementById("card-" + cd.id);
+    el.addEventListener("click", (ev) => {
+      const b = ev.target.closest(".seg-ctl button"); if (!b) return;
+      cardState[cd.id][b.parentElement.dataset.role] = b.dataset.v; saveState(); renderCard(cd);
+    });
+    el.querySelector('[data-role="slice"]').addEventListener("change", (ev) => { cardState[cd.id].slice = ev.target.value; saveState(); renderCard(cd); });
+  }
+}
+
+function renderCard(cd) {
+  const s = cardState[cd.id], el = document.getElementById("card-" + cd.id);
+  el.querySelectorAll(".seg-ctl").forEach((g) => g.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === s[g.dataset.role]))));
+  el.querySelector('[data-role="slice"]').value = s.slice;
+  const days = D.data.days, i1 = days.length - 1, i0 = Math.max(0, i1 - Number(s.range) + 1);
+  const w = { i0, i1, days: days.slice(i0, i1 + 1), cut: (a) => a.slice(i0, i1 + 1) };
+  cd.render({ el, body: el.querySelector("[data-body]"), chart: el.querySelector("[data-chart]") }, s, w);
+}
+function renderAll() { for (const cd of CARDS) renderCard(cd); }
 
 let resizeTimer = null;
 window.addEventListener("resize", () => { if (appEl.hidden) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 150); });
@@ -685,22 +595,10 @@ async function unlock(password) {
   return JSON.parse(new TextDecoder().decode(plain));
 }
 function load(data) {
+  if (data.v !== 2) throw new Error("veri biçimi eski, yenileme bekleniyor");
   D.data = data;
-  try {
-    const s = JSON.parse(localStorage.getItem("lucida-data:pd") || "null");
-    if (s) {
-      if (["7", "14", "30", "90", "custom"].includes(s.range)) state.range = s.range;
-      if (["all", "paid", "free"].includes(s.seg)) state.seg = s.seg;
-      const okSlice = s.slice === "all" || s.slice === "core5" || s.slice === "p:iOS" || s.slice === "p:Android"
-        || data.countries.includes(String(s.slice).slice(2)) || data.versions.includes(String(s.slice).slice(2));
-      if (okSlice) state.slice = s.slice;
-      if (s.from && data.days.includes(s.from)) state.from = s.from;
-      if (s.to && data.days.includes(s.to)) state.to = s.to;
-      if (state.range === "custom" && !(state.from && state.to)) state.range = "30";
-    }
-  } catch (e) { /* ignore */ }
   document.getElementById("updated-at").textContent = fmtDate(data.generatedAt);
-  buildFilters();
+  buildCards();
 }
 
 // ---------- lock screen (password shared with index.html) ----------

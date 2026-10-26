@@ -23,8 +23,82 @@
    "id": "dau",
    "chart": {
     "kind": "segmentation",
-    "name": "Product Dashboard · DAU",
+    "name": "Product Dashboard · Aktif (node başlatan) + uygulamayı açan",
     "events": [
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     },
      {
       "event": "session_start",
       "group_by": [],
@@ -155,15 +229,15 @@
    "id": "wau",
    "chart": {
     "kind": "segmentation",
-    "name": "Product Dashboard · WAU",
+    "name": "Product Dashboard · Aktif abone WAU (node başlatan)",
     "events": [
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [],
       "where": []
      },
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [
        {
         "property": "platform",
@@ -183,7 +257,7 @@
       ]
      },
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [
        {
         "property": "country",
@@ -211,7 +285,7 @@
       ]
      },
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [
        {
         "property": "version",
@@ -288,15 +362,15 @@
    "id": "mau",
    "chart": {
     "kind": "segmentation",
-    "name": "Product Dashboard · MAU",
+    "name": "Product Dashboard · Aktif abone MAU (node başlatan)",
     "events": [
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [],
       "where": []
      },
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [
        {
         "property": "platform",
@@ -316,7 +390,7 @@
       ]
      },
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [
        {
         "property": "country",
@@ -344,7 +418,7 @@
       ]
      },
      {
-      "event": "session_start",
+      "event": "anm_conv_page_viewed",
       "group_by": [
        {
         "property": "version",
@@ -1061,7 +1135,7 @@
    "groupByLimit": 1000
   }
  ],
- "about": "Product Dashboard (dashboard.html) query list. Each query runs once over the last 90 complete UTC days: replace \"<START>\" with the first day's 00:00:00 UTC and \"<END>\" with yesterday 23:59:59 UTC as epoch seconds (numbers, not strings). 'chart' goes to query_amplitude_data's chart param, 'definition' to its definition param; always pass projectId 773708, groupByLimit as given and timeSeriesLimit equal to it. Save each raw tool result as <raw-dir>/<id>.json, then run node scripts/build-dashboard.mjs <raw-dir>.",
+ "about": "Product Dashboard (dashboard.html) query list. Each query runs once over the last 90 complete UTC days: replace \"<START>\" with the first day's 00:00:00 UTC and \"<END>\" with yesterday 23:59:59 UTC as epoch seconds (numbers, not strings). 'chart' goes to query_amplitude_data's chart param, 'definition' to its definition param; always pass projectId 773708, groupByLimit as given and timeSeriesLimit equal to it. Save each raw tool result as <raw-dir>/<id>.json, then run node scripts/build-dashboard.mjs <raw-dir>. Page shows only the paid segment; the all/free segments stay in the queries so every response is large enough to be saved to a file.",
  "rc": {
   "file": "rc.json",
   "how": "RevenueCat get-chart-data project proj9cc11412, chart actives, resolution 1 (week), segment store, start_date = first day, end_date = yesterday. Write <raw-dir>/rc.json as {\"weeks\":[{\"d\":\"YYYY-MM-DD\",\"app_store\":N,\"play_store\":N}]} — one row per returned cohort (cohort epoch -> UTC date), App Store and Play Store values only; map segment indices by the response's segments list (order varies between calls). Skip Stripe (frozen at 10488 since 2026-09-28) and Paddle (legacy, flat)."
