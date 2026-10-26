@@ -11,8 +11,8 @@ gösteren, şifreyle açılan statik sayfa. GitHub Pages'te yayında.
 - `engagement.enc.json` — Engagement metriklerinin günlük geçmişi, `data.enc.json` ile aynı şekilde şifreli.
 - `dashboard.html` — üçüncü sayfa (Product Dashboard), yalnız aboneler. Overview sekmesi: aktif abone (node başlatan)
   DAU/WAU/MAU, konuşma süresi, node'lar, uygulamada geçen süre, mağaza abonelikleri. Dersler sekmesi (`#dersler`):
-  yeni abonelerin ilk hafta 5 ders tamamlama oranı (ilk node gününe göre kohort), ders adımları, 5. derse kadar geçen
-  süre (dağılım ve trend), başlangıç versiyonu karşılaştırması. Her kartın kendi tarih ve kırılım seçimi var.
+  yeni abonelerin ilk hafta 5 ders tamamlama oranı (ilk node gününe göre kohort), ders adımları, 5. derse kadar süre,
+  A1 yolu (A1-1…A1-5 başlatma/bitirme), başlangıç seviyesi ve başlangıç versiyonu karşılaştırması. Her kartın kendi tarih ve kırılım seçimi var.
 - `dashboard/queries.json` — Product Dashboard'un Amplitude sorguları (90 gün, her filtre kırılımı tek sorguda) ve RevenueCat talimatı. Rakam içermez.
 - `dashboard.enc.json` — Product Dashboard verisi, aynı şekilde şifreli.
 - `keys.json` — açık anahtar + şifreyle (PBKDF2-SHA256) kilitlenmiş özel anahtar. Şifrenin kendisi hiçbir yerde saklanmaz.
@@ -40,8 +40,7 @@ Product Dashboard geçmiş saklamaz: rutin her sabah `dashboard/queries.json`'da
     node scripts/build-dashboard.mjs <ham-yanıtların-klasörü>
 
 ile `dashboard.enc.json`'u üretir. Ders sorguları (`les_*`, `t5_*`) 7 günlük pencere kullanır; penceresi kapanmamış kohortlar
-(son 8 gün) sayfada gösterilmez. `t5_hist` ve `t5_hist_ver` yalnız son 28 kapanmış kohort gününü kapsar (`<HSTART>`/`<HEND>`).
-`t5_ver` / `t5_hist_ver` eksikse yalnız süre kartlarının versiyon kırılımı düşer.
+(son 8 gün) sayfada gösterilmez. `t5_ver`, `les_lvl` veya `les_a1` eksikse yalnız ilgili kart ya da kırılım düşer.
 `dashboard/queries.json` → `versionGroups` arka arkaya çıkan sürümleri Dersler'de tek versiyon sayar (şu an 2.8.7–2.8.8).
 
 ## Şifreyi değiştirmek

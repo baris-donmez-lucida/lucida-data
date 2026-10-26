@@ -123,8 +123,7 @@ const rcWeeks = rc.weeks.map((w) => {
 // Lessons (Dersler tab): subscribers' first-ever node → completed lessons within 7 days, one cohort per first-node
 // day. TIME_TO_CONVERT CSV rows: label, date ("Jul 28"), conversion, entered, avg s, median s, step 2, avg, median, …,
 // last step, isComplete. Segment rows are all labelled "None": a "Total" row opens each segment, in query order.
-const LES_FILES = ["les_seg", "les_ver", "t5_seg", "t5_hist"]; // t5_ver / t5_hist_ver are optional (version time slices)
-const MIN_HIST = 20; // a version needs this many 5th-lesson converters in the 28 days for its own histogram
+const LES_FILES = ["les_seg", "les_ver", "t5_seg"]; // t5_ver, les_lvl and les_a1 are optional (their cards/slices drop)
 const lesMissing = LES_FILES.filter((id) => !existsSync(join(dir, id + ".json")));
 let les = null;
 if (lesMissing.length) console.warn(`dersler atlandı (eksik: ${lesMissing.join(", ")}); Overview yine yazılıyor`);
@@ -170,6 +169,7 @@ else les = (() => {
   const verKey = (v) => groupOf[v] || v;
   const newest = (label) => label.split("–").at(-1);
   const addTo = (a, b) => b.forEach((v, i) => { a[i] += v; });
+  const zeros = () => days.map(() => 0);
   const lver = {};
   for (const g of lesVer) {
     if (!/^\d+\.\d+\.\d+$/.test(g.label)) continue;
@@ -180,19 +180,7 @@ else les = (() => {
   for (const v of Object.keys(lver)) if (sumTo(lver[v].n) < 150) delete lver[v];
   const lesVersions = Object.keys(lver).sort((a, b) => cmp(newest(a), newest(b))).slice(0, 8);
   for (const v of Object.keys(lver)) if (!lesVersions.includes(v)) delete lver[v];
-  // Time to 5th lesson, hourly histogram over the 28 newest complete cohort days (all / iOS / Android).
-  const hj = load("t5_hist").jsonResponse;
-  const hser = hj?.processedData?.highchartsConfig?.series;
-  if (!Array.isArray(hser) || hser.length !== 3 || hser.some((s) => s.data.length !== 168)) fail("t5_hist: expected 3 × 168 hourly bins");
-  const hist = {};
-  ["all", "p:iOS", "p:Android"].forEach((k, j) => {
-    const d = hj.data[j];
-    hist[k] = { bins: hser[j].data.map((b) => Math.round(Number(b.value) || 0)), n: d.convertedCounts["0"], k: d.convertedCounts["1"], med: Math.round(d.medianTransTimes[0] / 1000), avg: Math.round(d.avgTransTimes[0] / 1000) };
-  });
-  const hFrom = lastDone - 27;
-  const hk = t5.all.k.slice(hFrom, lastDone + 1).reduce((s, v) => s + v, 0);
-  if (Math.abs(hist.all.k - hk) / hk > 0.05) fail(`t5_hist: ${hist.all.k} converters vs ${hk} in t5_seg for ${days[hFrom]}…${days[lastDone]}`);
-  // By start version (optional files): daily time to the 5th lesson, and the same 28-day histogram.
+  // By start version (optional file): daily time to the 5th lesson.
   const t5v = {};
   if (existsSync(join(dir, "t5_ver.json"))) {
     // Groups come per segment (all, iOS, Android); the all-users block ends where a version repeats.
@@ -213,29 +201,39 @@ else les = (() => {
       if (sumTo(t.n) !== sumTo(lver[key].n)) fail(`t5_ver ${key}: entrants differ from les_ver`);
     }
   } else console.warn("t5_ver yok: süre trendinde versiyon kırılımı atlandı");
-  if (existsSync(join(dir, "t5_hist_ver.json"))) {
-    let kAll = 0;
-    const hv = {};
-    for (const d of load("t5_hist_ver").jsonResponse.data) {
-      const v = d.meta?.segment, k = d.convertedCounts["1"], bins = d.stepTransTimeDistribution?.step_bins?.[1]?.bins, key = verKey(v);
-      kAll += k;
-      if (!lesVersions.includes(key) || !k) continue;
-      if (!Array.isArray(bins) || bins.length !== 168) fail(`t5_hist_ver ${v}: expected 168 hourly bins`);
-      const b = bins.map((x) => Math.round(Number(x.bin_dist?.uniques) || 0));
-      if (b.reduce((s, x) => s + x, 0) !== k) fail(`t5_hist_ver ${v}: bins add up to ${b.reduce((s, x) => s + x, 0)}, not ${k}`);
-      const cur = (hv[key] ??= { bins: new Array(168).fill(0), n: 0, k: 0, secs: 0, parts: [] });
-      addTo(cur.bins, b); cur.n += d.convertedCounts["0"]; cur.k += k; cur.secs += (d.avgTransTimes[0] / 1000) * k;
-      cur.parts.push(Math.round(d.medianTransTimes[0] / 1000));
+  // Starting level (optional): the same 5-lesson funnel grouped by the first node's lesson_id, folded into levels
+  // (live_lesson_en_a1_1 → A1; no lesson_id → "none"; other languages → "other"). Top 40 lesson ids ≈ 98% of entrants.
+  let lvl = null;
+  if (existsSync(join(dir, "les_lvl.json"))) {
+    lvl = {};
+    for (const g of funnel("les_lvl")) {
+      const m = /^live_lesson_([a-z]+)_([a-c][12])_\d+$/.exec(g.label);
+      const key = g.label === "(none)" ? "none" : m && m[1] === "en" ? m[2].toUpperCase() : "other";
+      const st = steps(g);
+      if (!lvl[key]) lvl[key] = st;
+      else { addTo(lvl[key].n, st.n); st.s.forEach((a, k) => addTo(lvl[key].s[k], a)); }
     }
-    // Median of a merged group from its hourly bins (linear within the hour); single versions keep Amplitude's.
-    const binMedian = (b, k) => { let c = 0; for (let h = 0; h < b.length; h++) { if (c + b[h] >= k / 2) return Math.round((h + (k / 2 - c) / b[h]) * 3600); c += b[h]; } return 0; };
-    for (const [key, x] of Object.entries(hv)) {
-      if (x.k < MIN_HIST) continue;
-      hist["v:" + key] = { bins: x.bins, n: x.n, k: x.k, med: x.parts.length === 1 ? x.parts[0] : binMedian(x.bins, x.k), avg: Math.round(x.secs / x.k) };
+    const cover = Object.values(lvl).reduce((t, x) => t + sumTo(x.n), 0) / sumTo(lseg.all.n);
+    if (cover < 0.95 || cover > 1.001) fail(`les_lvl: covers ${(100 * cover).toFixed(1)}% of entrants`);
+  } else console.warn("les_lvl yok: başlangıç seviyesi kartı atlandı");
+  // A1 path (optional): first A1-1 node → done A1-1 → start A1-2 → done A1-2 … → done A1-5, grouped by start version;
+  // "all" is the sum of every version.
+  let a1 = null;
+  if (existsSync(join(dir, "les_a1.json"))) {
+    const path = (g) => ({ n: col(g, 3), st: [6, 9, 12, 15, 18, 21, 24, 27, 30].map((k) => col(g, k)) });
+    const add = (x, y) => { addTo(x.n, y.n); y.st.forEach((a, k) => addTo(x.st[k], a)); };
+    a1 = { all: { n: zeros(), st: Array.from({ length: 9 }, zeros) } };
+    for (const g of funnel("les_a1")) {
+      if (!/^\d+\.\d+\.\d+$/.test(g.label)) continue;
+      const x = path(g), key = verKey(g.label);
+      add(a1.all, x);
+      if (!lesVersions.includes(key)) continue;
+      if (!a1["v:" + key]) a1["v:" + key] = x; else add(a1["v:" + key], x);
     }
-    if (Math.abs(kAll - hist.all.k) / hist.all.k > 0.02) fail(`t5_hist_ver: ${kAll} converters across versions vs ${hist.all.k} in t5_hist`);
-  } else console.warn("t5_hist_ver yok: süre dağılımında versiyon kırılımı atlandı");
-  return { complete, seg: lseg, ver: lver, versions: lesVersions, t5, t5v, hist: { from: days[hFrom], to: days[lastDone], ...hist } };
+    const tot = [a1.all.n, ...a1.all.st].map(sumTo);
+    if (tot[0] < 100 || tot.some((v, k) => k && v > tot[k - 1])) fail(`les_a1: step totals look wrong (${tot.join(" ")})`);
+  } else console.warn("les_a1 yok: A1 ilerleme kartı atlandı");
+  return { complete, seg: lseg, ver: lver, versions: lesVersions, t5, t5v, ...(lvl ? { lvl } : {}), ...(a1 ? { a1 } : {}) };
 })();
 
 if (days.length < 28) fail("need at least 28 days");
@@ -255,5 +253,5 @@ const dau = paid.dau.all;
 console.log(`dashboard.enc.json written: ${days[0]}…${last}, aktif abone (DAU) ${dau[dau.length - 1]}, versions ${versions.join(" ")}`);
 if (les) {
   const i = les.complete.lastIndexOf(true), w7 = (a) => a.slice(i - 6, i + 1).reduce((s, v) => s + v, 0), a = les.seg.all;
-  console.log(`dersler: son kapanan kohort ${days[i]}, 7 günde ${w7(a.n)} yeni abone, ilk hafta 5 ders %${(100 * w7(a.s[4]) / w7(a.n)).toFixed(1)}, 5. derse medyan ${(les.hist.all.med / 3600).toFixed(1)} sa`);
+  console.log(`dersler: son kapanan kohort ${days[i]}, 7 günde ${w7(a.n)} yeni abone, ilk hafta 5 ders %${(100 * w7(a.s[4]) / w7(a.n)).toFixed(1)}${les.a1 ? `, A1-5'i bitiren %${(100 * w7(les.a1.all.st[8]) / w7(les.a1.all.n)).toFixed(1)}` : ""}`);
 }
