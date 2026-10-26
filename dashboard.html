@@ -350,7 +350,7 @@
         <li><b>Yeni abone</b>: hayatında ilk kez node başlatan (<code>anm_conv_page_viewed</code>, 1. kez) ve o anda abone olan kullanıcı; başlangıç versiyonu 2.8 veya üstü. Abone tanımı Overview ile aynı. Kohort = ilk node günü (UTC).</li>
         <li><b>İlk hafta 5 ders</b>: ilk node'dan sonraki 7 gün içinde 5 kez <code>anm_c_lesson_completed</code> atan yeni abonelerin oranı. Bir kohortun penceresi kapanmadan (ilk node'dan 8 gün geçmeden) oran gösterilmez; sayfadaki son kohort günü bu yüzden dünden 8 gün öncedir.</li>
         <li><b>Ders adımları</b>: aynı kohortların 7 gün içinde 1., 2., … 5. dersi tamamlama oranı.</li>
-        <li><b>5. derse kadar geçen süre</b>: ilk node'dan hayattaki 5. <code>anm_c_lesson_completed</code>'a kadar geçen süre, yalnız 7 gün içinde 5. derse ulaşanlar. Dağılım son 28 tamamlanmış kohort gününden; trend kartı seçili aralığın ortalamasını gösterir.</li>
+        <li><b>5. derse kadar geçen süre</b>: ilk node'dan hayattaki 5. <code>anm_c_lesson_completed</code>'a kadar geçen süre, yalnız 7 gün içinde 5. derse ulaşanlar. Dağılım son 28 tamamlanmış kohort gününden; trend kartı seçili aralığın ortalamasını gösterir. Versiyon kırılımı başlangıç versiyonuna göre; dağılımda yalnız o 28 günde en az 20 kişinin 5. derse ulaştığı versiyonlar seçilebilir. 2.8.8 öncesi versiyonlarda ders daha seyrek tamamlandı sayıldığı için süreler de doğrudan karşılaştırılamaz.</li>
         <li><b>2.8.8 değişikliği</b>: 2.8.8'den beri biten görüşmelerin ~%90'ı <code>anm_c_lesson_completed</code> atıyor, öncesinde ~%63 (biten görüşme = <code>post_call_report_shown</code>, node başına oranı versiyonlar arasında sabit ~%60). Eylül sonundaki sıçrama büyük ölçüde bu değişiklikten; versiyonları 2.8.8 ve sonrası kendi içinde karşılaştırın.</li>
         <li>Kırılımlar ilk node anındaki platform / ülke ve başlangıç versiyonu (<code>start_version</code>). Her kartın aralığı ve kırılımı yalnız o kartı etkiler.</li>
       </ul>
@@ -587,8 +587,10 @@ const LES_CARDS = [
   { id: "l5", title: "İlk hafta 5 ders: yeni aboneler", wide: true, slices: "les", render: (c, s, w) => {
       const x = lesSeries(s.slice), n = x.n, k5 = x.s[4], i1 = w.i1;
       const cur = rate(k5, n, i1 - 6, i1), prev = rate(k5, n, i1 - 13, i1 - 7), rng = rate(k5, n, w.i0, i1);
-      c.body.innerHTML = kpi(cur == null ? "—" : F.pct(cur), [sub("son 7 kohort günü"), ppHtml(cur, prev, "önceki 7 güne göre"),
-        sub(`<b>${F.count(sumR(k5, i1 - 6, i1))}</b> / ${F.count(sumR(n, i1 - 6, i1))} yeni abone`), sub(`aralıkta ${rng == null ? "—" : F.pct(rng)}`)])
+      c.body.innerHTML = (s.slice.startsWith("v:")
+        ? kpi(rng == null ? "—" : F.pct(rng), [sub("seçili aralıkta"), sub(`<b>${F.count(sumR(k5, w.i0, i1))}</b> / ${F.count(sumR(n, w.i0, i1))} yeni abone`)])
+        : kpi(cur == null ? "—" : F.pct(cur), [sub("son 7 kohort günü"), ppHtml(cur, prev, "önceki 7 güne göre"),
+          sub(`<b>${F.count(sumR(k5, i1 - 6, i1))}</b> / ${F.count(sumR(n, i1 - 6, i1))} yeni abone`), sub(`aralıkta ${rng == null ? "—" : F.pct(rng)}`)]))
         + `<div class="legend"><span><i style="--c:${C1}"></i>7 günlük</span><span><i style="--c:var(--muted)"></i>Günlük kohort</span></div>`
         + `<p class="card-note">Son kohort ${fmtDayShort(w.days.at(-1))}: sonraki günlerin 7 günlük penceresi henüz kapanmadı. Kesikli çizgi: 2.8.8 (ders tamamlama sayımı değişti).</p>`;
       const daily = n.map((v, i) => (v >= MIN_N ? k5[i] / v : null));
@@ -603,7 +605,7 @@ const LES_CARDS = [
       const row = (label, v, hi) => `<div class="step"><span>${label}</span><div class="step-bar"><i class="${hi ? "hi" : ""}" style="width:${(100 * v / N).toFixed(1)}%"></i></div><span><b>${F.pct(v / N)}</b> <small>${F.count(v)}</small></span></div>`;
       c.chart.innerHTML = `<div class="steps">${row("İlk node", N)}${S.map((v, k) => row(`${k + 1}. ders`, v, k === 4)).join("")}</div>`;
     } },
-  { id: "ldist", title: "5. derse kadar geçen süre", fixed: true, slices: "plat", render: (c, s) => {
+  { id: "ldist", title: "5. derse kadar geçen süre", fixed: true, slices: "dist", render: (c, s) => {
       const H = D.data.les.hist, h = H[s.slice] || H.all, b = h.bins, tot = b.reduce((a, v) => a + v, 0) || 1;
       const cum = (hrs) => Math.round((100 * b.slice(0, hrs).reduce((a, v) => a + v, 0)) / tot);
       c.body.innerHTML = kpi(fmtDur(h.med), [sub("medyan"), sub(`<b>%${cum(1)}</b> ilk saatte · <b>%${cum(24)}</b> ilk gün · <b>%${cum(72)}</b> 3 günde`)])
@@ -612,10 +614,13 @@ const LES_CARDS = [
       barChart(c.chart, c.el, B.map(([a, z, lab, short]) => { const k = b.slice(a, z).reduce((p, q) => p + q, 0); return { lab, short, v: k / tot, tip: `${F.count(k)} kişi` }; }), C1, (v) => "%" + nf.format(Math.round(v * 100)), "5. derse kadar geçen süre dağılımı");
     } },
   { id: "ltime", title: "5. derse kadar süre: trend", wide: true, slices: "lesTime", render: (c, s, w) => {
-      const t = D.data.les.t5[s.slice] || D.data.les.t5.all, i1 = w.i1, secs = t.avg.map((a, i) => a * t.k[i]);
+      const L = D.data.les, t = (s.slice.startsWith("v:") ? L.t5v?.[s.slice.slice(2)] : L.t5[s.slice]) || L.t5.all, i1 = w.i1, secs = t.avg.map((a, i) => a * t.k[i]);
       const mean = (i0, i1) => { const k = sumR(t.k, i0, i1); return k >= 5 ? sumR(secs, i0, i1) / k : null; };
       const cur = mean(i1 - 6, i1), prev = mean(i1 - 13, i1 - 7), rng = mean(w.i0, i1);
-      c.body.innerHTML = kpi(cur == null ? "—" : fmtDur(cur), [sub("ortalama, son 7 kohort günü"), deltaHtml(cur, prev, "önceki 7 güne göre"), sub(`aralıkta ${rng == null ? "—" : fmtDur(rng)}`)]);
+      // A start version lives only a few weeks, so its headline is the selected range rather than the last 7 days.
+      c.body.innerHTML = s.slice.startsWith("v:")
+        ? kpi(rng == null ? "—" : fmtDur(rng), [sub("ortalama, seçili aralıkta"), sub(`<b>${F.count(sumR(t.k, w.i0, i1))}</b> kişi 5. derse ulaştı`)])
+        : kpi(cur == null ? "—" : fmtDur(cur), [sub("ortalama, son 7 kohort günü"), deltaHtml(cur, prev, "önceki 7 güne göre"), sub(`aralıkta ${rng == null ? "—" : fmtDur(rng)}`)]);
       const roll = t.k.map((_, i) => (i < 6 || sumR(t.k, i - 6, i) < 10 ? null : mean(i - 6, i) / 3600));
       lineChart(c.chart, c.el, [{ name: "7 günlük ortalama", color: C1, vals: w.cut(roll), f: (v) => nf1.format(v) + " sa" }], w.days,
         { aria: "5. derse kadar ortalama süre", markers: markersIn(w), extra: (i) => `<br>${F.count(w.cut(t.k)[i])} kişi o gün 5. derse ulaştı` });
@@ -643,24 +648,35 @@ const STATE_KEY = "lucida-data:pd2";
 function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(cardState)); } catch (e) { /* ignore */ } }
 const sliceKind = (card) => (card.rcOnly ? "plat" : card.slices === undefined ? "full" : card.slices);
 
+// Versions offered in a card's breakdown: Overview uses event versions; lesson cards use start versions that have data.
+function versionsFor(kind) {
+  const L = D.data.les;
+  if (kind === "full") return D.data.versions;
+  if (kind === "les") return L.versions;
+  if (kind === "lesTime") return L.versions.filter((v) => L.t5v?.[v]);
+  if (kind === "dist") return L.versions.filter((v) => L.hist["v:" + v]);
+  return [];
+}
 function sliceOptions(card) {
   const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
-  const kind = sliceKind(card);
-  if (kind === "plat") return opt("all", "Tüm platformlar") + opt("p:iOS", "iOS") + opt("p:Android", "Android");
-  const vers = kind === "full" ? D.data.versions : kind === "les" ? D.data.les.versions : [];
-  return opt("all", kind === "full" ? "Tüm platform / ülke / versiyon" : vers.length ? "Tüm platform / ülke / versiyon" : "Tüm platform / ülke")
+  const kind = sliceKind(card), vers = versionsFor(kind);
+  const verGroup = vers.length ? `<optgroup label="${kind === "full" ? "Versiyon" : "Başlangıç versiyonu"}">${vers.map((v) => opt("v:" + v, v)).join("")}</optgroup>` : "";
+  if (kind === "plat" || kind === "dist") {
+    return opt("all", vers.length ? "Tüm platform / versiyon" : "Tüm platformlar")
+      + (vers.length ? `<optgroup label="Platform">${opt("p:iOS", "iOS")}${opt("p:Android", "Android")}</optgroup>` : opt("p:iOS", "iOS") + opt("p:Android", "Android")) + verGroup;
+  }
+  return opt("all", vers.length ? "Tüm platform / ülke / versiyon" : "Tüm platform / ülke")
     + `<optgroup label="Platform">${opt("p:iOS", "iOS")}${opt("p:Android", "Android")}</optgroup>`
     + `<optgroup label="Ülke">${opt("core5", "5 ana pazar")}${D.data.countries.map((c) => opt("c:" + c, TR_COUNTRY[c] || c)).join("")}</optgroup>`
-    + (vers.length ? `<optgroup label="${kind === "les" ? "Başlangıç versiyonu" : "Versiyon"}">${vers.map((v) => opt("v:" + v, v)).join("")}</optgroup>` : "");
+    + verGroup;
 }
 function validSlice(card, v) {
   const kind = sliceKind(card);
   if (kind === null) return v === "all";
   if (v === "all" || v === "p:iOS" || v === "p:Android") return true;
-  if (kind === "plat") return false;
-  if (v === "core5" || (v.startsWith("c:") && D.data.countries.includes(v.slice(2)))) return true;
-  const vers = kind === "full" ? D.data.versions : kind === "les" ? D.data.les.versions : [];
-  return v.startsWith("v:") && vers.includes(v.slice(2));
+  if (v.startsWith("v:")) return versionsFor(kind).includes(v.slice(2));
+  if (kind === "plat" || kind === "dist") return false;
+  return v === "core5" || (v.startsWith("c:") && D.data.countries.includes(v.slice(2)));
 }
 
 function buildCards() {

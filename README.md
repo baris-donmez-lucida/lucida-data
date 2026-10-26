@@ -40,7 +40,8 @@ Product Dashboard geçmiş saklamaz: rutin her sabah `dashboard/queries.json`'da
     node scripts/build-dashboard.mjs <ham-yanıtların-klasörü>
 
 ile `dashboard.enc.json`'u üretir. Ders sorguları (`les_*`, `t5_*`) 7 günlük pencere kullanır; penceresi kapanmamış kohortlar
-(son 8 gün) sayfada gösterilmez. `t5_hist` yalnız son 28 kapanmış kohort gününü kapsar (`<HSTART>`/`<HEND>`).
+(son 8 gün) sayfada gösterilmez. `t5_hist` ve `t5_hist_ver` yalnız son 28 kapanmış kohort gününü kapsar (`<HSTART>`/`<HEND>`).
+`t5_ver` / `t5_hist_ver` eksikse yalnız süre kartlarının versiyon kırılımı düşer.
 
 ## Şifreyi değiştirmek
 

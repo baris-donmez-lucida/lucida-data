@@ -123,7 +123,8 @@ const rcWeeks = rc.weeks.map((w) => {
 // Lessons (Dersler tab): subscribers' first-ever node → completed lessons within 7 days, one cohort per first-node
 // day. TIME_TO_CONVERT CSV rows: label, date ("Jul 28"), conversion, entered, avg s, median s, step 2, avg, median, …,
 // last step, isComplete. Segment rows are all labelled "None": a "Total" row opens each segment, in query order.
-const LES_FILES = ["les_seg", "les_ver", "t5_seg", "t5_hist"];
+const LES_FILES = ["les_seg", "les_ver", "t5_seg", "t5_hist"]; // t5_ver / t5_hist_ver are optional (version time slices)
+const MIN_HIST = 20; // a version needs this many 5th-lesson converters in the 28 days for its own histogram
 const lesMissing = LES_FILES.filter((id) => !existsSync(join(dir, id + ".json")));
 let les = null;
 if (lesMissing.length) console.warn(`dersler atlandı (eksik: ${lesMissing.join(", ")}); Overview yine yazılıyor`);
@@ -182,7 +183,33 @@ else les = (() => {
   const hFrom = lastDone - 27;
   const hk = t5.all.k.slice(hFrom, lastDone + 1).reduce((s, v) => s + v, 0);
   if (Math.abs(hist.all.k - hk) / hk > 0.05) fail(`t5_hist: ${hist.all.k} converters vs ${hk} in t5_seg for ${days[hFrom]}…${days[lastDone]}`);
-  return { complete, seg: lseg, ver: lver, versions: lesVersions, t5, hist: { from: days[hFrom], to: days[lastDone], ...hist } };
+  // By start version (optional files): daily time to the 5th lesson, and the same 28-day histogram.
+  const t5v = {};
+  if (existsSync(join(dir, "t5_ver.json"))) {
+    // Groups come per segment (all, iOS, Android); the all-users block ends where a version repeats.
+    const seen = new Set();
+    for (const g of funnel("t5_ver")) {
+      if (seen.has(g.label)) break;
+      seen.add(g.label);
+      if (!lesVersions.includes(g.label)) continue;
+      t5v[g.label] = { n: col(g, 3), avg: col(g, 4), med: col(g, 5), k: col(g, 6) };
+      if (sumTo(t5v[g.label].n) !== sumTo(lver[g.label].n)) fail(`t5_ver ${g.label}: entrants differ from les_ver`);
+    }
+  } else console.warn("t5_ver yok: süre trendinde versiyon kırılımı atlandı");
+  if (existsSync(join(dir, "t5_hist_ver.json"))) {
+    let kAll = 0;
+    for (const d of load("t5_hist_ver").jsonResponse.data) {
+      const v = d.meta?.segment, k = d.convertedCounts["1"], bins = d.stepTransTimeDistribution?.step_bins?.[1]?.bins;
+      kAll += k;
+      if (!lesVersions.includes(v) || k < MIN_HIST) continue;
+      if (!Array.isArray(bins) || bins.length !== 168) fail(`t5_hist_ver ${v}: expected 168 hourly bins`);
+      const b = bins.map((x) => Math.round(Number(x.bin_dist?.uniques) || 0));
+      if (b.reduce((s, x) => s + x, 0) !== k) fail(`t5_hist_ver ${v}: bins add up to ${b.reduce((s, x) => s + x, 0)}, not ${k}`);
+      hist["v:" + v] = { bins: b, n: d.convertedCounts["0"], k, med: Math.round(d.medianTransTimes[0] / 1000), avg: Math.round(d.avgTransTimes[0] / 1000) };
+    }
+    if (Math.abs(kAll - hist.all.k) / hist.all.k > 0.02) fail(`t5_hist_ver: ${kAll} converters across versions vs ${hist.all.k} in t5_hist`);
+  } else console.warn("t5_hist_ver yok: süre dağılımında versiyon kırılımı atlandı");
+  return { complete, seg: lseg, ver: lver, versions: lesVersions, t5, t5v, hist: { from: days[hFrom], to: days[lastDone], ...hist } };
 })();
 
 if (days.length < 28) fail("need at least 28 days");
