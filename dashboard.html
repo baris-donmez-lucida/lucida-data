@@ -1,0 +1,740 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lucida Product</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one reading column (max 960px); sections stack in the order they were added.
+     Funnel: two segment cards side by side from 720px, each with a 3-up row of rate tiles.
+     DAU: a 3-up KPI row over one full-width line chart. Cohorts: two cards side by side. */
+  :root {
+    --bg: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --border: rgba(11, 11, 11, 0.10);
+    --track: #ebeae4;
+    --s1: #2a78d6;   /* Eski Aboneler / aboneler */
+    --s2: #eb6834;   /* Yeni Aboneler */
+    --s3: #1baf7a;   /* Aktif Aboneler (retention) */
+    --cc1: #2a78d6; --cc2: #7cb342; --cc3: #7e3fb8; --cc4: #3bb8c4; --cc5: #e8705f;   /* ülkeler: Güney Kore, Çekya, ABD, Polonya, Japonya */
+    --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --border: rgba(255, 255, 255, 0.10);
+      --track: #2c2c2a;
+      --s1: #3987e5;
+      --s2: #d95926;
+      --s3: #199e70;
+      --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --border: rgba(255, 255, 255, 0.10);
+    --track: #2c2c2a;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 56px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+  /* Site header */
+  .site {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px;
+    padding-block: 22px 18px;
+    border-bottom: 1px solid var(--grid);
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .site-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .site-meta b { color: var(--ink-2); font-weight: 500; }
+  .refresh {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink-2); cursor: pointer; padding: 0;
+  }
+  .refresh:hover { color: var(--ink); border-color: var(--ink-2); }
+  .refresh:disabled { cursor: not-allowed; opacity: 0.55; }
+  .refresh.busy:disabled { cursor: progress; opacity: 0.8; }
+  .refresh.busy svg { animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .refresh.busy svg { animation: none; } }
+  .status { font-size: 12px; color: var(--muted); }
+  .status.err { color: var(--ink); }
+
+  /* Section */
+  section { padding-block: 32px 0; }
+  .sec-head { display: grid; gap: 10px; margin-bottom: 22px; }
+  h1 {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.1; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+  }
+
+  /* Segment cards */
+  .segments { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 720px) { .segments { grid-template-columns: 1fr 1fr; } }
+  .seg {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; min-width: 0; display: grid; gap: 18px; align-content: start;
+  }
+  .seg-head { display: grid; gap: 4px; }
+  .seg-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 18px; font-weight: 600; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
+  .seg-base { font-size: 13px; color: var(--ink-2); }
+  .seg-base b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .rate { display: grid; gap: 6px; min-width: 0; }
+  .rate-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .rate-val { font-size: clamp(26px, 5vw, 36px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+  .meter { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--c); transition: width .5s ease; }
+  @media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+  .rate-sub { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+  .rate-sub b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* Retention tiles */
+  .ret-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 719px) { .ret-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ret-card .rate-val { font-size: clamp(22px, 4vw, 30px); }
+
+  /* Step table */
+  .block { margin-top: 28px; display: grid; gap: 10px; }
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 13px; font-weight: 600; color: var(--ink); }
+  thead tr.grp th:first-child { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  thead tr.grp th span { display: inline-flex; align-items: center; gap: 8px; }
+  thead tr.grp th .swatch { width: 10px; height: 10px; }
+  thead tr.grp th { border-bottom: 0; padding-bottom: 2px; }
+  thead tr.sub th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  thead th.gap, td.gap { border-left: 1px solid var(--grid); }
+  tbody td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  tbody td:first-child { color: var(--ink); }
+  tbody tr.lesson td { color: var(--ink); font-weight: 600; background: color-mix(in srgb, var(--surface) 90%, var(--ink) 10%); }
+  tbody tr.lesson td:first-child::before { content: "●"; font-size: 8px; vertical-align: 2px; margin-right: 8px; color: var(--muted); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.pct { color: var(--ink-2); }
+  td.base-pct { font-weight: 500; }
+  td.strong { color: var(--ink); font-weight: 600; }
+  #lessons thead tr.sub th, #weekly thead tr.sub th { padding-top: 10px; }
+  /* Weekly chart: two groups (start / completion), one bar per country, legend below */
+  .weekly-card { padding-top: 10px; padding-bottom: 12px; }
+  .weekly-card .chart .bar { stroke: var(--surface); stroke-width: 1; }
+  .weekly-card .chart .val { font-size: 12px; fill: var(--ink); font-weight: 600; }
+  .weekly-card .chart .grp { font-size: 13px; fill: var(--ink-2); }
+  .weekly-card .chart .hit { fill: transparent; }
+  .wk-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 6px 0; border-top: 1px solid var(--grid); margin-top: 6px; }
+  .wk-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
+  .wk-legend .lg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .tbl-wrap.inner { border: 0; border-top: 1px solid var(--grid); border-radius: 0; background: transparent; margin-top: 18px; }
+  .tbl-wrap.inner th, .tbl-wrap.inner td { padding-left: 0; padding-right: 10px; }
+  .tbl-wrap.inner th:last-child, .tbl-wrap.inner td:last-child { padding-right: 0; }
+  .tbl-wrap.inner thead tr.sub th { padding-top: 12px; }
+  /* Funnel: both segments + step table in one card */
+  .funnel-card { gap: 0; padding: 18px 20px 8px; }
+  .fn-segs { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .fn-seg { display: grid; gap: 12px; min-width: 0; align-content: start; }
+  .fn-seg .seg-title { font-size: 16px; }
+  .fn-seg .rates { gap: 12px; }
+  .fn-seg .rate { gap: 5px; }
+  .fn-seg .rate-val { font-size: clamp(20px, 3.4vw, 26px); }
+  .fn-seg .meter { height: 5px; }
+  @media (min-width: 720px) {
+    .fn-segs { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .fn-seg + .fn-seg { border-left: 1px solid var(--grid); padding-left: 28px; }
+  }
+  .funnel-card .tbl-wrap.inner { margin-top: 16px; }
+  .funnel-card .tbl-wrap.inner th, .funnel-card .tbl-wrap.inner td { padding-top: 8px; padding-bottom: 8px; }
+  .funnel-card .tbl-wrap.inner thead tr.grp th { padding-top: 12px; }
+  .funnel-card .tbl-wrap.inner thead tr.sub th { padding-top: 2px; }
+
+  .ref { margin: 4px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+  .ref a { color: var(--ink-2); }
+
+  /* DAU */
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: grid; gap: 6px; min-width: 0; align-content: start;
+  }
+  .kpi-val { font-size: clamp(24px, 4.5vw, 32px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi-sub { font-size: 12px; color: var(--ink-2); }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px 6px; position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .chart .lbl { fill: var(--ink); font-weight: 600; }
+  .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  .chart .baseline { stroke: var(--grid); stroke-width: 1; }
+  .chart .area { fill: var(--s1); opacity: 0.12; }
+  .chart .line { fill: none; stroke: var(--s1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+  .chart .hover-line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+  .chart .hover-dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; opacity: 0; }
+  .chart .hit { fill: transparent; }
+  .tip {
+    position: absolute; pointer-events: none; display: none; z-index: 2;
+    background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.35;
+    padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px));
+  }
+  .tip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  /* Lock screen */
+  .lock { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-block: 32px; }
+  .lock-card {
+    width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 24px; display: grid; gap: 16px;
+  }
+  .lock-card .brand { font-size: 24px; }
+  .lock-card p { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .lock-card label { font-size: 13px; font-weight: 500; color: var(--ink-2); display: grid; gap: 6px; }
+  .lock-card input[type=password] {
+    font: inherit; font-size: 16px; padding: 11px 12px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink); width: 100%;
+  }
+  .lock-card .remember { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+  .lock-card button {
+    font: inherit; font-weight: 600; font-size: 15px; padding: 11px 14px; border-radius: 9px; border: 0;
+    background: var(--ink); color: var(--bg); cursor: pointer;
+  }
+  .lock-card button:disabled { opacity: 0.6; cursor: progress; }
+  .lock-err { font-size: 13px; color: var(--s2); min-height: 1.2em; }
+  .lock-out { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+  /* Page tabs (shared with index.html) */
+  .site { align-items: center; }
+  .site-l { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+  .tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
+  .tabs a { font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none; padding: 5px 12px; border-radius: 8px; line-height: 1.4; }
+  .tabs a:hover { color: var(--ink); }
+  .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+
+  /* Product dashboard */
+  .pd-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin-bottom: 14px; }
+  .pd-head h1 { margin: 0; }
+  .subtabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .subtabs span { font-size: 14px; font-weight: 600; padding: 0 0 9px; border-bottom: 2px solid var(--ink); margin-bottom: -1px; }
+
+  .filters { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 12px; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; border-bottom: 1px solid var(--border); }
+  .fgroup { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .flabel { font-size: 12px; color: var(--muted); }
+  .seg-ctl { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--track); }
+  .seg-ctl button { font: inherit; font-size: 13px; font-weight: 500; color: var(--ink-2); background: none; border: 0; padding: 4px 10px; border-radius: 7px; cursor: pointer; line-height: 1.4; }
+  .seg-ctl button:hover { color: var(--ink); }
+  .seg-ctl button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+  .filters select, .filters input[type="date"] { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; min-width: 0; max-width: 100%; }
+  .filters input[type="date"] { width: 9.2em; }
+  .custom { display: none; align-items: center; gap: 6px; }
+  .custom.on { display: flex; }
+  .custom span { color: var(--muted); font-size: 12px; }
+
+  .pd-sec { margin-bottom: 30px; }
+  .pd-sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 12px; }
+  .pd-sec-h h2 { margin: 0; font-size: 17px; font-weight: 600; }
+  .pd-sec-h small { font-size: 12px; color: var(--muted); }
+
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+  @media (min-width: 720px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } .tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .tiles.three .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  @media (min-width: 720px) { .tiles.three .tile:last-child:nth-child(odd) { grid-column: auto; } }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; }
+  .tile-t { font-size: 12px; color: var(--ink-2); font-weight: 500; }
+  .tile-v { font-size: clamp(22px, 4.6vw, 28px); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .tile-s { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+  .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .delta.up { color: var(--s3); }
+  .delta.down { color: var(--s2); }
+  .tile.na .tile-v { color: var(--muted); }
+
+  .charts { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 720px) { .charts.two { grid-template-columns: 1fr 1fr; } }
+  .chart-card h3 { margin: 2px 4px 2px; font-size: 13px; font-weight: 600; color: var(--ink-2); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--ink-2); font-weight: 400; }
+  .legend i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; background: var(--c); margin-right: 5px; vertical-align: middle; }
+  .chart .ln { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .ar { fill: var(--c); opacity: 0.10; }
+  .chart .bar { fill: var(--c); opacity: 0.85; }
+  .chart .bar.last { opacity: 1; }
+  .chart .val { font-size: 11px; fill: var(--ink); font-weight: 600; }
+  .chart-empty { font-size: 13px; color: var(--muted); padding: 40px 0; text-align: center; }
+  .seg-ctl.mini button { font-size: 12px; padding: 2px 8px; }
+
+  details.defs { margin-top: 8px; font-size: 13px; color: var(--ink-2); }
+  details.defs summary { cursor: pointer; color: var(--ink-2); font-weight: 500; }
+  details.defs ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; }
+  details.defs code { font-size: 12px; }
+</style>
+
+<div class="wrap lock" id="lock">
+  <form class="lock-card" id="lock-form" autocomplete="on">
+    <p class="brand">Lucida Data</p>
+    <p>Rakamları görmek için şifreyi gir.</p>
+    <input type="text" name="username" value="lucida-data" autocomplete="username" hidden>
+    <label>Şifre
+      <input type="password" id="lock-pass" name="password" autocomplete="current-password" required>
+    </label>
+    <label class="remember"><input type="checkbox" id="lock-remember" checked> Bu cihazda hatırla</label>
+    <button type="submit" id="lock-btn">Aç</button>
+    <div class="lock-err" id="lock-err" role="alert"></div>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header class="site">
+    <div class="site-l">
+      <p class="brand">Lucida Data</p>
+      <nav class="tabs" aria-label="Sayfalar"><a href="./">Genel</a><a href="engagement.html">Engagement</a><a href="dashboard.html" aria-current="page">Product</a></nav>
+    </div>
+    <div class="site-meta">
+      <span>Son güncelleme: <b id="updated-at">—</b></span>
+      <button type="button" class="lock-out" id="lock-out">Kilitle</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="pd-head"><h1>Product Dashboard</h1></div>
+    <div class="subtabs" role="tablist"><span role="tab" aria-selected="true">Overview</span></div>
+
+    <div class="filters" id="filters">
+      <div class="fgroup">
+        <div class="seg-ctl" id="f-range">
+          <button type="button" data-v="7">7G</button><button type="button" data-v="14">14G</button><button type="button" data-v="30">30G</button><button type="button" data-v="90">90G</button><button type="button" data-v="custom">Özel</button>
+        </div>
+        <div class="custom" id="f-custom"><input type="date" id="f-from" aria-label="Başlangıç"><span>–</span><input type="date" id="f-to" aria-label="Bitiş"></div>
+      </div>
+      <div class="fgroup">
+        <div class="seg-ctl" id="f-seg">
+          <button type="button" data-v="all">Tümü</button><button type="button" data-v="paid">Abone</button><button type="button" data-v="free">Ücretsiz</button>
+        </div>
+      </div>
+      <div class="fgroup">
+        <select id="f-slice" aria-label="Kırılım"></select>
+      </div>
+    </div>
+
+    <section class="pd-sec" aria-labelledby="h-act">
+      <div class="pd-sec-h"><h2 id="h-act">Kullanıcı aktivitesi</h2><small data-when></small></div>
+      <div class="tiles" id="t-act"></div>
+      <div class="charts"><div class="chart-card" id="c-act"></div></div>
+    </section>
+
+    <section class="pd-sec" aria-labelledby="h-learn">
+      <div class="pd-sec-h"><h2 id="h-learn">Konuşma ve node'lar</h2><small data-when></small></div>
+      <div class="tiles" id="t-learn"></div>
+      <div class="charts two"><div class="chart-card" id="c-speech"></div><div class="chart-card" id="c-nodes"></div></div>
+    </section>
+
+    <section class="pd-sec" aria-labelledby="h-use">
+      <div class="pd-sec-h"><h2 id="h-use">Uygulama kullanımı</h2><small data-when></small></div>
+      <div class="tiles three" id="t-use"></div>
+      <div class="charts"><div class="chart-card" id="c-use"></div></div>
+    </section>
+
+    <section class="pd-sec" aria-labelledby="h-sub">
+      <div class="pd-sec-h"><h2 id="h-sub">Aboneler</h2><small id="sub-note"></small></div>
+      <div class="tiles" id="t-sub"></div>
+      <div class="charts two"><div class="chart-card" id="c-sub"></div><div class="chart-card" id="c-rc"></div></div>
+    </section>
+
+    <details class="defs">
+      <summary>Tanımlar</summary>
+      <ul>
+        <li><b>Aktif kullanıcı</b>: <code>session_start</code> yapan tekil kullanıcı. WAU/MAU o güne kadarki 7/30 gün. (Amplitude'un "Any Active"i sunucudan giden <code>push_sent</code> yüzünden günde ~100 bin gösterir, kullanılmadı.)</li>
+        <li><b>Abone</b>: event anındaki RevenueCat durumu active, promotional, cancelled, grace_period veya intro. Ücretsiz: geri kalan herkes (deneme ve süresi bitenler dahil).</li>
+        <li><b>Konuşma süresi</b>: <code>anm_conv_session_ended</code> üzerindeki <code>speech_duration</code> toplamı (saniye). Konuşan kullanıcı: bu event'i atan tekil kullanıcı.</li>
+        <li><b>Node başlatma / tamamlama</b>: <code>anm_conv_page_viewed</code> / <code>post_call_report_shown</code> toplam adet.</li>
+        <li><b>Session süresi</b>: Amplitude session'larının toplam süresi. iOS'ta günde ~20 session 1 saati aşıyor, toplamı biraz şişirir.</li>
+        <li><b>Mağaza abonelikleri</b>: RevenueCat aktif abonelik, App Store + Google Play, hafta sonu itibarıyla. Web (promo) aboneleri burada yok; Stripe sayısı 28 Eylül'den beri donuk olduğu için dışarıda.</li>
+        <li>Kırılımlar tek boyutlu: platform, ülke veya versiyon. "5 ana pazar" = ABD, Güney Kore, Japonya, Polonya, Çekya. Günler UTC.</li>
+      </ul>
+    </details>
+  </main>
+
+  <footer>
+    <span>Kaynak: Amplitude (Lucida Prod), RevenueCat · UTC</span>
+    <span>Her sabah 09:00'da güncellenir</span>
+  </footer>
+</div>
+
+
+<script>
+// ============================================================
+// PRODUCT DASHBOARD — dashboard.enc.json: { days:[YYYY-MM-DD], countries, versions,
+//   m: { <metric>: { all|paid|free: { all | p:<platform> | c:<country> | v:<version>: [value per day] } } },
+//   rc: [{ d, ios, android }] }
+// metrics: dau wau mau speakers speech(sn) nstart ndone stime(sn)
+// ============================================================
+const nf = new Intl.NumberFormat("tr-TR");
+const nf1 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmtDate = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Istanbul" }).format(new Date(iso));
+const fmtDayShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+const fmtDayLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+
+const CORE5 = ["United States", "South Korea", "Japan", "Poland", "Czech Republic"];
+const TR_COUNTRY = { "United States": "ABD", "South Korea": "Güney Kore", "Japan": "Japonya", "Poland": "Polonya", "Czech Republic": "Çekya", "Hungary": "Macaristan", "United Kingdom": "Birleşik Krallık", "Philippines": "Filipinler", "Brazil": "Brezilya", "Turkey": "Türkiye" };
+
+// value formats
+const F = {
+  count: (v) => nf.format(Math.round(v)),
+  hours: (v) => (v < 360000 ? nf1.format(v / 3600) : nf.format(Math.round(v / 3600))) + " sa",
+  min: (v) => nf1.format(v / 60) + " dk",
+  pct: (v) => "%" + nf1.format(v * 100),
+  ratio: (v) => nf1.format(v),
+};
+
+// ---------- state ----------
+const D = { data: null };
+const state = { range: "30", from: null, to: null, seg: "all", slice: "all", actMetric: "dau" };
+
+// series for the current filters; seg can be forced (subscriber section)
+function series(metric, seg = state.seg) {
+  const bySeg = D.data.m[metric]?.[seg] || {};
+  const n = D.data.days.length, zero = () => new Array(n).fill(0);
+  if (state.slice === "core5") {
+    const out = zero();
+    for (const c of CORE5) (bySeg["c:" + c] || []).forEach((v, i) => { out[i] += v; });
+    return out;
+  }
+  return (bySeg[state.slice] || zero()).slice();
+}
+const div = (a, b) => a.map((v, i) => (b[i] ? v / b[i] : null));
+
+// selected window → [i0, i1] inclusive indexes into days
+function windowIdx() {
+  const days = D.data.days, last = days.length - 1;
+  if (state.range === "custom" && state.from && state.to) {
+    let i0 = days.indexOf(state.from), i1 = days.indexOf(state.to);
+    if (i0 < 0) i0 = 0; if (i1 < 0) i1 = last;
+    if (i0 > i1) [i0, i1] = [i1, i0];
+    return [i0, i1];
+  }
+  const n = Number(state.range) || 30;
+  return [Math.max(0, last - n + 1), last];
+}
+
+// ---------- tiles ----------
+// spec: { t, v: arr, f, sub?: (i1)=>string, good: "up"|"down"|null, na?: string }
+function tile(spec, i1) {
+  if (spec.na) return `<div class="tile na"><div class="tile-t">${esc(spec.t)}</div><div class="tile-v">—</div><div class="tile-s">${esc(spec.na)}</div></div>`;
+  const v = spec.v[i1], prev = i1 >= 7 ? spec.v[i1 - 7] : null;
+  let delta = "";
+  if (v != null && prev) {
+    const ch = (v - prev) / prev;
+    const cls = Math.abs(ch) < 0.005 ? "" : (ch > 0) === (spec.good !== "down") ? "up" : "down";
+    delta = `<span class="delta ${cls}">${ch > 0 ? "▲" : ch < 0 ? "▼" : ""} %${nf1.format(Math.abs(ch) * 100)}</span><span>geçen haftaya göre</span>`;
+  }
+  return `<div class="tile"><div class="tile-t">${esc(spec.t)}</div><div class="tile-v">${v == null ? "—" : spec.f(v)}</div><div class="tile-s">${delta}${spec.sub ? `<span>${spec.sub}</span>` : ""}</div></div>`;
+}
+const sumRange = (arr, i0, i1) => arr.slice(i0, i1 + 1).reduce((s, v) => s + (v || 0), 0);
+const avgRange = (arr, i0, i1) => { const a = arr.slice(i0, i1 + 1).filter((v) => v != null); return a.length ? a.reduce((s, v) => s + v, 0) / a.length : null; };
+
+// ---------- charts ----------
+const niceStep = (span) => {
+  const raw = span / 4, mag = 10 ** Math.floor(Math.log10(raw || 1));
+  return [1, 2, 2.5, 5, 10].map((k) => k * mag).find((s) => s >= raw) || mag * 10;
+};
+// lines: [{ name, color, vals, f }], all sharing one axis
+function lineChart(host, title, lines, days, opts = {}) {
+  const tip = `<div class="tip"></div>`;
+  const all = lines.flatMap((l) => l.vals).filter((v) => v != null);
+  const head = `<h3><span>${title}</span>${opts.ctl || (lines.length > 1 ? `<span class="legend">${lines.map((l) => `<span><i style="--c:${l.color}"></i>${esc(l.name)}</span>`).join("")}</span>` : "")}</h3>`;
+  if (!all.length) { host.innerHTML = head + `<div class="chart-empty">Bu filtrede veri yok.</div>`; return; }
+  const n = days.length;
+  const W = Math.max(300, Math.round(host.clientWidth - 24 || 600)), H = opts.h || 220;
+  const padL = 50, padR = 14, padT = 16, padB = 26;
+  const maxV = Math.max(...all), minV = Math.min(...all);
+  const step = niceStep(maxV - Math.min(0, minV) || maxV || 1);
+  const y0 = 0, y1 = Math.max(Math.ceil((maxV * 1.08) / step) * step, step);
+  const y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
+  const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
+  const ticks = []; for (let t = y0; t <= y1 + 1e-9; t += step) ticks.push(t);
+  const tf = opts.tick || ((t) => nf.format(t));
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 56)));
+  const xl = days.map((d, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
+    ? `<text x="${x(i).toFixed(1)}" y="${H - 7}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(d)}</text>` : "").join("");
+  const path = (vals) => { let s = "", pen = false; vals.forEach((v, i) => { if (v == null) { pen = false; return; } s += `${pen ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)} `; pen = true; }); return s; };
+  const paths = lines.map((l, k) => {
+    const p = path(l.vals);
+    const area = k === 0 && lines.length === 1 && l.vals.every((v) => v != null) ? `<path class="ar" style="--c:${l.color}" d="${p} L${x(n - 1).toFixed(1)} ${y(0).toFixed(1)} L${x(0).toFixed(1)} ${y(0).toFixed(1)} Z"/>` : "";
+    return area + `<path class="ln" style="--c:${l.color}" d="${p}"/>`;
+  }).join("");
+  const hits = days.map((_, i) => {
+    const left = i === 0 ? padL : (x(i - 1) + x(i)) / 2, right = i === n - 1 ? W - padR : (x(i) + x(i + 1)) / 2;
+    return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
+  }).join("");
+  host.innerHTML = head + `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || title)}">
+    ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${tf(t)}</text>`).join("")}
+    ${paths}${xl}
+    <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}"/>
+    ${lines.map((l, k) => `<circle class="hover-dot" data-k="${k}" r="4" cx="0" cy="0" style="fill:${l.color}"/>`).join("")}
+    ${hits}</svg></div>${tip}`;
+  const svg = host.querySelector("svg"), tipEl = host.querySelector(".tip"), hl = svg.querySelector(".hover-line");
+  const dots = [...svg.querySelectorAll(".hover-dot")];
+  const show = (i) => {
+    hl.setAttribute("x1", x(i)); hl.setAttribute("x2", x(i)); hl.style.opacity = 1;
+    dots.forEach((dt, k) => { const v = lines[k].vals[i]; if (v == null) { dt.style.opacity = 0; return; } dt.setAttribute("cx", x(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
+    const rect = svg.getBoundingClientRect(), card = host.getBoundingClientRect(), sx = rect.width / W, sy = rect.height / H;
+    const top = Math.min(...lines.map((l) => (l.vals[i] == null ? H : y(l.vals[i]))));
+    tipEl.innerHTML = `${fmtDayLong(days[i])}` + lines.map((l) => `<br>${lines.length > 1 ? esc(l.name) + ": " : ""}<b>${l.vals[i] == null ? "—" : l.f(l.vals[i])}</b>`).join("") + (opts.extra ? opts.extra(i) : "");
+    tipEl.style.left = `${Math.min(Math.max(rect.left - card.left + x(i) * sx, 90), card.width - 90)}px`;
+    tipEl.style.top = `${rect.top - card.top + top * sy}px`;
+    tipEl.style.display = "block";
+  };
+  const hide = () => { hl.style.opacity = 0; dots.forEach((dt) => { dt.style.opacity = 0; }); tipEl.style.display = "none"; };
+  svg.addEventListener("pointermove", (ev) => { const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide(); });
+  svg.addEventListener("pointerleave", hide);
+}
+
+function barChart(host, title, pts, color, f, note) {
+  const head = `<h3><span>${title}</span>${note ? `<span class="legend">${note}</span>` : ""}</h3>`;
+  if (!pts.length) { host.innerHTML = head + `<div class="chart-empty">Bu filtrede veri yok.</div>`; return; }
+  const n = pts.length, vals = pts.map((p) => p.v);
+  const W = Math.max(300, Math.round(host.clientWidth - 24 || 440)), H = 220, padL = 6, padR = 6, padT = 22, padB = 26;
+  const maxV = Math.max(...vals) * 1.15 || 1;
+  const y = (v) => padT + (1 - v / maxV) * (H - padT - padB);
+  const slot = (W - padL - padR) / n, bw = Math.min(40, slot * 0.62), base = H - padB;
+  const xs = vals.map((_, i) => padL + slot * (i + 0.5));
+  const every = Math.max(1, Math.ceil(n / Math.floor(W / 64)));
+  const showVal = slot > 34;
+  host.innerHTML = head + `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">
+    <line class="baseline" x1="${padL}" x2="${W - padR}" y1="${base}" y2="${base}"/>
+    ${vals.map((v, i) => `<rect class="bar${i === n - 1 ? " last" : ""}" style="--c:${color}" x="${(xs[i] - bw / 2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3"/>
+      ${showVal || i === n - 1 ? `<text class="val" x="${xs[i].toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${f(v)}</text>` : ""}
+      ${(n - 1 - i) % every === 0 ? `<text x="${xs[i].toFixed(1)}" y="${H - 7}" text-anchor="middle">${fmtDayShort(pts[i].d)}</text>` : ""}`).join("")}
+    ${xs.map((px, i) => `<rect class="hit" data-i="${i}" x="${(px - slot / 2).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${(base - padT).toFixed(1)}"/>`).join("")}
+  </svg></div><div class="tip"></div>`;
+  const svg = host.querySelector("svg"), tipEl = host.querySelector(".tip");
+  svg.addEventListener("pointermove", (ev) => {
+    const t = ev.target.closest("rect.hit"); if (!t) { tipEl.style.display = "none"; return; }
+    const i = Number(t.dataset.i), rect = svg.getBoundingClientRect(), card = host.getBoundingClientRect(), sx = rect.width / W, sy = rect.height / H;
+    tipEl.innerHTML = `${fmtDayLong(pts[i].d)}<br><b>${f(pts[i].v)}</b>${pts[i].tip ? "<br>" + pts[i].tip : ""}`;
+    tipEl.style.left = `${Math.min(Math.max(rect.left - card.left + xs[i] * sx, 90), card.width - 90)}px`;
+    tipEl.style.top = `${rect.top - card.top + y(pts[i].v) * sy}px`;
+    tipEl.style.display = "block";
+  });
+  svg.addEventListener("pointerleave", () => { tipEl.style.display = "none"; });
+}
+
+// ---------- render ----------
+const C1 = "var(--s1)", C2 = "var(--s2)", C3 = "var(--s3)", C4 = "var(--cc3)";
+function renderAll() {
+  const days = D.data.days, [i0, i1] = windowIdx(), win = days.slice(i0, i1 + 1);
+  const cut = (a) => a.slice(i0, i1 + 1);
+  const whenTxt = `${fmtDayLong(days[i1])} · grafikler ${fmtDayShort(days[i0])} – ${fmtDayShort(days[i1])}`;
+  document.querySelectorAll("[data-when]").forEach((el) => { el.textContent = whenTxt; });
+
+  // activity
+  const dau = series("dau"), wau = series("wau"), mau = series("mau");
+  const stick = div(dau, mau);
+  document.getElementById("t-act").innerHTML = [
+    tile({ t: "DAU", v: dau, f: F.count, sub: `ort. ${F.count(avgRange(dau, i0, i1))}` }, i1),
+    tile({ t: "WAU (son 7 gün)", v: wau, f: F.count }, i1),
+    tile({ t: "MAU (son 30 gün)", v: mau, f: F.count }, i1),
+    tile({ t: "Stickiness (DAU/MAU)", v: stick, f: F.pct }, i1),
+  ].join("");
+  const actSets = { dau: ["DAU", dau], wau: ["WAU", wau], mau: ["MAU", mau] };
+  const [actName, actVals] = actSets[state.actMetric];
+  const ctl = `<span class="seg-ctl mini" id="act-ctl">${Object.entries(actSets).map(([k, [nm]]) => `<button type="button" data-v="${k}" aria-pressed="${k === state.actMetric}">${nm}</button>`).join("")}</span>`;
+  lineChart(document.getElementById("c-act"), "Aktif kullanıcılar", [{ name: actName, color: C1, vals: cut(actVals), f: F.count }], win, { ctl });
+  document.getElementById("act-ctl").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; state.actMetric = b.dataset.v; renderAll(); });
+
+  // speaking & nodes
+  const speech = series("speech"), speakers = series("speakers"), ns = series("nstart"), nd = series("ndone");
+  const perSpeaker = div(speech, speakers), speakRate = div(speakers, dau), compl = div(nd, ns);
+  document.getElementById("t-learn").innerHTML = [
+    tile({ t: "Konuşma süresi", v: speech, f: F.hours, sub: `aralıkta ${F.hours(sumRange(speech, i0, i1))}` }, i1),
+    tile({ t: "Konuşan kullanıcı", v: speakers, f: F.count, sub: `DAU'nun ${speakRate[i1] == null ? "—" : F.pct(speakRate[i1])}'i` }, i1),
+    tile({ t: "Konuşan başına süre", v: perSpeaker, f: F.min }, i1),
+    tile({ t: "Node tamamlama oranı", v: compl, f: F.pct, sub: `${F.count(nd[i1])} / ${F.count(ns[i1])}` }, i1),
+  ].join("");
+  lineChart(document.getElementById("c-speech"), "Konuşma süresi (saat)", [{ name: "Konuşma", color: C1, vals: cut(speech).map((v) => v / 3600), f: (v) => nf.format(Math.round(v)) + " sa" }], win,
+    { extra: (i) => `<br>${F.count(cut(speakers)[i])} konuşan · ${perSpeaker[i0 + i] == null ? "—" : F.min(perSpeaker[i0 + i])}/kişi` });
+  lineChart(document.getElementById("c-nodes"), "Node başlatma ve tamamlama", [
+    { name: "Başlatma", color: C1, vals: cut(ns), f: F.count },
+    { name: "Tamamlama", color: C3, vals: cut(nd), f: F.count },
+  ], win, { extra: (i) => `<br>Oran: <b>${compl[i0 + i] == null ? "—" : F.pct(compl[i0 + i])}</b>` });
+
+  // app usage
+  const stime = series("stime"), perUser = div(stime, dau);
+  document.getElementById("t-use").innerHTML = [
+    tile({ t: "Toplam session süresi", v: stime, f: F.hours, sub: `aralıkta ${F.hours(sumRange(stime, i0, i1))}` }, i1),
+    tile({ t: "Kullanıcı başına süre", v: perUser, f: F.min, sub: `ort. ${perUser.slice(i0, i1 + 1).some((v) => v != null) ? F.min(avgRange(perUser, i0, i1)) : "—"}` }, i1),
+    tile({ t: "Konuşma payı", v: div(speech, stime), f: F.pct, sub: "konuşma / session süresi" }, i1),
+  ].join("");
+  lineChart(document.getElementById("c-use"), "Kullanıcı başına günlük süre (dk)", [{ name: "Süre", color: C1, vals: cut(perUser).map((v) => (v == null ? null : v / 60)), f: (v) => nf1.format(v) + " dk" }], win,
+    { tick: (t) => nf.format(t), extra: (i) => `<br>Toplam ${F.hours(cut(stime)[i])}` });
+
+  // subscribers (always the paid segment; slice filter applies)
+  const pDau = series("dau", "paid"), pWau = series("wau", "paid"), pMau = series("mau", "paid");
+  const pSpk = series("speakers", "paid"), pSpeech = series("speech", "paid");
+  document.getElementById("sub-note").textContent = state.seg !== "all" ? "Kullanıcı filtresinden bağımsız, hep aboneler" : "";
+  const sl = state.slice, rcOk = sl === "all" || sl.startsWith("p:");
+  const rcVal = (w) => (sl === "p:iOS" ? w.ios : sl === "p:Android" ? w.android : w.ios + w.android);
+  const rcPts = D.data.rc.map((w) => ({ d: w.d, v: rcVal(w), tip: sl === "all" ? `iOS ${F.count(w.ios)} · Android ${F.count(w.android)}` : "" }));
+  const rcLast = rcPts.filter((p) => p.d <= days[i1]).at(-1);
+  const rcPrev = rcPts.filter((p) => p.d <= days[i1]).at(-5);
+  document.getElementById("t-sub").innerHTML = [
+    tile({ t: "Aktif abone (30 gün)", v: pMau, f: F.count, sub: "uygulamayı açan" }, i1),
+    tile({ t: "Abone DAU", v: pDau, f: F.count, sub: `WAU ${F.count(pWau[i1])}` }, i1),
+    tile({ t: "Abone konuşma oranı", v: div(pSpk, pDau), f: F.pct, sub: `${F.count(pSpk[i1])} konuşan` }, i1),
+    rcOk && rcLast
+      ? `<div class="tile"><div class="tile-t">Mağaza abonelikleri</div><div class="tile-v">${F.count(rcLast.v)}</div><div class="tile-s">${rcPrev ? (() => { const ch = (rcLast.v - rcPrev.v) / rcPrev.v; return `<span class="delta ${ch >= 0 ? "up" : "down"}">${ch >= 0 ? "▲" : "▼"} %${nf1.format(Math.abs(ch) * 100)}</span><span>4 haftada · RevenueCat</span>`; })() : "<span>RevenueCat</span>"}</div></div>`
+      : tile({ t: "Mağaza abonelikleri", na: "RevenueCat: yalnız platform kırılımı" }, i1),
+  ].join("");
+  lineChart(document.getElementById("c-sub"), "Aktif aboneler", [
+    { name: "DAU", color: C1, vals: cut(pDau), f: F.count },
+    { name: "WAU", color: C4, vals: cut(pWau), f: F.count },
+  ], win, { extra: (i) => `<br>Konuşma ${F.hours(cut(pSpeech)[i])}` });
+  const rcHost = document.getElementById("c-rc");
+  if (rcOk) barChart(rcHost, "Mağaza abonelikleri (haftalık)", rcPts.filter((p) => p.d <= days[i1]).slice(-13), C3, F.count, "App Store + Google Play");
+  else rcHost.innerHTML = `<h3><span>Mağaza abonelikleri (haftalık)</span></h3><div class="chart-empty">RevenueCat verisi ülke/versiyon kırılımında yok.</div>`;
+}
+
+// ---------- filters ----------
+function buildFilters() {
+  const sel = document.getElementById("f-slice");
+  const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
+  sel.innerHTML = opt("all", "Tüm platform / ülke / versiyon")
+    + `<optgroup label="Platform">${opt("p:iOS", "iOS")}${opt("p:Android", "Android")}</optgroup>`
+    + `<optgroup label="Ülke">${opt("core5", "5 ana pazar")}${D.data.countries.map((c) => opt("c:" + c, TR_COUNTRY[c] || c)).join("")}</optgroup>`
+    + `<optgroup label="Versiyon">${D.data.versions.map((v) => opt("v:" + v, v)).join("")}</optgroup>`;
+  const days = D.data.days;
+  for (const id of ["f-from", "f-to"]) { const el = document.getElementById(id); el.min = days[0]; el.max = days.at(-1); }
+  syncControls();
+}
+function syncControls() {
+  document.querySelectorAll("#f-range button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state.range)));
+  document.querySelectorAll("#f-seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state.seg)));
+  document.getElementById("f-slice").value = state.slice;
+  document.getElementById("f-custom").classList.toggle("on", state.range === "custom");
+  const [i0, i1] = windowIdx();
+  document.getElementById("f-from").value = D.data.days[i0];
+  document.getElementById("f-to").value = D.data.days[i1];
+  try { localStorage.setItem("lucida-data:pd", JSON.stringify({ range: state.range, seg: state.seg, slice: state.slice, from: state.from, to: state.to })); } catch (e) { /* ignore */ }
+}
+document.getElementById("f-range").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button"); if (!b) return;
+  if (b.dataset.v === "custom") { const [i0, i1] = windowIdx(); state.from = D.data.days[i0]; state.to = D.data.days[i1]; }
+  state.range = b.dataset.v; syncControls(); renderAll();
+});
+document.getElementById("f-seg").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; state.seg = b.dataset.v; syncControls(); renderAll(); });
+document.getElementById("f-slice").addEventListener("change", (ev) => { state.slice = ev.target.value; syncControls(); renderAll(); });
+for (const id of ["f-from", "f-to"]) document.getElementById(id).addEventListener("change", () => {
+  state.from = document.getElementById("f-from").value; state.to = document.getElementById("f-to").value; syncControls(); renderAll();
+});
+
+let resizeTimer = null;
+window.addEventListener("resize", () => { if (appEl.hidden) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 150); });
+
+// ---------- decryption (same keys as index.html) ----------
+const b64 = (s) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
+const getJson = async (path) => {
+  const res = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${path} yüklenemedi (${res.status})`);
+  return res.json();
+};
+async function unlock(password) {
+  const [keys, box] = await Promise.all([getJson("keys.json"), getJson("dashboard.enc.json")]);
+  const s = keys.sealedPrivateKey;
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  const kek = await crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: b64(s.salt), iterations: s.iterations }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  let jwkBytes;
+  try { jwkBytes = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(s.iv) }, kek, b64(s.ct)); }
+  catch (e) { const err = new Error("Şifre yanlış."); err.wrong = true; throw err; }
+  const priv = await crypto.subtle.importKey("jwk", JSON.parse(new TextDecoder().decode(jwkBytes)), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["unwrapKey"]);
+  const dek = await crypto.subtle.unwrapKey("raw", b64(box.wrappedKey), priv, { name: "RSA-OAEP" }, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(box.iv) }, dek, b64(box.ct));
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+function load(data) {
+  D.data = data;
+  try {
+    const s = JSON.parse(localStorage.getItem("lucida-data:pd") || "null");
+    if (s) {
+      if (["7", "14", "30", "90", "custom"].includes(s.range)) state.range = s.range;
+      if (["all", "paid", "free"].includes(s.seg)) state.seg = s.seg;
+      const okSlice = s.slice === "all" || s.slice === "core5" || s.slice === "p:iOS" || s.slice === "p:Android"
+        || data.countries.includes(String(s.slice).slice(2)) || data.versions.includes(String(s.slice).slice(2));
+      if (okSlice) state.slice = s.slice;
+      if (s.from && data.days.includes(s.from)) state.from = s.from;
+      if (s.to && data.days.includes(s.to)) state.to = s.to;
+      if (state.range === "custom" && !(state.from && state.to)) state.range = "30";
+    }
+  } catch (e) { /* ignore */ }
+  document.getElementById("updated-at").textContent = fmtDate(data.generatedAt);
+  buildFilters();
+}
+
+// ---------- lock screen (password shared with index.html) ----------
+const STORE_KEY = "lucida-data:pass";
+const store = {
+  get() { try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem(STORE_KEY, v); } catch (e) { /* private mode */ } },
+  clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ } }
+};
+const lockEl = document.getElementById("lock"), appEl = document.getElementById("app");
+const form = document.getElementById("lock-form"), passEl = document.getElementById("lock-pass");
+const rememberEl = document.getElementById("lock-remember"), btnEl = document.getElementById("lock-btn"), errEl = document.getElementById("lock-err");
+
+async function open(password, remember) {
+  btnEl.disabled = true; errEl.textContent = ""; btnEl.textContent = "Açılıyor…";
+  try {
+    load(await unlock(password));
+    if (remember) store.set(password);
+    lockEl.hidden = true; appEl.hidden = false;
+    renderAll();
+  } catch (e) {
+    if (e.wrong) store.clear();
+    errEl.textContent = e.wrong ? "Şifre yanlış." : "Veri yüklenemedi: " + (e.message || e);
+    lockEl.hidden = false; appEl.hidden = true;
+  } finally {
+    btnEl.disabled = false; btnEl.textContent = "Aç";
+  }
+}
+form.addEventListener("submit", (ev) => { ev.preventDefault(); open(passEl.value, rememberEl.checked); });
+document.getElementById("lock-out").addEventListener("click", () => {
+  store.clear(); passEl.value = ""; appEl.hidden = true; lockEl.hidden = false; passEl.focus();
+});
+const saved = store.get();
+if (saved) open(saved, true); else passEl.focus();
+</script>
+
+</body></html>

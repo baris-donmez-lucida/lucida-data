@@ -1,0 +1,1069 @@
+{
+ "countries": [
+  "United States",
+  "South Korea",
+  "Japan",
+  "Poland",
+  "Czech Republic",
+  "Hungary",
+  "United Kingdom",
+  "Philippines",
+  "Brazil",
+  "Turkey"
+ ],
+ "paid": [
+  "active",
+  "promotional",
+  "cancelled",
+  "grace_period",
+  "intro"
+ ],
+ "queries": [
+  {
+   "id": "dau",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product Dashboard · DAU",
+    "events": [
+     {
+      "event": "session_start",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "all"
+     },
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "free",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is not",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500
+  },
+  {
+   "id": "wau",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product Dashboard · WAU",
+    "events": [
+     {
+      "event": "session_start",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "all"
+     },
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "free",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is not",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "rolling_window": 7
+   },
+   "groupByLimit": 500
+  },
+  {
+   "id": "mau",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product Dashboard · MAU",
+    "events": [
+     {
+      "event": "session_start",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "all"
+     },
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "free",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is not",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "rolling_window": 30
+   },
+   "groupByLimit": 500
+  },
+  {
+   "id": "speakers",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product Dashboard · Konuşan kullanıcı",
+    "events": [
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "all"
+     },
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "free",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is not",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500
+  },
+  {
+   "id": "speech",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product Dashboard · Konuşma süresi (sn)",
+    "events": [
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       }
+      ],
+      "where": []
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "property_sum"
+    },
+    "segments": [
+     {
+      "label": "all"
+     },
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "free",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is not",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500
+  },
+  {
+   "id": "nodes",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product Dashboard · Node başlatma/tamamlama",
+    "events": [
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     },
+     {
+      "event": "post_call_report_shown",
+      "group_by": [],
+      "where": []
+     },
+     {
+      "event": "post_call_report_shown",
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "post_call_report_shown",
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "post_call_report_shown",
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ],
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "all"
+     },
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "free",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is not",
+        "values": [
+         "active",
+         "promotional",
+         "cancelled",
+         "grace_period",
+         "intro"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500
+  },
+  {
+   "id": "sess_pc",
+   "definition": {
+    "type": "sessions",
+    "app": "773708",
+    "name": "Product Dashboard · Session süresi (platform x ülke)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "interval": 1,
+     "sessionType": "totalTime",
+     "countGroup": "User",
+     "sessions": [
+      {
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "platform",
+       "group_type": "User"
+      },
+      {
+       "type": "user",
+       "value": "country",
+       "group_type": "User"
+      }
+     ],
+     "segments": [
+      {
+       "label": "all",
+       "conditions": []
+      },
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "promotional",
+          "cancelled",
+          "grace_period",
+          "intro"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "free",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is not",
+         "values": [
+          "active",
+          "promotional",
+          "cancelled",
+          "grace_period",
+          "intro"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "groupByLimit": 1000
+  },
+  {
+   "id": "sess_pv",
+   "definition": {
+    "type": "sessions",
+    "app": "773708",
+    "name": "Product Dashboard · Session süresi (platform x versiyon)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "interval": 1,
+     "sessionType": "totalTime",
+     "countGroup": "User",
+     "sessions": [
+      {
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "platform",
+       "group_type": "User"
+      },
+      {
+       "type": "user",
+       "value": "version",
+       "group_type": "User"
+      }
+     ],
+     "segments": [
+      {
+       "label": "all",
+       "conditions": []
+      },
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "promotional",
+          "cancelled",
+          "grace_period",
+          "intro"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "free",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is not",
+         "values": [
+          "active",
+          "promotional",
+          "cancelled",
+          "grace_period",
+          "intro"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "groupByLimit": 1000
+  }
+ ],
+ "about": "Product Dashboard (dashboard.html) query list. Each query runs once over the last 90 complete UTC days: replace \"<START>\" with the first day's 00:00:00 UTC and \"<END>\" with yesterday 23:59:59 UTC as epoch seconds (numbers, not strings). 'chart' goes to query_amplitude_data's chart param, 'definition' to its definition param; always pass projectId 773708, groupByLimit as given and timeSeriesLimit equal to it. Save each raw tool result as <raw-dir>/<id>.json, then run node scripts/build-dashboard.mjs <raw-dir>.",
+ "rc": {
+  "file": "rc.json",
+  "how": "RevenueCat get-chart-data project proj9cc11412, chart actives, resolution 1 (week), segment store, start_date = first day, end_date = yesterday. Write <raw-dir>/rc.json as {\"weeks\":[{\"d\":\"YYYY-MM-DD\",\"app_store\":N,\"play_store\":N}]} — one row per returned cohort (cohort epoch -> UTC date), App Store and Play Store values only; map segment indices by the response's segments list (order varies between calls). Skip Stripe (frozen at 10488 since 2026-09-28) and Paddle (legacy, flat)."
+ }
+}
