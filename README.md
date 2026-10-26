@@ -13,7 +13,7 @@ gösteren, şifreyle açılan statik sayfa. GitHub Pages'te yayında.
   DAU/WAU/MAU, konuşma süresi, node'lar, uygulamada geçen süre, mağaza abonelikleri. Dersler sekmesi (`#dersler`):
   yeni abonelerin ilk 7 günde 1.–5. dersi tamamlama oranı (ders adımları) ve başlangıç versiyonu
   karşılaştırması. Aktivasyon sekmesi (`#aktivasyon`): yeni paid kullanıcıların ilk ödeme haftasına göre 7 günde
-  node başlatma/tamamlama, ilk 24 saatte 1+/2+/3+ ve ilk 7 günde 3+/5+/10+ node oranı. Her kartın kendi tarih ve kırılım seçimi var.
+  node başlatma/tamamlama ve 3+/5+/10+ node oranı (haftalık ya da günlük kohort), ilk 24 saatte 1+/2+/3+ node (günlük). Her kartın kendi tarih ve kırılım seçimi var.
 - `dashboard/queries.json` — Product Dashboard'un Amplitude sorguları (90 gün, her filtre kırılımı tek sorguda) ve RevenueCat talimatı. Rakam içermez.
 - `dashboard.enc.json` — Product Dashboard verisi, aynı şekilde şifreli.
 - `keys.json` — açık anahtar + şifreyle (PBKDF2-SHA256) kilitlenmiş özel anahtar. Şifrenin kendisi hiçbir yerde saklanmaz.

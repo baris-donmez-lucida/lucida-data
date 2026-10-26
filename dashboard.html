@@ -346,7 +346,7 @@
       <ul>
         <li><b>Yeni paid</b>: kullanıcının hayattaki ilk <code>rc_subscription_event</code>'i (App Store / Play / Stripe) ya da ilk <code>rc_non_subscription_purchase_event</code>'i (web promo). 28 Eylül öncesinde aboneliği olanların promo kaydı yeni sayılmaz (mevcut web abonelerinin toplu taşınması). Kohort = ilk ödeme haftası (Pazartesi başlangıçlı, UTC).</li>
         <li><b>Node başlattı</b>: ödemeden sonraki 7 gün içinde <code>current_lesson_start_bt</code>, <code>not_current_lesson_start_bt</code> veya <code>completed_lesson_start_bt</code>. <b>Node tamamladı</b>: aynı sürede <code>anm_c_lesson_completed</code>; 2+, 3+ … aynı event'in kaç kez atıldığı (tekrar oynanan dersler dahil).</li>
-        <li>Kesikli çizgi ve içi boş nokta: o haftanın penceresi (7 gün ya da 24 saat) henüz kapanmadı. Son 4 hafta ortalaması kapanmış haftaların kişi ağırlıklı ortalaması.</li>
+        <li><b>Haftalık / Günlük</b>: kohort ilk ödeme haftası ya da günü. İlk 24 saat kartı yalnız günlük. Kesikli çizgi ve içi boş nokta: penceresi (7 gün ya da 24 saat) henüz kapanmamış hafta/gün. "Son 4 hafta" ve "son 7 gün" ortalamaları kapanmış dönemlerin kişi ağırlıklı ortalaması; 20 kişiden az yeni paid olan nokta çizilmez.</li>
         <li>Platform kırılımı kullanıcının iOS / Android cihaz özelliğine göre; uygulamayı henüz açmamış web alıcıları iki platformda da görünmez. Aynı hafta hem mağaza hem web ödemesi yapan birkaç kişi iki kez sayılır (haftada ~%1).</li>
       </ul>
     </details>
@@ -592,26 +592,36 @@ const LES_CARDS = [
     } },
 ].map((cd) => ({ ...cd, tab: "lessons", lesson: true }));
 
-// ---------- Aktivasyon: new paid users by first-payment week ----------
-// pa: { weeks:[Monday], closed:[7-day window ended], closed1:[24 h window ended],
-//       slices: { key: { n, s, c, d3, d5, d10, f1, f2, f3: [count per week] } } }
+// ---------- Aktivasyon: new paid users by first-payment week or day ----------
+// pa: { weeks:[Monday], closed:[7-day window ended], closed1:[24 h window ended], slices: { key: { n, s, c, d3, d5, d10, f1, f2, f3: [count per week] } },
+//       days:[payment day], dclosed, dclosed1, daily: { key: { same fields: [count per day] } } }
 const PA_FIELDS = ["n", "s", "c", "d3", "d5", "d10", "f1", "f2", "f3"];
+const PA_RANGES = [["14", "14G"], ["30", "30G"], ["60", "60G"], ["90", "90G"]];
 const ppHtml = (cur, prev, label) => {
   if (cur == null || prev == null) return "";
   const d = cur - prev, cls = Math.abs(d) < 0.0005 ? "" : d > 0 ? "up" : "down";
   return `<span><span class="delta ${cls}">${d > 0 ? "▲" : d < 0 ? "▼" : ""} ${nf1.format(Math.abs(d) * 100)} puan</span> ${label}</span>`;
 };
-function paSeries(slice) {
-  const P = D.data.pa.slices;
+const fmtWeek = (d) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(d + "T00:00:00Z"));
+// One slice of the weekly or daily cohort counts (core5 = sum of the five markets).
+function paSeries(slice, daily) {
+  const P = daily ? D.data.pa.daily : D.data.pa.slices, len = (daily ? D.data.pa.days : D.data.pa.weeks).length;
   if (slice !== "core5") return P[slice] || P.all;
-  const out = Object.fromEntries(PA_FIELDS.map((f) => [f, D.data.pa.weeks.map(() => 0)]));
+  const out = Object.fromEntries(PA_FIELDS.map((f) => [f, new Array(len).fill(0)]));
   for (const c of CORE5) { const x = P["c:" + c]; if (x) PA_FIELDS.forEach((f) => x[f].forEach((v, i) => { out[f][i] += v; })); }
   return out;
 }
-const fmtWeek = (d) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(d + "T00:00:00Z"));
-// Weekly cohort chart: % lines (dashed where the week's window is still open) and optional bars for cohort size.
-function weeklyChart(host, card, lines, closed, bars) {
-  const tipEl = card.querySelector(".tip"), weeks = D.data.pa.weeks, n = weeks.length;
+// What a card shows: every week, or the selected range of payment days. win "7" or "1" picks the matching window flags.
+function paView(s, daily, win) {
+  const P = D.data.pa, x = paSeries(s.slice, daily);
+  const closed = daily ? (win === "1" ? P.dclosed1 : P.dclosed) : win === "1" ? P.closed1 : P.closed;
+  const labels = daily ? P.days : P.weeks, i1 = labels.length - 1, i0 = daily ? Math.max(0, i1 - Number(s.range) + 1) : 0;
+  const cut = (a) => a.slice(i0, i1 + 1);
+  return { daily, x, closed, labels, cut, win: { labels: cut(labels), closed: cut(closed) } };
+}
+// Cohort chart: % lines (dashed where the window is still open) and optional bars for cohort size.
+function cohortChart(host, card, view, lines, bars) {
+  const tipEl = card.querySelector(".tip"), labels = view.win.labels, closed = view.win.closed, n = labels.length;
   const all = lines.flatMap((l) => l.vals).filter((v) => v != null);
   if (!all.length) { host.innerHTML = `<div class="chart-empty">Bu kırılımda veri yok.</div>`; return; }
   const W = Math.max(300, Math.round(host.clientWidth || 600)), H = 220, padL = 40, padR = bars ? 44 : 12, padT = 14, padB = 26;
@@ -624,8 +634,9 @@ function weeklyChart(host, card, lines, closed, bars) {
     svg += bars.map((v, i) => `<rect class="bar" style="--c:var(--track)" x="${(x(i) - bw / 2).toFixed(1)}" y="${by(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(H - padB - by(v)).toFixed(1)}" rx="2"/>`).join("");
     for (let t = 0; t <= bmax + 1e-9; t += bstep * 2) svg += `<text x="${W - padR + 6}" y="${(by(t) + 4).toFixed(1)}">${nf.format(t)}</text>`;
   }
-  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 56)));
-  svg += weeks.map((w, i) => ((n - 1 - i) % every === 0 ? `<text x="${x(i).toFixed(1)}" y="${H - 7}" text-anchor="middle">${fmtWeek(w)}</text>` : "")).join("");
+  const tick = view.daily ? fmtDayShort : fmtWeek, every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 56)));
+  svg += labels.map((d, i) => ((n - 1 - i) % every === 0 ? `<text x="${x(i).toFixed(1)}" y="${H - 7}" text-anchor="middle">${tick(d)}</text>` : "")).join("");
+  const r = view.daily && n > 40 ? 1.8 : 2.6;
   for (const l of lines) {
     let solid = "", dash = "";
     for (let i = 1; i < n; i++) {
@@ -634,48 +645,53 @@ function weeklyChart(host, card, lines, closed, bars) {
       if (closed[i]) solid += seg; else dash += seg;
     }
     svg += `<path class="ln" style="--c:${l.color}" d="${solid}"/><path class="ln" style="--c:${l.color};stroke-dasharray:5 4" d="${dash}"/>`;
-    svg += l.vals.map((v, i) => (v == null ? "" : `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.6" style="fill:${closed[i] ? l.color : "var(--surface)"};stroke:${l.color};stroke-width:1.5"/>`)).join("");
+    svg += l.vals.map((v, i) => (v == null ? "" : `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${r}" style="fill:${closed[i] ? l.color : "var(--surface)"};stroke:${l.color};stroke-width:1.5"/>`)).join("");
   }
-  svg += weeks.map((_, i) => `<rect class="hit" data-i="${i}" x="${(padL + slot * i).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`).join("");
+  svg += labels.map((_, i) => `<rect class="hit" data-i="${i}" x="${(padL + slot * i).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`).join("");
   host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(card.querySelector("h2").textContent)}">${svg}</svg>`;
   const el = host.querySelector("svg");
   el.addEventListener("pointermove", (ev) => {
     const t = ev.target.closest("rect.hit"); if (!t) { tipEl.style.display = "none"; return; }
     const i = Number(t.dataset.i), top = Math.min(...lines.map((l) => (l.vals[i] == null ? H : y(l.vals[i]))));
-    placeTip(tipEl, card, el, W, H, x(i), top, `${fmtWeek(weeks[i])} haftası${closed[i] ? "" : " (pencere açık)"}`
+    placeTip(tipEl, card, el, W, H, x(i), top, `${view.daily ? fmtDayLong(labels[i]) : fmtWeek(labels[i]) + " haftası"}${closed[i] ? "" : " (pencere açık)"}`
       + lines.map((l) => `<br>${esc(l.name)}: <b>${l.vals[i] == null ? "—" : "%" + nf1.format(l.vals[i])}</b>`).join("") + (bars ? `<br>${F.count(bars[i])} yeni paid` : ""));
   });
   el.addEventListener("pointerleave", () => { tipEl.style.display = "none"; });
 }
-// Headline: latest closed week, previous closed week and the last 4 closed weeks (people-weighted).
-function paKpi(x, field, closed) {
-  const k = closed.lastIndexOf(true), last4 = [];
-  for (let i = k; i >= 0 && last4.length < 4; i--) if (closed[i]) last4.push(i);
+// Headline: latest closed week/day, the one before, and the last 4 weeks / 7 days that closed (people-weighted).
+function paKpi(view, field) {
+  const { x, closed, labels, daily } = view, k = closed.lastIndexOf(true), back = [];
+  for (let i = k; i >= 0 && back.length < (daily ? 7 : 4); i--) if (closed[i]) back.push(i);
   const r = (i) => (x.n[i] ? x[field][i] / x.n[i] : null);
-  const avg = last4.reduce((t, i) => t + x[field][i], 0) / (last4.reduce((t, i) => t + x.n[i], 0) || 1);
-  return { k, cur: r(k), prev: k > 0 ? r(k - 1) : null, avg };
+  const avg = back.reduce((t, i) => t + x[field][i], 0) / (back.reduce((t, i) => t + x.n[i], 0) || 1);
+  return { cur: r(k), prev: k > 0 ? r(k - 1) : null, avg, n: x.n[k],
+    when: daily ? fmtDayShort(labels[k]) : `${fmtWeek(labels[k])} haftası`, vsPrev: daily ? "önceki güne göre" : "önceki haftaya göre", avgLabel: daily ? "son 7 gün ort." : "son 4 hafta ort." };
 }
-const paLines = (x, defs) => defs.map(([field, name, color]) => ({ name, color, vals: x[field].map((v, i) => (x.n[i] >= 20 ? (100 * v) / x.n[i] : null)) }));
+const paLines = (view, defs) => defs.map(([field, name, color]) => ({ name, color, vals: view.cut(view.x[field].map((v, i) => (view.x.n[i] >= 20 ? (100 * v) / view.x.n[i] : null))) }));
+const legend = (items) => `<div class="legend">${items.map(([name, color, bar]) => `<span><i style="--c:${color}${bar ? ";height:8px" : ""}"></i>${name}</span>`).join("")}</div>`;
+const VIEW_TOGGLE = [["w", "Haftalık"], ["d", "Günlük"]];
 const PA_CARDS = [
-  { id: "pa1", title: "Node aktivasyonu (ilk 7 gün)", wide: true, render: (c, s) => {
-      const P = D.data.pa, x = paSeries(s.slice), a = paKpi(x, "s", P.closed), b = paKpi(x, "c", P.closed);
-      c.body.innerHTML = kpi(a.cur == null ? "—" : F.pct(a.cur), [sub(`node başlattı · ${fmtWeek(P.weeks[a.k])} haftası`), ppHtml(a.cur, a.prev, "önceki haftaya göre"), sub(`tamamladı <b>${b.cur == null ? "—" : F.pct(b.cur)}</b>`), sub(`son 4 hafta ort. başlatma ${F.pct(a.avg)} · tamamlama ${F.pct(b.avg)}`), sub(`<b>${F.count(x.n[a.k])}</b> yeni paid`)])
-        + `<div class="legend"><span><i style="--c:${C1}"></i>Node başlattı</span><span><i style="--c:${C3}"></i>Node tamamladı</span><span><i style="--c:var(--track);height:8px"></i>Yeni paid (sağ eksen)</span></div>`;
-      weeklyChart(c.chart, c.el, paLines(x, [["s", "Node başlattı", C1], ["c", "Node tamamladı", C3]]), P.closed, x.n);
+  { id: "pa1", title: "Node aktivasyonu (ilk 7 gün)", wide: true, toggle: VIEW_TOGGLE, render: (c, s) => {
+      const v = paView(s, s.metric === "d", "7"), a = paKpi(v, "s"), b = paKpi(v, "c");
+      c.body.innerHTML = kpi(a.cur == null ? "—" : F.pct(a.cur), [sub(`node başlattı · ${a.when}`), ppHtml(a.cur, a.prev, a.vsPrev), sub(`tamamladı <b>${b.cur == null ? "—" : F.pct(b.cur)}</b>`), sub(`${a.avgLabel} başlatma ${F.pct(a.avg)} · tamamlama ${F.pct(b.avg)}`), sub(`<b>${F.count(a.n)}</b> yeni paid`)])
+        + legend([["Node başlattı", C1], ["Node tamamladı", C3], ["Yeni paid (sağ eksen)", "var(--track)", true]]);
+      cohortChart(c.chart, c.el, v, paLines(v, [["s", "Node başlattı", C1], ["c", "Node tamamladı", C3]]), v.cut(v.x.n));
     } },
-  { id: "pa2", title: "İlk 24 saatte tamamlanan node", render: (c, s) => {
-      const P = D.data.pa, x = paSeries(s.slice), a = paKpi(x, "f1", P.closed1);
-      c.body.innerHTML = kpi(a.cur == null ? "—" : F.pct(a.cur), [sub(`1+ node · ${fmtWeek(P.weeks[a.k])} haftası`), ppHtml(a.cur, a.prev, "önceki haftaya göre"), sub(`son 4 hafta ort. ${F.pct(a.avg)}`)])
-        + `<div class="legend"><span><i style="--c:${C1}"></i>1+ node</span><span><i style="--c:${C3}"></i>2+ node</span><span><i style="--c:${C2}"></i>3+ node</span></div>`;
-      weeklyChart(c.chart, c.el, paLines(x, [["f1", "1+ node", C1], ["f2", "2+ node", C3], ["f3", "3+ node", C2]]), P.closed1);
+  { id: "pa2", title: "İlk 24 saatte tamamlanan node (günlük)", render: (c, s) => {
+      const v = paView(s, true, "1"), a = paKpi(v, "f1");
+      c.body.innerHTML = kpi(a.cur == null ? "—" : F.pct(a.cur), [sub(`1+ node · ${a.when}`), ppHtml(a.cur, a.prev, a.vsPrev), sub(`${a.avgLabel} ${F.pct(a.avg)}`), sub(`<b>${F.count(a.n)}</b> yeni paid`)])
+        + legend([["1+ node", C1], ["2+ node", C3], ["3+ node", C2]]);
+      cohortChart(c.chart, c.el, v, paLines(v, [["f1", "1+ node", C1], ["f2", "2+ node", C3], ["f3", "3+ node", C2]]));
     } },
-  { id: "pa3", title: "İlk 7 günde tamamlanan node", render: (c, s) => {
-      const P = D.data.pa, x = paSeries(s.slice), a = paKpi(x, "d3", P.closed);
-      c.body.innerHTML = kpi(a.cur == null ? "—" : F.pct(a.cur), [sub(`3+ node · ${fmtWeek(P.weeks[a.k])} haftası`), ppHtml(a.cur, a.prev, "önceki haftaya göre"), sub(`son 4 hafta ort. ${F.pct(a.avg)}`)])
-        + `<div class="legend"><span><i style="--c:${C1}"></i>3+ node</span><span><i style="--c:${C3}"></i>5+ node</span><span><i style="--c:${C2}"></i>10+ node</span></div>`;
-      weeklyChart(c.chart, c.el, paLines(x, [["d3", "3+ node", C1], ["d5", "5+ node", C3], ["d10", "10+ node", C2]]), P.closed);
+  { id: "pa3", title: "İlk 7 günde tamamlanan node", toggle: VIEW_TOGGLE, render: (c, s) => {
+      const v = paView(s, s.metric === "d", "7"), a = paKpi(v, "d3");
+      c.body.innerHTML = kpi(a.cur == null ? "—" : F.pct(a.cur), [sub(`3+ node · ${a.when}`), ppHtml(a.cur, a.prev, a.vsPrev), sub(`${a.avgLabel} ${F.pct(a.avg)}`)])
+        + legend([["3+ node", C1], ["5+ node", C3], ["10+ node", C2]]);
+      cohortChart(c.chart, c.el, v, paLines(v, [["d3", "3+ node", C1], ["d5", "5+ node", C3], ["d10", "10+ node", C2]]));
     } },
-].map((cd) => ({ ...cd, tab: "activation", fixed: true, slices: "pa" }));
+].map((cd) => ({ ...cd, tab: "activation", slices: "pa", ranges: PA_RANGES,
+  // weekly views always show all 17 weeks, so the range buttons only appear for daily views
+  rangeWhen: (s) => !cd.toggle || s.metric === "d" }));
 
 // ---------- card shell: own range + breakdown per card ----------
 const RANGES = [["7", "7G"], ["14", "14G"], ["30", "30G"], ["90", "90G"]];
@@ -723,7 +739,7 @@ function buildCards() {
   for (const tab of Object.keys(TABS)) {
     const list = cards.filter((cd) => cd.tab === tab);
     document.getElementById("cards-" + tab).innerHTML = list.length ? list.map((cd) => {
-      const ranges = cd.lesson ? LES_RANGES : RANGES;
+      const ranges = cd.ranges || (cd.lesson ? LES_RANGES : RANGES);
       return `
     <article class="card${cd.wide ? " wide" : ""}" id="card-${cd.id}">
       <div class="card-top">
@@ -741,7 +757,7 @@ function buildCards() {
     }).join("") : `<div class="chart-empty">Bu sekmenin verisi bir sonraki sabah yenilemesinde gelecek.</div>`;
   }
   for (const cd of cards) {
-    const sv = saved[cd.id] || {}, ranges = cd.lesson ? LES_RANGES : RANGES;
+    const sv = saved[cd.id] || {}, ranges = cd.ranges || (cd.lesson ? LES_RANGES : RANGES);
     cardState[cd.id] = {
       range: ranges.some(([v]) => v === sv.range) ? sv.range : cd.lesson ? "60" : "30",
       slice: typeof sv.slice === "string" && validSlice(cd, sv.slice) ? sv.slice : "all",
@@ -759,6 +775,7 @@ function buildCards() {
 function renderCard(cd) {
   const s = cardState[cd.id], el = document.getElementById("card-" + cd.id);
   el.querySelectorAll(".seg-ctl").forEach((g) => g.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === s[g.dataset.role]))));
+  const rg = el.querySelector('[data-role="range"]'); if (rg) rg.hidden = cd.rangeWhen ? !cd.rangeWhen(s) : false;
   const sel = el.querySelector('[data-role="slice"]'); if (sel) sel.value = s.slice;
   // Overview cards end at yesterday; lesson cards at the newest cohort whose 7-day window has closed.
   const days = D.data.days, i1 = cd.lesson ? D.data.les.complete.lastIndexOf(true) : days.length - 1, i0 = Math.max(0, i1 - Number(s.range) + 1);

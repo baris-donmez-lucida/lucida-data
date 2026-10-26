@@ -218,7 +218,9 @@ else pa = (() => {
   const KEYS = ["all", "p:iOS", "p:Android", ...COUNTRIES.map((c) => "c:" + c)];
   const counts = (id, j, col) => weeks.map((_, k) => idx[k].reduce((t, i) => t + (Number(raw[id][j][i][col]) || 0), 0));
   const both = (kind, j, col) => { const a = counts(`pa_${kind}_sub`, j, col), b = counts(`pa_${kind}_web`, j, col); return a.map((v, k) => v + b[k]); };
-  const slices = {};
+  // The same counts per payment day (daily view).
+  const dayBoth = (kind, j, col) => raw[`pa_${kind}_sub`][j].map((r, i) => (Number(r[col]) || 0) + (Number(raw[`pa_${kind}_web`][j][i][col]) || 0));
+  const slices = {}, daily = {};
   KEYS.forEach((key, j) => {
     const n = both("c", j, 3);
     if (both("s", j, 3).join() !== n.join() || both("f", j, 3).join() !== n.join()) fail(`aktivasyon ${key}: entrants differ between queries`);
@@ -226,8 +228,11 @@ else pa = (() => {
     const f = [6, 9, 12].map((col) => both("f", j, col));
     for (const steps of [c, f]) steps.forEach((a, k) => { if (k && a.some((v, w) => v > steps[k - 1][w])) fail(`aktivasyon ${key}: step counts not decreasing`); });
     slices[key] = { n, s: both("s", j, 6), c: c[0], d3: c[2], d5: c[4], d10: c[9], f1: f[0], f2: f[1], f3: f[2] };
+    daily[key] = { n: dayBoth("c", j, 3), s: dayBoth("s", j, 6), c: dayBoth("c", j, 6), d3: dayBoth("c", j, 12), d5: dayBoth("c", j, 18), d10: dayBoth("c", j, 33),
+      f1: dayBoth("f", j, 6), f2: dayBoth("f", j, 9), f3: dayBoth("f", j, 12) };
   });
-  return { weeks, closed: isDone(7), closed1: isDone(1), slices };
+  const dayDone = (win) => pdays.map((_, i) => i + win <= nDays - 1);
+  return { weeks, closed: isDone(7), closed1: isDone(1), slices, days: pdays, dclosed: dayDone(7), dclosed1: dayDone(1), daily };
 })();
 
 if (days.length < 28) fail("need at least 28 days");
