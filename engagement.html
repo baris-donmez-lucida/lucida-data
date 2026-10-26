@@ -241,38 +241,24 @@
   /* Page tabs (shared with index.html) */
   .site { align-items: center; }
   .site-l { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
-  .tabs, .seg-ctl { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
-  .tabs a, .seg-ctl button {
-    font: inherit; font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none;
-    padding: 5px 12px; border-radius: 8px; border: 0; background: none; cursor: pointer; line-height: 1.4;
-  }
-  .tabs a:hover, .seg-ctl button:hover { color: var(--ink); }
-  .tabs a[aria-current="page"], .seg-ctl button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+  .tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
+  .tabs a { font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none; padding: 5px 12px; border-radius: 8px; line-height: 1.4; }
+  .tabs a:hover { color: var(--ink); }
+  .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
 
-  /* Engagement: one card per metric — last day, period average, change vs previous period, daily timeline */
-  .eng-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 4px; }
-  .eng-bar p { margin: 0; font-size: 13px; color: var(--muted); }
-  .eng-group { padding-top: 28px; }
-  .eng-group h2 { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+  /* Engagement: one card per metric — the current value, then its timeline (daily line / weekly bars) */
   .eng-list { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media (min-width: 720px) { .eng-list { grid-template-columns: 1fr 1fr; } }
-  .m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 8px; display: grid; gap: 14px; min-width: 0; position: relative; align-content: start; }
-  .m-head { display: grid; gap: 3px; }
-  .m-title { margin: 0; font-size: 16px; font-weight: 600; }
-  .m-desc { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
-  .m-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-  .m-kpi { display: grid; gap: 4px; min-width: 0; align-content: start; }
-  .m-val { font-size: clamp(22px, 4vw, 28px); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-  .m-kpi:not(:first-child) .m-val { font-size: clamp(17px, 3vw, 20px); padding-top: 4px; }
-  .m-sub { font-size: 12px; color: var(--ink-2); }
-  .m-delta.good { color: var(--s3); }
-  .m-delta.bad { color: var(--s2); }
+  @media (min-width: 720px) { .eng-list { grid-template-columns: 1fr 1fr; } .m-card.wide { grid-column: 1 / -1; } }
+  .m-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 8px; display: grid; gap: 4px; min-width: 0; position: relative; align-content: start; }
+  .m-title { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .m-val { font-size: clamp(34px, 6vw, 44px); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; margin-top: 6px; }
+  .m-sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
   .m-card .chart { margin: 0 -6px; }
-  .m-card .chart .line { stroke: var(--s1); }
-  .m-parts { margin: -6px 0 0; font-size: 12px; color: var(--ink-2); }
+  .m-card .chart .bar { fill: var(--s1); opacity: 0.85; }
+  .m-card .chart .bar.last { opacity: 1; }
+  .m-card .chart .val { font-size: 12px; fill: var(--ink); font-weight: 600; }
   .m-empty { font-size: 13px; color: var(--muted); padding: 24px 0; text-align: center; }
-  .eng-empty { margin-top: 28px; background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 36px 20px; text-align: center; color: var(--ink-2); font-size: 14px; }
-  .eng-empty b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+  .eng-empty { background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; padding: 36px 20px; text-align: center; color: var(--ink-2); font-size: 14px; }
 </style>
 
 <div class="wrap lock" id="lock">
@@ -306,55 +292,43 @@
       <div class="sec-head">
         <h1 id="h-eng">Product Engagement</h1>
       </div>
-      <div class="eng-bar">
-        <p id="eng-range">—</p>
-        <div class="seg-ctl" id="eng-days" role="group" aria-label="Zaman aralığı">
-          <button type="button" data-days="10">10 gün</button><button type="button" data-days="30">30 gün</button><button type="button" data-days="90">90 gün</button>
-        </div>
-      </div>
-      <div id="eng"></div>
+      <div class="eng-list" id="eng"></div>
     </section>
   </main>
 
   <footer>
-    <span>Kaynak: Amplitude (Lucida Prod) ve RevenueCat ham event'leri · günler UTC</span>
-    <span>Her sabah 09:00'da dünün değeri eklenir, son 7 gün yeniden hesaplanır</span>
+    <span>Kaynak: Amplitude (Lucida Prod), abonelik durumu RevenueCat · UTC</span>
+    <span>Her sabah 09:00'da güncellenir</span>
   </footer>
 </div>
 
 
 <script>
 // ============================================================
-// ENGAGEMENT — metrik listesi engagement/metrics.json'da (etiket, birim, açıklama, hesaplama tarifi);
-// günlük geçmiş engagement.enc.json içinde şifreli: { metrics: { <id>: { updatedAt, points: [{ d, v, n?, of? }] } } }.
-// Her sabah 09:00 (İstanbul) Claude rutini dünü ekler, son 7 günü yeniden hesaplar; eski günlere dokunmaz.
+// ENGAGEMENT — metrik listesi engagement/metrics.json'da (etiket, birim, kadans, hesaplama tarifi);
+// geçmiş engagement.enc.json içinde şifreli: { metrics: { <id>: { updatedAt, points: [{ d, v, n?, of?, parts? }] } } }.
+// cadence "day": d = gün (değer o güne kadarki pencere için), "week": d = haftanın Pazartesi'si (UTC).
 // ============================================================
 const nf = new Intl.NumberFormat("tr-TR");
 const fmtDate = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Istanbul" }).format(new Date(iso));
 const fmtDayShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
 const fmtDayLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+const shiftDay = (ymd, n) => new Date(Date.parse(ymd + "T00:00:00Z") + n * 86400000).toISOString().slice(0, 10);
+const fmtWeek = (ymd) => `${fmtDayShort(ymd)} – ${fmtDayShort(shiftDay(ymd, 6))}`;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-// components of a point (metric.parts = [{ key, label }]), e.g. "1.544 yeni web alımı + 142 onboarding"
-const partsText = (m, p) => (Array.isArray(m.parts) && p.parts ? m.parts.filter((x) => Number.isFinite(p.parts[x.key])).map((x) => `${nf.format(p.parts[x.key])} ${esc(x.label)}`).join(" + ") : "");
 
-// unit: "pct" (v is a percentage, 34.2 = %34,2), "count", "min" (minutes), "usd", "ratio" (plain number)
+// unit: "pct" (v is a percentage), "count", "min" (minutes), "usd", "ratio" (plain number)
 const numFmt = (dec) => new Intl.NumberFormat("tr-TR", { minimumFractionDigits: dec, maximumFractionDigits: dec });
 function fmtVal(m, v) {
   const dec = m.decimals ?? (m.unit === "count" || m.unit === "usd" ? 0 : 1);
   const s = numFmt(dec).format(v);
   return m.unit === "pct" ? "%" + s : m.unit === "min" ? s + " dk" : m.unit === "usd" ? "$" + s : s;
 }
-function fmtDelta(m, a, b) {
-  if (!Number.isFinite(a) || !Number.isFinite(b)) return { text: "—", cls: "" };
-  const diff = a - b;
-  const dec = m.decimals ?? (m.unit === "count" || m.unit === "usd" ? 0 : 1);
-  const arrow = Math.abs(diff) < 0.5 * 10 ** -dec ? "" : diff > 0 ? "▲ " : "▼ ";
-  // percentages change in points; everything else in relative %
-  const text = m.unit === "pct"
-    ? arrow + numFmt(dec).format(Math.abs(diff)) + " puan"
-    : b ? arrow + "%" + numFmt(1).format(Math.abs(diff / b) * 100) : "—";
-  const better = m.better === "down" ? diff < 0 : diff > 0;
-  return { text, cls: arrow ? (better ? "good" : "bad") : "" };
+// hover detail: parts (metric.parts = [{ key, label }]) or n / of
+function detail(m, p) {
+  if (Array.isArray(m.parts) && p.parts) return m.parts.filter((x) => Number.isFinite(p.parts[x.key])).map((x) => `${nf.format(p.parts[x.key])} ${esc(x.label)}`).join("<br>");
+  if (Number.isFinite(p.n) && Number.isFinite(p.of)) return `${nf.format(p.n)} ${esc(m.nLabel || "")} / ${nf.format(p.of)} ${esc(m.ofLabel || "")}`;
+  return "";
 }
 
 const niceStep = (span) => {
@@ -363,133 +337,122 @@ const niceStep = (span) => {
 };
 
 // ---------- state ----------
-const current = { registry: [], metrics: {}, days: 30 };
-const DAYS_KEY = "lucida-data:eng-days";
-try { const d = Number(localStorage.getItem(DAYS_KEY)); if ([10, 30, 90].includes(d)) current.days = d; } catch (e) { /* ignore */ }
+const current = { registry: [], metrics: {} };
 
 // ---------- render ----------
 function renderAll() {
-  const reg = current.registry;
   const updated = Object.values(current.metrics).map((m) => m.updatedAt).sort().pop();
   document.getElementById("updated-at").textContent = updated ? fmtDate(updated) : "—";
-  document.querySelectorAll("#eng-days button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.days) === current.days)));
   const host = document.getElementById("eng");
-  if (!reg.length) {
-    document.getElementById("eng-range").textContent = "";
-    host.innerHTML = `<div class="eng-empty"><b>Henüz metrik yok</b>Metrikler tanımlandıkça burada günlük zaman çizelgesiyle görünecek.</div>`;
-    return;
-  }
-  const lastDays = Object.values(current.metrics).map((m) => m.points.at(-1)?.d).filter(Boolean).sort();
-  const end = lastDays.at(-1);
-  document.getElementById("eng-range").textContent = end ? `Son ${current.days} gün · ${fmtDayShort(shiftDay(end, 1 - current.days))} – ${fmtDayShort(end)}` : "";
-  const groups = [];
-  for (const m of reg) { let g = groups.find((x) => x.name === (m.group || "")); if (!g) groups.push(g = { name: m.group || "", items: [] }); g.items.push(m); }
-  host.innerHTML = groups.map((g) => `
-    <div class="eng-group">${g.name ? `<h2>${esc(g.name)}</h2>` : ""}
-      <div class="eng-list">${g.items.map((m) => `
-        <article class="m-card" id="m-${esc(m.id)}">
-          <div class="m-head"><h3 class="m-title">${esc(m.label)}</h3>${m.description ? `<p class="m-desc">${esc(m.description)}</p>` : ""}</div>
-          <div class="m-kpis" data-kpis></div>
-          <div class="chart" data-chart></div>
-          <div class="tip" data-tip></div>
-        </article>`).join("")}
-      </div>
-    </div>`).join("");
-  for (const m of reg) renderMetric(m, current.metrics[m.id]);
+  if (!current.registry.length) { host.innerHTML = `<div class="eng-empty">Henüz metrik yok.</div>`; return; }
+  host.innerHTML = current.registry.map((m) => `
+    <article class="m-card${m.wide ? " wide" : ""}" id="m-${esc(m.id)}">
+      <h2 class="m-title">${esc(m.label)}</h2>
+      <div data-body></div>
+      <div class="chart" data-chart></div>
+      <div class="tip" data-tip></div>
+    </article>`).join("");
+  for (const m of current.registry) renderMetric(m, current.metrics[m.id]);
 }
-
-const shiftDay = (ymd, n) => new Date(Date.parse(ymd + "T00:00:00Z") + n * 86400000).toISOString().slice(0, 10);
-const avgOf = (pts) => (pts.length ? pts.reduce((a, p) => a + p.v, 0) / pts.length : NaN);
-// ratio metrics with n/of: the period value is pooled (Σn / Σof), not the mean of daily ratios
-const periodVal = (m, pts) => {
-  if (m.unit === "pct" && pts.length && pts.every((p) => Number.isFinite(p.n) && Number.isFinite(p.of))) {
-    const of = pts.reduce((a, p) => a + p.of, 0);
-    return of ? (pts.reduce((a, p) => a + p.n, 0) / of) * 100 : NaN;
-  }
-  return m.aggregate === "sum" ? pts.reduce((a, p) => a + p.v, 0) : avgOf(pts);
-};
 
 function renderMetric(m, data) {
   const card = document.getElementById("m-" + m.id);
-  const kpis = card.querySelector("[data-kpis]"), host = card.querySelector("[data-chart]");
+  const body = card.querySelector("[data-body]"), host = card.querySelector("[data-chart]");
   const all = data?.points || [];
-  if (!all.length) { kpis.remove(); host.innerHTML = `<div class="m-empty">Veri henüz çekilmedi.</div>`; return; }
-  const end = all.at(-1).d, from = shiftDay(end, 1 - current.days), prevFrom = shiftDay(from, -current.days);
-  const pts = all.filter((p) => p.d >= from);
-  const prev = all.filter((p) => p.d >= prevFrom && p.d < from);
+  if (!all.length) { host.innerHTML = `<div class="m-empty">Veri henüz çekilmedi.</div>`; return; }
+  const pts = all.slice(-(m.show || (m.cadence === "week" ? 5 : 15)));
   const last = all.at(-1);
-  const cur = periodVal(m, pts), before = prev.length >= Math.ceil(current.days / 2) ? periodVal(m, prev) : NaN;
-  const delta = fmtDelta(m, cur, before);
-  const aggLbl = m.aggregate === "sum" ? "toplam" : "ortalama";
-  kpis.innerHTML = `
-    <div class="m-kpi"><div class="rate-lbl">Son gün</div><div class="m-val">${fmtVal(m, last.v)}</div><div class="m-sub">${fmtDayShort(last.d)}${Number.isFinite(last.n) && Number.isFinite(last.of) ? ` · ${nf.format(last.n)} / ${nf.format(last.of)}` : ""}</div></div>
-    <div class="m-kpi"><div class="rate-lbl">${current.days} gün ${aggLbl}</div><div class="m-val">${Number.isFinite(cur) ? fmtVal(m, cur) : "—"}</div><div class="m-sub">${pts.length} gün</div></div>
-    <div class="m-kpi"><div class="rate-lbl">Önceki ${current.days} güne göre</div><div class="m-val m-delta ${delta.cls}">${delta.text}</div><div class="m-sub">${Number.isFinite(before) ? "önce " + fmtVal(m, before) : "yeterli geçmiş yok"}</div></div>`;
-  const pt = partsText(m, last);
-  if (pt) kpis.insertAdjacentHTML("afterend", `<p class="m-parts">Son gün: ${pt}</p>`);
-  lineChart(host, card.querySelector("[data-tip]"), m, pts);
+  const when = m.cadence === "week" ? `${fmtWeek(last.d)} haftası` : fmtDayLong(last.d);
+  body.innerHTML = `<div class="m-val">${fmtVal(m, last.v)}</div><div class="m-sub">${when}${m.note ? " · " + esc(m.note) : ""}</div>`;
+  (m.cadence === "week" ? barChart : lineChart)(host, card.querySelector("[data-tip]"), m, pts);
 }
 
-function lineChart(host, tip, m, pts) {
-  const n = pts.length, vals = pts.map((p) => p.v);
+function axis(m, vals, H, padT, padB) {
   const maxV = Math.max(...vals), minV = Math.min(...vals);
-  const W = Math.max(300, Math.round(host.clientWidth || 440)), H = 200;
-  const padL = 46, padR = 12, padT = 12, padB = 28;
   const step = niceStep(maxV - minV || Math.abs(maxV) || 10);
   let y0 = Math.floor((minV - step * 0.4) / step) * step;
   if (minV >= 0) y0 = Math.max(0, y0);
   const y1 = Math.max(Math.ceil((maxV + step * 0.4) / step) * step, y0 + step);
-  const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
   const y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
   const ticks = [];
   for (let t = y0; t <= y1 + 1e-9; t += step) ticks.push(t);
-  const tickFmt = (t) => (m.unit === "pct" ? "%" : m.unit === "usd" ? "$" : "") + nf.format(Math.round(t * 100) / 100);
-  const xy = vals.map((v, i) => [x(i), y(v)]);
-  const linePath = xy.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
-  const areaPath = `${linePath} L${x(n - 1).toFixed(1)} ${y(y0).toFixed(1)} L${x(0).toFixed(1)} ${y(y0).toFixed(1)} Z`;
-  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 52)));
-  const xLabels = pts.map((p, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
-    ? `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(p.d)}</text>` : "").join("");
-  host.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(m.label)}, ${fmtDayShort(pts[0].d)} – ${fmtDayShort(pts[n - 1].d)}">
-      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${tickFmt(t)}</text>`).join("")}
-      <path class="area" d="${areaPath}"/>
-      <path class="line" d="${linePath}"/>
-      ${n <= 31 ? xy.map(([px, py]) => `<circle class="dot" cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="${n <= 12 ? 3.5 : 2.5}"/>`).join("") : `<circle class="dot" cx="${xy[n - 1][0].toFixed(1)}" cy="${xy[n - 1][1].toFixed(1)}" r="3.5"/>`}
-      ${xLabels}
-      <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${(H - padB).toFixed(1)}"/>
-      <circle class="hover-dot" r="5" cx="0" cy="0"/>
-      ${xy.map(([px], i) => {
-        const left = i === 0 ? padL : (xy[i - 1][0] + px) / 2;
-        const right = i === n - 1 ? W - padR : (px + xy[i + 1][0]) / 2;
-        return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
-      }).join("")}
-    </svg>`;
-  const svg = host.querySelector("svg"), hl = svg.querySelector(".hover-line"), hd = svg.querySelector(".hover-dot");
+  return { y, y0, ticks };
+}
+const tickFmt = (m, t) => (m.unit === "pct" ? "%" : m.unit === "usd" ? "$" : "") + nf.format(Math.round(t * 100) / 100);
+
+function hover(svg, host, tip, xs, ys, W, H, padT, padB, html) {
+  const hl = svg.querySelector(".hover-line"), hd = svg.querySelector(".hover-dot");
   const show = (i) => {
-    const [px, py] = xy[i], p = pts[i];
-    hl.setAttribute("x1", px); hl.setAttribute("x2", px); hl.style.opacity = 1;
-    hd.setAttribute("cx", px); hd.setAttribute("cy", py); hd.style.opacity = 1;
+    if (hl) { hl.setAttribute("x1", xs[i]); hl.setAttribute("x2", xs[i]); hl.style.opacity = 1; }
+    if (hd) { hd.setAttribute("cx", xs[i]); hd.setAttribute("cy", ys[i]); hd.style.opacity = 1; }
     const rect = svg.getBoundingClientRect(), card = host.parentElement.getBoundingClientRect();
     const sx = rect.width / W, sy = rect.height / H;
-    const pt = partsText(m, p);
-    tip.innerHTML = `${fmtDayLong(p.d)}<br><b>${fmtVal(m, p.v)}</b>${Number.isFinite(p.n) && Number.isFinite(p.of) ? ` · ${nf.format(p.n)} / ${nf.format(p.of)}` : ""}${pt ? `<br>${pt}` : ""}`;
-    const left = rect.left - card.left + px * sx;
-    tip.style.left = `${Math.min(Math.max(left, 80), card.width - 80)}px`;
-    tip.style.top = `${rect.top - card.top + py * sy}px`;
+    tip.innerHTML = html(i);
+    tip.style.left = `${Math.min(Math.max(rect.left - card.left + xs[i] * sx, 90), card.width - 90)}px`;
+    tip.style.top = `${rect.top - card.top + ys[i] * sy}px`;
     tip.style.display = "block";
   };
-  const hide = () => { hl.style.opacity = 0; hd.style.opacity = 0; tip.style.display = "none"; };
+  const hide = () => { if (hl) hl.style.opacity = 0; if (hd) hd.style.opacity = 0; tip.style.display = "none"; };
   svg.addEventListener("pointermove", (ev) => { const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide(); });
   svg.addEventListener("pointerleave", hide);
 }
 
-document.getElementById("eng-days").addEventListener("click", (ev) => {
-  const b = ev.target.closest("button[data-days]"); if (!b) return;
-  current.days = Number(b.dataset.days);
-  try { localStorage.setItem(DAYS_KEY, String(current.days)); } catch (e) { /* ignore */ }
-  renderAll();
-});
+function lineChart(host, tip, m, pts) {
+  const n = pts.length, vals = pts.map((p) => p.v);
+  const W = Math.max(300, Math.round(host.clientWidth || 600)), H = 210;
+  const padL = 46, padR = 12, padT = 22, padB = 28;
+  const { y, y0, ticks } = axis(m, vals, H, padT, padB);
+  const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
+  const xs = vals.map((_, i) => x(i)), ys = vals.map(y);
+  const linePath = xs.map((px, i) => `${i ? "L" : "M"}${px.toFixed(1)} ${ys[i].toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L${xs[n - 1].toFixed(1)} ${y(y0).toFixed(1)} L${xs[0].toFixed(1)} ${y(y0).toFixed(1)} Z`;
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 52)));
+  const xLabels = pts.map((p, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
+    ? `<text x="${xs[i].toFixed(1)}" y="${H - 8}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(p.d)}</text>` : "").join("");
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(m.label)}, ${fmtDayShort(pts[0].d)} – ${fmtDayShort(pts[n - 1].d)}">
+      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${tickFmt(m, t)}</text>`).join("")}
+      <path class="area" d="${areaPath}"/>
+      <path class="line" d="${linePath}"/>
+      ${xs.map((px, i) => `<circle class="dot" cx="${px.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="${i === n - 1 ? 4.5 : 3}"/>`).join("")}
+      <text class="lbl" x="${xs[n - 1].toFixed(1)}" y="${(ys[n - 1] - 10).toFixed(1)}" text-anchor="end">${fmtVal(m, vals[n - 1])}</text>
+      ${xLabels}
+      <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${(H - padB).toFixed(1)}"/>
+      <circle class="hover-dot" r="5" cx="0" cy="0"/>
+      ${xs.map((px, i) => {
+        const left = i === 0 ? padL : (xs[i - 1] + px) / 2, right = i === n - 1 ? W - padR : (px + xs[i + 1]) / 2;
+        return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
+      }).join("")}
+    </svg>`;
+  hover(host.querySelector("svg"), host, tip, xs, ys, W, H, padT, padB, (i) => {
+    const d = detail(m, pts[i]);
+    return `${fmtDayLong(pts[i].d)}<br><b>${fmtVal(m, pts[i].v)}</b>${d ? `<br>${d}` : ""}`;
+  });
+}
+
+function barChart(host, tip, m, pts) {
+  const n = pts.length, vals = pts.map((p) => p.v);
+  const W = Math.max(300, Math.round(host.clientWidth || 440)), H = 210;
+  const padL = 12, padR = 12, padT = 24, padB = 28;
+  const maxV = Math.max(...vals) * 1.15 || 1;
+  const y = (v) => padT + (1 - v / maxV) * (H - padT - padB);
+  const slot = (W - padL - padR) / n, barW = Math.min(56, slot * 0.56);
+  const xs = vals.map((_, i) => padL + slot * (i + 0.5)), ys = vals.map(y), base = H - padB;
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(m.label)}, son ${n} hafta">
+      <line class="baseline" x1="${padL}" x2="${W - padR}" y1="${base}" y2="${base}"/>
+      ${vals.map((v, i) => `
+        <rect class="bar${i === n - 1 ? " last" : ""}" x="${(xs[i] - barW / 2).toFixed(1)}" y="${ys[i].toFixed(1)}" width="${barW.toFixed(1)}" height="${(base - ys[i]).toFixed(1)}" rx="4"/>
+        <text class="val" x="${xs[i].toFixed(1)}" y="${(ys[i] - 7).toFixed(1)}" text-anchor="middle">${fmtVal(m, v)}</text>
+        <text x="${xs[i].toFixed(1)}" y="${H - 8}" text-anchor="middle">${fmtDayShort(pts[i].d)}</text>`).join("")}
+      ${xs.map((px, i) => `<rect class="hit" data-i="${i}" x="${(px - slot / 2).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${(base - padT).toFixed(1)}"/>`).join("")}
+    </svg>`;
+  hover(host.querySelector("svg"), host, tip, xs, ys, W, H, padT, padB, (i) => {
+    const d = detail(m, pts[i]);
+    return `${fmtWeek(pts[i].d)}<br><b>${fmtVal(m, pts[i].v)}</b>${d ? `<br>${d}` : ""}`;
+  });
+}
+
 let resizeTimer = null;
 window.addEventListener("resize", () => { if (appEl.hidden) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 150); });
 

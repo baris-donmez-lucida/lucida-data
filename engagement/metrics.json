@@ -3,11 +3,14 @@
   "metrics": [
     {
       "id": "activation-users",
-      "group": "Aktivasyon",
       "label": "Aktivasyon aşamasındaki user sayısı",
-      "description": "Her gün, o güne kadarki son 8 gün: first seen'i bu 8 günde olup rc_non_subscription_purchase_event atan kullanıcılar + bu 8 günde onboarding_placement paywall'ında paywall_paid olan kullanıcılar.",
+      "note": "son 7 gün, bugün hariç",
+      "wide": true,
       "unit": "count",
-      "better": "up",
+      "cadence": "day",
+      "asOf": true,
+      "show": 15,
+      "backfill": 15,
       "parts": [
         {
           "key": "a",
@@ -19,8 +22,7 @@
         }
       ],
       "source": "amplitude",
-      "backfillDays": 20,
-      "recipe": "Her gün D için ayrı bir sorgu (D = tamamlanmış UTC günü). Pencere W = D-7 … D (8 gün). START = D-7 günü 00:00:00 UTC (unix saniye), END = D günü 23:59:59 UTC (unix saniye). `definition` içindeki <START>/<END> yer tutucularını (4 yerde, sayı olarak) ve name'deki <D>'yi değiştirip query_amplitude_data ile çalıştır (interval 1 kalmalı: haftalık/aylık aralık pencereyi genişletir). Yanıt: overallSeries ile seriesMetadata aynı sırada. A = {segmentIndex 0, eventIndex 0} serisinin overallSeries değeri (pencerede yeni olup rc_non_subscription_purchase_event atan tekil kullanıcı). B = {segmentIndex 1, eventIndex 1} serisinin overallSeries değeri (pencerede onboarding_placement ile paywall_paid olan tekil kullanıcı). Nokta: {d: D, v: A + B, parts: {a: A, b: B}}. Not: rc_non_subscription_purchase_event 2026-09-28'de toplu aktarımla başladı; 2026-10-06'dan önceki günleri hesaplama.",
+      "recipe": "Her gün T için ayrı sorgu (T = bugün dahil; değer T'den önceki 7 tamamlanmış günden hesaplanır, T'nin kendisi pencereye girmez). START = T-7 günü 00:00:00 UTC (unix sn), END = T-1 günü 23:59:59 UTC (unix sn). `definition` içindeki <START>/<END> yer tutucularını (4 yerde, sayı olarak) ve name'deki <D>'yi değiştirip query_amplitude_data ile çalıştır (interval 1 kalmalı). A = {segmentIndex 0, eventIndex 0} serisinin overallSeries değeri (pencerede first seen olup rc_non_subscription_purchase_event atan tekil kullanıcı), B = {segmentIndex 1, eventIndex 1} serisinin overallSeries değeri (pencerede onboarding_placement ile paywall_paid olan tekil kullanıcı). Nokta: {d: T, v: A + B, parts: {a: A, b: B}}. 2026-10-12'den önceki günleri hesaplama.",
       "definition": {
         "app": "773708",
         "type": "eventsSegmentation",
@@ -78,6 +80,166 @@
             {
               "label": "all",
               "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-start-weekly",
+      "label": "Node başlatma",
+      "note": "abone başına, haftalık",
+      "unit": "ratio",
+      "decimals": 2,
+      "cadence": "week",
+      "show": 5,
+      "backfill": 5,
+      "nLabel": "başlatma",
+      "ofLabel": "abone",
+      "source": "amplitude",
+      "recipe": "Hafta W (Pazartesi 00:00 – Pazar 23:59:59 UTC, yalnız tamamlanmış haftalar). START = W Pazartesi 00:00 UTC (unix sn), END = START + 7*86400 - 1, NEWSTART = START - 7*86400. `definition` içindeki <START>/<END>/<NEWSTART> yer tutucularını sayı olarak, name'deki <W>'yi değiştirip query_amplitude_data ile çalıştır. Kapsam: o anki RevenueCat durumu ödeyen abone olan kullanıcılar (gp:rc_subscription_status ∈ active, promotional, cancelled, grace_period, intro — promotional = web/promo aboneler), aktivasyon aşamasındakiler hariç (first seen NEWSTART…END arasında olanlar çıkarılır). Yanıt: overallSeries sırasıyla seriesMetadata formulaIndex 0 = TOTALS(anm_conv_page_viewed) = başlatma, 1 = TOTALS(post_call_report_shown) = tamamlama, 2 = UNIQUES(dashboard_page_viewed) = abone. node-start-weekly ve node-complete-weekly aynı sorguyu kullanır; bir hafta için tek sorgu çalıştır, iki metriğe de yaz. Bu metrik: n = başlatma (formulaIndex 0), of = abone (formulaIndex 2), v = n/of (2 ondalık). Nokta: {d: W Pazartesi YYYY-MM-DD, v, n, of}.",
+      "definition": {
+        "app": "773708",
+        "type": "eventsSegmentation",
+        "name": "Node haftalık <W>",
+        "params": {
+          "start": "<START>",
+          "end": "<END>",
+          "interval": 7,
+          "timezone": "UTC",
+          "countGroup": "User",
+          "metric": "formula",
+          "formula": "TOTALS(A); TOTALS(B); UNIQUES(C)",
+          "groupBy": [],
+          "events": [
+            {
+              "event_type": "anm_conv_page_viewed",
+              "filters": [],
+              "group_by": []
+            },
+            {
+              "event_type": "post_call_report_shown",
+              "filters": [],
+              "group_by": []
+            },
+            {
+              "event_type": "dashboard_page_viewed",
+              "filters": [],
+              "group_by": []
+            }
+          ],
+          "segments": [
+            {
+              "label": "paid_not_new",
+              "conditions": [
+                {
+                  "op": "is",
+                  "prop": "gp:rc_subscription_status",
+                  "type": "property",
+                  "values": [
+                    "active",
+                    "promotional",
+                    "cancelled",
+                    "grace_period",
+                    "intro"
+                  ],
+                  "prop_type": "user",
+                  "group_type": "User"
+                },
+                {
+                  "type": "event",
+                  "event_type": "_new",
+                  "filters": [],
+                  "group_by": [],
+                  "time_type": "absolute",
+                  "time_value": [
+                    "<NEWSTART>",
+                    "<END>"
+                  ],
+                  "op": "=",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-complete-weekly",
+      "label": "Node tamamlama",
+      "note": "abone başına, haftalık",
+      "unit": "ratio",
+      "decimals": 2,
+      "cadence": "week",
+      "show": 5,
+      "backfill": 5,
+      "nLabel": "tamamlama",
+      "ofLabel": "abone",
+      "source": "amplitude",
+      "recipe": "Hafta W (Pazartesi 00:00 – Pazar 23:59:59 UTC, yalnız tamamlanmış haftalar). START = W Pazartesi 00:00 UTC (unix sn), END = START + 7*86400 - 1, NEWSTART = START - 7*86400. `definition` içindeki <START>/<END>/<NEWSTART> yer tutucularını sayı olarak, name'deki <W>'yi değiştirip query_amplitude_data ile çalıştır. Kapsam: o anki RevenueCat durumu ödeyen abone olan kullanıcılar (gp:rc_subscription_status ∈ active, promotional, cancelled, grace_period, intro — promotional = web/promo aboneler), aktivasyon aşamasındakiler hariç (first seen NEWSTART…END arasında olanlar çıkarılır). Yanıt: overallSeries sırasıyla seriesMetadata formulaIndex 0 = TOTALS(anm_conv_page_viewed) = başlatma, 1 = TOTALS(post_call_report_shown) = tamamlama, 2 = UNIQUES(dashboard_page_viewed) = abone. node-start-weekly ve node-complete-weekly aynı sorguyu kullanır; bir hafta için tek sorgu çalıştır, iki metriğe de yaz. Bu metrik: n = tamamlama (formulaIndex 1), of = abone (formulaIndex 2), v = n/of (2 ondalık). Nokta: {d: W Pazartesi YYYY-MM-DD, v, n, of}.",
+      "definition": {
+        "app": "773708",
+        "type": "eventsSegmentation",
+        "name": "Node haftalık <W>",
+        "params": {
+          "start": "<START>",
+          "end": "<END>",
+          "interval": 7,
+          "timezone": "UTC",
+          "countGroup": "User",
+          "metric": "formula",
+          "formula": "TOTALS(A); TOTALS(B); UNIQUES(C)",
+          "groupBy": [],
+          "events": [
+            {
+              "event_type": "anm_conv_page_viewed",
+              "filters": [],
+              "group_by": []
+            },
+            {
+              "event_type": "post_call_report_shown",
+              "filters": [],
+              "group_by": []
+            },
+            {
+              "event_type": "dashboard_page_viewed",
+              "filters": [],
+              "group_by": []
+            }
+          ],
+          "segments": [
+            {
+              "label": "paid_not_new",
+              "conditions": [
+                {
+                  "op": "is",
+                  "prop": "gp:rc_subscription_status",
+                  "type": "property",
+                  "values": [
+                    "active",
+                    "promotional",
+                    "cancelled",
+                    "grace_period",
+                    "intro"
+                  ],
+                  "prop_type": "user",
+                  "group_type": "User"
+                },
+                {
+                  "type": "event",
+                  "event_type": "_new",
+                  "filters": [],
+                  "group_by": [],
+                  "time_type": "absolute",
+                  "time_value": [
+                    "<NEWSTART>",
+                    "<END>"
+                  ],
+                  "op": "=",
+                  "value": 0
+                }
+              ]
             }
           ]
         }
