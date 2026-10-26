@@ -273,8 +273,6 @@
   .vtable th:first-child, .vtable td:first-child { text-align: left; }
   .vtable td.bar { width: 34%; }
   .vtable td.bar span { display: block; height: 10px; border-radius: 3px; background: var(--s1); }
-  .vtable tr.old td { color: var(--muted); }
-  .vtable tr.old td.bar span { background: var(--track); }
   .vwrap { overflow-x: auto; contain: inline-size; }
   .card > * { min-width: 0; }
   @media (max-width: 600px) { .vtable .opt { display: none; } .vtable th, .vtable td { padding: 6px 5px; } }
@@ -576,7 +574,6 @@ const ppHtml = (cur, prev, label) => {
   return `<span><span class="delta ${cls}">${d > 0 ? "▲" : d < 0 ? "▼" : ""} ${nf1.format(Math.abs(d) * 100)} puan</span> ${label}</span>`;
 };
 const fmtDur = (s) => (s < 3600 ? nf.format(Math.round(s / 60)) + " dk" : s < 172800 ? nf1.format(s / 3600) + " sa" : nf1.format(s / 86400) + " gün");
-const cmpVer = (a, b) => { const x = a.split(".").map(Number), y = b.split(".").map(Number); for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); return 0; };
 // 2.8.8 changed how often a finished call counts as a completed lesson (see Tanımlar).
 const LES_MARKERS = [{ d: "2026-09-27", label: "2.8.8" }];
 const markersIn = (w) => LES_MARKERS.map((m) => ({ i: w.days.indexOf(m.d), label: m.label })).filter((m) => m.i > 0);
@@ -632,9 +629,9 @@ const LES_CARDS = [
         return { v, N, s1: sumR(x.s[0], 0, i1) / N, s5: sumR(x.s[4], 0, i1) / N, from: days[act[0] ?? 0], to: days[act.at(-1) ?? i1] };
       });
       const max = Math.max(...rows.map((r) => r.s5)) || 1;
-      c.body.innerHTML = `<p class="card-note">Kapanmış kohortlar (${fmtDayShort(days[0])} – ${fmtDayShort(days[i1])}). Gri satırlar 2.8.8 öncesi: orada biten görüşmelerin daha azı ders tamamlandı sayılıyordu, oranları yenilerle doğrudan karşılaştırmayın.${rows.some((r) => r.v.includes("–")) ? " Birleşik satırlar (ör. 2.8.7–2.8.8) arka arkaya çıkan sürümleri tek versiyon sayar; 2.8.7–2.8.8 iki sayımın karışımı." : ""}</p>`;
+      c.body.innerHTML = "";
       c.chart.innerHTML = `<div class="vwrap"><table class="vtable"><thead><tr><th>Versiyon</th><th class="opt">Dönem</th><th>Yeni abone</th><th>1. ders</th><th>İlk hafta 5 ders</th><th class="opt"></th></tr></thead><tbody>${rows.map((r) => `
-        <tr class="${cmpVer(r.v.split("–")[0], "2.8.8") < 0 ? "old" : ""}"><td>${esc(r.v)}</td><td class="opt">${fmtDayShort(r.from)} – ${fmtDayShort(r.to)}</td><td>${F.count(r.N)}</td><td>${F.pct(r.s1)}</td><td><b>${F.pct(r.s5)}</b></td><td class="bar opt"><span style="width:${(100 * r.s5 / max).toFixed(1)}%"></span></td></tr>`).join("")}</tbody></table></div>`;
+        <tr><td>${esc(r.v)}</td><td class="opt">${fmtDayShort(r.from)} – ${fmtDayShort(r.to)}</td><td>${F.count(r.N)}</td><td>${F.pct(r.s1)}</td><td><b>${F.pct(r.s5)}</b></td><td class="bar opt"><span style="width:${(100 * r.s5 / max).toFixed(1)}%"></span></td></tr>`).join("")}</tbody></table></div>`;
     } },
 ].map((cd) => ({ ...cd, tab: "lessons", lesson: true }));
 
