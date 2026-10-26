@@ -42,6 +42,7 @@ Product Dashboard geçmiş saklamaz: rutin her sabah `dashboard/queries.json`'da
 ile `dashboard.enc.json`'u üretir. Ders sorguları (`les_*`, `t5_*`) 7 günlük pencere kullanır; penceresi kapanmamış kohortlar
 (son 8 gün) sayfada gösterilmez. `t5_hist` ve `t5_hist_ver` yalnız son 28 kapanmış kohort gününü kapsar (`<HSTART>`/`<HEND>`).
 `t5_ver` / `t5_hist_ver` eksikse yalnız süre kartlarının versiyon kırılımı düşer.
+`dashboard/queries.json` → `versionGroups` arka arkaya çıkan sürümleri Dersler'de tek versiyon sayar (şu an 2.8.7–2.8.8).
 
 ## Şifreyi değiştirmek
 

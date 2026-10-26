@@ -163,13 +163,22 @@ else les = (() => {
     const a = sumTo(t5[k].k), b = sumTo(lseg[k].s[4]);
     if (b >= 100 && Math.abs(a - b) / b > 0.05) fail(`${k}: 5th-lesson count ${a} vs funnel ${b}`);
   }
-  // Start versions with enough completed cohorts to compare (newest first).
+  // Start versions with enough completed cohorts to compare (newest first). queries.json versionGroups merges
+  // releases that shipped days apart into one label (e.g. "2.8.7–2.8.8"); counts add up, times are re-weighted.
+  const groupOf = {};
+  for (const [label, members] of Object.entries(reg.versionGroups || {})) for (const v of members) groupOf[v] = label;
+  const verKey = (v) => groupOf[v] || v;
+  const newest = (label) => label.split("–").at(-1);
+  const addTo = (a, b) => b.forEach((v, i) => { a[i] += v; });
   const lver = {};
   for (const g of lesVer) {
-    const st = steps(g);
-    if (/^\d+\.\d+\.\d+$/.test(g.label) && sumTo(st.n) >= 150) lver[g.label] = st;
+    if (!/^\d+\.\d+\.\d+$/.test(g.label)) continue;
+    const st = steps(g), key = verKey(g.label);
+    if (!lver[key]) lver[key] = st;
+    else { addTo(lver[key].n, st.n); st.s.forEach((a, k) => addTo(lver[key].s[k], a)); }
   }
-  const lesVersions = Object.keys(lver).sort(cmp).slice(0, 8);
+  for (const v of Object.keys(lver)) if (sumTo(lver[v].n) < 150) delete lver[v];
+  const lesVersions = Object.keys(lver).sort((a, b) => cmp(newest(a), newest(b))).slice(0, 8);
   for (const v of Object.keys(lver)) if (!lesVersions.includes(v)) delete lver[v];
   // Time to 5th lesson, hourly histogram over the 28 newest complete cohort days (all / iOS / Android).
   const hj = load("t5_hist").jsonResponse;
@@ -187,25 +196,42 @@ else les = (() => {
   const t5v = {};
   if (existsSync(join(dir, "t5_ver.json"))) {
     // Groups come per segment (all, iOS, Android); the all-users block ends where a version repeats.
-    const seen = new Set();
+    const seen = new Set(), secs = {};
     for (const g of funnel("t5_ver")) {
       if (seen.has(g.label)) break;
       seen.add(g.label);
-      if (!lesVersions.includes(g.label)) continue;
-      t5v[g.label] = { n: col(g, 3), avg: col(g, 4), med: col(g, 5), k: col(g, 6) };
-      if (sumTo(t5v[g.label].n) !== sumTo(lver[g.label].n)) fail(`t5_ver ${g.label}: entrants differ from les_ver`);
+      const key = verKey(g.label);
+      if (!lesVersions.includes(key)) continue;
+      const x = { n: col(g, 3), avg: col(g, 4), med: col(g, 5), k: col(g, 6) };
+      if (!t5v[key]) { t5v[key] = x; secs[key] = x.avg.map((a, i) => a * x.k[i]); continue; }
+      // Merged group: entrants and converters add up, the daily mean is re-weighted; a daily median can't be merged.
+      addTo(t5v[key].n, x.n); addTo(t5v[key].k, x.k); addTo(secs[key], x.avg.map((a, i) => a * x.k[i]));
+      t5v[key].med = null;
+    }
+    for (const [key, t] of Object.entries(t5v)) {
+      t.avg = secs[key].map((v, i) => (t.k[i] ? Math.round(v / t.k[i]) : 0));
+      if (sumTo(t.n) !== sumTo(lver[key].n)) fail(`t5_ver ${key}: entrants differ from les_ver`);
     }
   } else console.warn("t5_ver yok: süre trendinde versiyon kırılımı atlandı");
   if (existsSync(join(dir, "t5_hist_ver.json"))) {
     let kAll = 0;
+    const hv = {};
     for (const d of load("t5_hist_ver").jsonResponse.data) {
-      const v = d.meta?.segment, k = d.convertedCounts["1"], bins = d.stepTransTimeDistribution?.step_bins?.[1]?.bins;
+      const v = d.meta?.segment, k = d.convertedCounts["1"], bins = d.stepTransTimeDistribution?.step_bins?.[1]?.bins, key = verKey(v);
       kAll += k;
-      if (!lesVersions.includes(v) || k < MIN_HIST) continue;
+      if (!lesVersions.includes(key) || !k) continue;
       if (!Array.isArray(bins) || bins.length !== 168) fail(`t5_hist_ver ${v}: expected 168 hourly bins`);
       const b = bins.map((x) => Math.round(Number(x.bin_dist?.uniques) || 0));
       if (b.reduce((s, x) => s + x, 0) !== k) fail(`t5_hist_ver ${v}: bins add up to ${b.reduce((s, x) => s + x, 0)}, not ${k}`);
-      hist["v:" + v] = { bins: b, n: d.convertedCounts["0"], k, med: Math.round(d.medianTransTimes[0] / 1000), avg: Math.round(d.avgTransTimes[0] / 1000) };
+      const cur = (hv[key] ??= { bins: new Array(168).fill(0), n: 0, k: 0, secs: 0, parts: [] });
+      addTo(cur.bins, b); cur.n += d.convertedCounts["0"]; cur.k += k; cur.secs += (d.avgTransTimes[0] / 1000) * k;
+      cur.parts.push(Math.round(d.medianTransTimes[0] / 1000));
+    }
+    // Median of a merged group from its hourly bins (linear within the hour); single versions keep Amplitude's.
+    const binMedian = (b, k) => { let c = 0; for (let h = 0; h < b.length; h++) { if (c + b[h] >= k / 2) return Math.round((h + (k / 2 - c) / b[h]) * 3600); c += b[h]; } return 0; };
+    for (const [key, x] of Object.entries(hv)) {
+      if (x.k < MIN_HIST) continue;
+      hist["v:" + key] = { bins: x.bins, n: x.n, k: x.k, med: x.parts.length === 1 ? x.parts[0] : binMedian(x.bins, x.k), avg: Math.round(x.secs / x.k) };
     }
     if (Math.abs(kAll - hist.all.k) / hist.all.k > 0.02) fail(`t5_hist_ver: ${kAll} converters across versions vs ${hist.all.k} in t5_hist`);
   } else console.warn("t5_hist_ver yok: süre dağılımında versiyon kırılımı atlandı");
