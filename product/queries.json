@@ -1047,6 +1047,938 @@
    "parse": "tiers ile aynı biçim (4 slice × 6 segment). Dar North Star: gün içinde node'dan >=2 kez 'Başla' (pre_lesson_lets_start). 'Sıradaki ders' zincirini saymaz. Varsayılan değil; metrics.json'daki northstar_def 'strict' yapılırsa regular / northstar bu sorgudan okunur."
   },
   {
+   "id": "tiers_done",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Regular (>=1 tamamlama) ve North Star (>=2 tamamlama) abone",
+    "events": [
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_c_lesson_completed",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0,
+        "where": []
+       }
+      ]
+     },
+     {
+      "label": "store · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_c_lesson_completed",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0,
+        "where": []
+       }
+      ]
+     },
+     {
+      "label": "web · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_c_lesson_completed",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0,
+        "where": []
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lesson_completed"
+   ],
+   "parse": "tiers ile aynı biçim (4 slice × 6 segment). Regular = gün içinde >=1 ders tamamlama (anm_c_lesson_completed), North Star = gün içinde >=2 (performed forEachInterval)."
+  },
+  {
+   "id": "online",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "dashboard_page_viewed"
+   ],
+   "parse": "act ile aynı biçim. Online abone = gün içinde dashboard_page_viewed gören tekil abone (app'i açıp anasayfayı gören).",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Online (dashboard_page_viewed) abone",
+    "events": [
+     {
+      "event": "dashboard_page_viewed",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "dashboard_page_viewed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "dashboard_page_viewed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "dashboard_page_viewed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "sess",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "sessions",
+    "node_click",
+    "lesson_start",
+    "lesson_done",
+    "call_ok"
+   ],
+   "parse": "Sliced (5 base × 4 slice), segmentIndex = abone tipi. Değer = o gün event'in görüldüğü tekil session_id sayısı (property_count). Base 0 = session_start (toplam session).",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Session sayıları (tekil session_id)",
+    "events": [
+     {
+      "event": "session_start",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "property_count"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
    "id": "flow_node",
    "chart": {
     "kind": "segmentation",

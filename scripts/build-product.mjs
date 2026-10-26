@@ -285,7 +285,9 @@ if (checkPath) {
       continue;
     }
     if (!w) { failures++; console.log(`FAIL ${c.metric}: window ${c.window.join("…")} outside the data (${days[0]}…${days[N - 1]})`); continue; }
-    const metricKey = c.query === "tiers_strict" ? (c.metric.startsWith("regular") ? "regular_strict" : "northstar_strict") : c.metric;
+    // the baseline was measured with the page-based tiers; when North Star uses another query, check the kept "_pages" series
+    const metricKey = c.query === "tiers_strict" ? (c.metric.startsWith("regular") ? "regular_strict" : "northstar_strict")
+      : c.query === "tiers" && nsQuery !== "tiers" ? c.metric + "_pages" : c.metric;
     switch (c.stat) {
       case "daily_mean": { const v = ser(metricKey); report(c, "daily_mean", v ? sumW(v, w) / (w[1] - w[0] + 1) : null, c.expect, kind); break; }
       case "value": { const v = ser(metricKey); report(c, "value", v ? v[w[1]] : null, c.expect, kind); break; }

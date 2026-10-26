@@ -42,6 +42,10 @@
    "label": "Değişiklikler"
   },
   {
+   "id": "diger",
+   "label": "Diğer Grafikler"
+  },
+  {
    "id": "tanimlar",
    "label": "Tanımlar ve Veri Sağlığı"
   }
@@ -113,7 +117,7 @@
   },
   {
    "id": "regular",
-   "label": "Regular (günde ≥1 ders)",
+   "label": "Regular (günde ≥1 ders tamamlama)",
    "tabs": [
     "genel",
     "aktif"
@@ -133,12 +137,12 @@
     "version",
     "subType"
    ],
-   "note": "",
+   "note": "Gün içinde en az bir anm_c_lesson_completed atan abone.",
    "period": "daily_mean"
   },
   {
    "id": "northstar",
-   "label": "North Star (günde ≥2 ders)",
+   "label": "North Star (günde ≥2 ders tamamlama)",
    "tabs": [
     "genel",
     "aktif",
@@ -159,7 +163,7 @@
     "version",
     "subType"
    ],
-   "note": "Teyit bekleyen tanım; northstar_def'e bakın. Dar alternatif Tanımlar bölümünde (ns_rate_strict).",
+   "note": "Gün içinde en az iki anm_c_lesson_completed atan abone (performed ≥ 2, for each interval).",
    "period": "daily_mean"
   },
   {
@@ -233,9 +237,9 @@
    "id": "ns_rate",
    "label": "North Star / Aktif",
    "tabs": [
-    "genel",
     "aktif",
-    "tanimlar"
+    "tanimlar",
+    "diger"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -252,7 +256,7 @@
    "label": "Regular / Aktif",
    "tabs": [
     "aktif",
-    "genel"
+    "diger"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -268,7 +272,8 @@
    "id": "ns_of_regular",
    "label": "North Star / Regular",
    "tabs": [
-    "aktif"
+    "aktif",
+    "diger"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -282,7 +287,7 @@
   },
   {
    "id": "talk_rate",
-   "label": "Konuşma oranı (konuşan / açan)",
+   "label": "Aktif / Online",
    "tabs": [
     "genel",
     "aktif"
@@ -290,11 +295,11 @@
    "kind": "ratio",
    "unit": "pct",
    "num": "active",
-   "den": "openers",
+   "den": "online",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "",
+   "note": "Aktif (gün içinde ≥1 call_ok) / Online (gün içinde dashboard_page_viewed). Online'ın ne kadarı konuşuyor.",
    "period": "ratio_of_sums"
   },
   {
@@ -1285,11 +1290,334 @@
    ],
    "note": "act sorgusunun sürüm slice'ı (tekil call_ok). Pay = sürüm değeri / o günün slice toplamı (listede olmayan sürümler payda dışında).",
    "period": "share_of_sums"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Gün içinde dashboard_page_viewed gören tekil abone (app'i açıp anasayfayı gören).",
+   "id": "online",
+   "label": "Online abone (dashboard_page_viewed)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "source": {
+    "query": "online",
+    "base": 0,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "daily_mean"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "",
+   "id": "ns_online",
+   "label": "North Star / Online",
+   "num": "northstar",
+   "den": "online",
+   "tabs": [
+    "genel"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "",
+   "id": "regular_online",
+   "label": "Regular / Online",
+   "num": "regular",
+   "den": "online",
+   "tabs": [
+    "genel"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Gün içinde açılan abone session'ları (tekil session_id, session_start).",
+   "id": "sessions",
+   "label": "Toplam session",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "sess",
+    "base": 0,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "sum"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "İçinde en az bir pre_lesson_viewed olan session.",
+   "id": "s_node",
+   "label": "Node tıklanan session",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "sess",
+    "base": 1,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "sum"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "İçinde ders sayfası (anm_conv_page_viewed, lessonTalk) açılan session.",
+   "id": "s_lesson_start",
+   "label": "Ders başlatılan session",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "sess",
+    "base": 2,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "sum"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "İçinde anm_c_lesson_completed olan session.",
+   "id": "s_lesson_done",
+   "label": "Ders tamamlanan session",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "sess",
+    "base": 3,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "sum"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "İçinde call_ok olan session.",
+   "id": "s_active",
+   "label": "Konuşulan session (call_ok)",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "sess",
+    "base": 4,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "sum"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Node tıklanan session / o gün açılan session.",
+   "id": "node_click_rate",
+   "label": "Node click rate",
+   "num": "s_node",
+   "den": "sessions",
+   "tabs": [
+    "genel",
+    "node"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "",
+   "id": "lesson_start_rate_s",
+   "label": "Ders başlatılan session oranı",
+   "num": "s_lesson_start",
+   "den": "sessions",
+   "tabs": [
+    "genel"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Ders tamamlanan session / o gün açılan session.",
+   "id": "completion_rate_s",
+   "label": "Tamamlama oranı (session)",
+   "num": "s_lesson_done",
+   "den": "sessions",
+   "tabs": [
+    "genel"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "call_ok olan session / o gün açılan session.",
+   "id": "active_session_rate",
+   "label": "Konuşulan session oranı",
+   "num": "s_active",
+   "den": "sessions",
+   "tabs": [
+    "genel"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Ders başlatılıp tamamlanmayan session / ders başlatılan session. Yaklaşık: başlatılan session − tamamlanan session (başka session'da başlatılıp tamamlanan dersler nadir).",
+   "id": "abandon_rate_s",
+   "label": "Yarım bırakma (session)",
+   "num": "s_lesson_start-s_lesson_done",
+   "den": "s_lesson_start",
+   "tabs": [
+    "genel"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Önceki tanım, karşılaştırma için.",
+   "id": "regular_pages",
+   "label": "Regular — eski tanım (günde ≥1 ders sayfası)",
+   "tabs": [
+    "tanimlar"
+   ],
+   "source": {
+    "query": "tiers",
+    "base": 0,
+    "segments": "tiers:regular"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "daily_mean"
+  },
+  {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Önceki tanım, karşılaştırma için.",
+   "id": "northstar_pages",
+   "label": "North Star — eski tanım (günde ≥2 ders sayfası)",
+   "tabs": [
+    "tanimlar"
+   ],
+   "source": {
+    "query": "tiers",
+    "base": 0,
+    "segments": "tiers:northstar"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "daily_mean"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "",
+   "id": "ns_rate_pages",
+   "label": "North Star (eski: ≥2 ders sayfası) / Aktif",
+   "num": "northstar_pages",
+   "den": "active",
+   "tabs": [
+    "tanimlar"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
   }
  ],
  "northstar_def": {
-  "default": "tiers",
+  "default": "tiers_done",
   "options": {
+   "tiers_done": "Günde ≥ 2 ders tamamlayan abone (anm_c_lesson_completed); Regular = günde ≥ 1.",
    "tiers": "Günde ≥ 2 ders sayfası açan abone (anm_conv_page_viewed, conv_type = lessonTalk). 'Sıradaki ders' zincirini de sayar.",
    "tiers_strict": "Günde ≥ 2 kez node'dan 'Başla' diyen abone (pre_lesson_lets_start). Zinciri saymaz."
   },
