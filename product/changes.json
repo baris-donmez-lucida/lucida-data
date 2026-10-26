@@ -1,0 +1,9 @@
+{
+ "v": 1,
+ "about": "Değişiklik günlüğü. Elle düzenlenir; tüm timeline'larda dikey çizgi olarak gösterilir. En yeni üstte. Aşağıdaki üç satır veriden çıkarıldı, tarihleri ekiple doğrulayın.",
+ "changes": [
+  {"d": "2026-10-22", "version": "2.9.2", "flag": "", "note": "2.9.2'nin ilk kullanıcıları (yaklaşık; path / role play kolu kapsam dışı)."},
+  {"d": "2026-10-19", "version": "", "flag": "", "note": "anm_c_lesson_completed.reason bu haftadan itibaren dolu geliyor (öncesinde çoğunlukla '(none)'; yaklaşık)."},
+  {"d": "2026-09-28", "version": "", "flag": "", "note": "Eski web (Stripe) aboneleri toplu olarak web_promo grant'ına taşındı."}
+ ]
+}

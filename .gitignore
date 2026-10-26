@@ -1,2 +1,9 @@
 .DS_Store
 *.plain.json
+product/baseline.json
+fixtures/
+raw/
+product-raw/
+history/
+product-history/
+_meta.json

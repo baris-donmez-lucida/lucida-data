@@ -1,0 +1,9177 @@
+{
+ "v": 2,
+ "about": "Lucida Product Engagement (v2) sorguları. Her biri son 90 tam UTC gün için çalışır: <START> = ilk günün 00:00:00 UTC, <END> = dünün 23:59:59 UTC, epoch saniye (sayı). aband_day yalnızca dün için (<DAY_START>/<DAY_END>). 'chart' query_amplitude_data'nın chart parametresine gider; projectId 773708, groupByLimit verildiği gibi, timeSeriesLimit = groupByLimit (ret için 1000). Ham yanıt <raw-dir>/<id>.json olarak kaydedilir. Abone filtresi event anındaki gp:rc_subscription_status. Trial ve role play kolu kapsam dışı.",
+ "countries": [
+  "United States",
+  "South Korea",
+  "Japan",
+  "Poland",
+  "Czech Republic",
+  "Hungary",
+  "United Kingdom",
+  "Philippines",
+  "Brazil",
+  "Turkey"
+ ],
+ "paid": [
+  "active",
+  "intro",
+  "cancelled",
+  "grace_period",
+  "promotional"
+ ],
+ "store": [
+  "active",
+  "intro",
+  "cancelled",
+  "grace_period"
+ ],
+ "web": [
+  "promotional"
+ ],
+ "queries": [
+  {
+   "id": "act",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Aktif (call_ok) ve app açan (session_start) abone",
+    "events": [
+     {
+      "event": "call_ok",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "session_start",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "session_start",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "call_ok",
+    "session_start"
+   ],
+   "parse": "jsonResponse; seriesMetadata[i] -> eventIndex//4 = base event (0 call_ok, 1 session_start), eventIndex%4 = slice (0 all, 1 platform, 2 country, 3 version), segmentIndex = abone tipi (0 paid, 1 store, 2 web). timeSeries[i][d].value = günlük tekil."
+  },
+  {
+   "id": "wau",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Aktif WAU (7 gün kayan, call_ok)",
+    "events": [
+     {
+      "event": "call_ok",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "rolling_window": 7
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "call_ok"
+   ],
+   "parse": "Günlük nokta = o güne kadar 7 günün tekil call_ok abonesi."
+  },
+  {
+   "id": "mau",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Aktif MAU (28 gün kayan, call_ok)",
+    "events": [
+     {
+      "event": "call_ok",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "rolling_window": 28
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "call_ok"
+   ],
+   "parse": "Günlük nokta = o güne kadar 28 günün tekil call_ok abonesi."
+  },
+  {
+   "id": "tiers",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Regular (>=1 ders) ve North Star (>=2 ders) abone",
+    "events": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_conv_page_viewed",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0,
+        "where": [
+         {
+          "property": "conv_type",
+          "scope": "event",
+          "op": "is",
+          "values": [
+           "lessonTalk"
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_conv_page_viewed",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0,
+        "where": [
+         {
+          "property": "conv_type",
+          "scope": "event",
+          "op": "is",
+          "values": [
+           "lessonTalk"
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_conv_page_viewed",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0,
+        "where": [
+         {
+          "property": "conv_type",
+          "scope": "event",
+          "op": "is",
+          "values": [
+           "lessonTalk"
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lesson_start"
+   ],
+   "parse": "segmentIndex: 0 paid regular, 1 paid northstar, 2 store regular, 3 store northstar, 4 web regular, 5 web northstar. Regular = gün içinde >=1 ders sayfası (lessonTalk), North Star = gün içinde >=2 (performed forEachInterval)."
+  },
+  {
+   "id": "tiers_strict",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Regular / North Star dar tanım (pre_lesson_lets_start >=1 / >=2)",
+    "events": [
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "pre_lesson_lets_start",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0
+       }
+      ]
+     },
+     {
+      "label": "store · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "pre_lesson_lets_start",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0
+       }
+      ]
+     },
+     {
+      "label": "web · regular",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web · northstar",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "pre_lesson_lets_start",
+        "op": ">=",
+        "count": 2,
+        "time_type": "forEachInterval",
+        "time_value": 0
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lets_start"
+   ],
+   "parse": "tiers ile aynı biçim (4 slice × 6 segment). Dar North Star: gün içinde node'dan >=2 kez 'Başla' (pre_lesson_lets_start). 'Sıradaki ders' zincirini saymaz. Varsayılan değil; metrics.json'daki northstar_def 'strict' yapılırsa regular / northstar bu sorgudan okunur."
+  },
+  {
+   "id": "flow_node",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Node tıklama ve node'dan başlatma (adet)",
+    "events": [
+     {
+      "event": "pre_lesson_viewed",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "pre_lesson_viewed",
+    "d_start_continue_lesson_bt"
+   ],
+   "parse": "Node'dan başlatma = d_start_continue_lesson_bt (pre_lesson_lets_start ile aynı dokunuşta atılır; ikisi toplanmaz)."
+  },
+  {
+   "id": "flow_node_u",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Node tıklayan ve node'dan başlatan (tekil)",
+    "events": [
+     {
+      "event": "pre_lesson_viewed",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_viewed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "pre_lesson_viewed",
+    "d_start_continue_lesson_bt"
+   ],
+   "parse": "Node tıklama oranı = pre_lesson_viewed tekil / session_start tekil (act sorgusu)."
+  },
+  {
+   "id": "flow_start",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Zincir başlatma ve ders sayfası (adet)",
+    "events": [
+     {
+      "event": "lesson_next_launched",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lesson_next_launched",
+    "lesson_start"
+   ],
+   "parse": ""
+  },
+  {
+   "id": "flow_done",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Bağlanan ders ve ders tamamlama (adet)",
+    "events": [
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lesson_connected",
+    "anm_c_lesson_completed"
+   ],
+   "parse": ""
+  },
+  {
+   "id": "flow_first",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · İlk kez tamamlama ve ön-ders Başla (adet)",
+    "events": [
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "lesson_entry_type",
+        "scope": "event",
+        "op": "is not",
+        "values": [
+         "replay"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "lesson_entry_type",
+        "scope": "event",
+        "op": "is not",
+        "values": [
+         "replay"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "lesson_entry_type",
+        "scope": "event",
+        "op": "is not",
+        "values": [
+         "replay"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "lesson_entry_type",
+        "scope": "event",
+        "op": "is not",
+        "values": [
+         "replay"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "pre_lesson_lets_start",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "completed_first",
+    "pre_lesson_lets_start"
+   ],
+   "parse": ""
+  },
+  {
+   "id": "flow_u",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Ders başlatan ve tamamlayan (tekil)",
+    "events": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lesson_start",
+    "anm_c_lesson_completed"
+   ],
+   "parse": ""
+  },
+  {
+   "id": "speech",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Konuşma süresi toplamı (sn, speech_duration > 0)",
+    "events": [
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "speech_duration",
+        "scope": "event",
+        "op": "greater",
+        "values": [
+         "0"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "conversation_type",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "speech_duration",
+        "scope": "event",
+        "op": "greater",
+        "values": [
+         "0"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "speech_duration",
+        "scope": "event",
+        "op": "greater",
+        "values": [
+         "0"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "speech_duration",
+        "scope": "event",
+        "op": "greater",
+        "values": [
+         "0"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "speech_duration",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "property_sum"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": "custom",
+   "parse": "eventIndex 0 = conversation_type kırılımı (lessontalk / freetalk / topictalk / liveevent; toplam = hepsinin toplamı), 1 platform, 2 ülke, 3 sürüm. Değer saniye; dakika = /60."
+  },
+  {
+   "id": "speech_health",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · speech_duration = 0 oranı (veri sağlığı)",
+    "events": [
+     {
+      "event": "anm_conv_session_ended",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "speech_duration",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "0"
+        ]
+       }
+      ],
+      "group_by": []
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": false,
+   "series": [
+    "ended_all",
+    "ended_zero"
+   ],
+   "parse": "0 oranı = ended_zero / ended_all. %5'i geçerse sayfada uyarı."
+  },
+  {
+   "id": "quality",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Puan, yanıt oranı, teknik hata (adet)",
+    "events": [
+     {
+      "event": "call_feedback_submitted",
+      "where": [
+       {
+        "property": "rating",
+        "scope": "event",
+        "op": "greater or equal",
+        "values": [
+         "4"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "call_feedback_submitted",
+      "where": [
+       {
+        "property": "rating",
+        "scope": "event",
+        "op": "less or equal",
+        "values": [
+         "2"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "call_feedback_submitted",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "call_feedback_sheet_shown",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "call_attempt",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "call_failed",
+      "where": [],
+      "group_by": []
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": false,
+   "series": [
+    "rating_high",
+    "rating_low",
+    "rating_all",
+    "rating_sheet",
+    "call_attempt",
+    "call_failed"
+   ],
+   "parse": "eventIndex sırası series listesiyle aynı."
+  },
+  {
+   "id": "rating_dist",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Puan dağılımı (1–5★)",
+    "events": [
+     {
+      "event": "call_feedback_submitted",
+      "where": [],
+      "group_by": [
+       {
+        "property": "rating",
+        "scope": "event"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 10,
+   "sliced": false,
+   "series": [
+    "rating_by_value"
+   ],
+   "parse": "eventIndex 0, eventGroupBys[0] = puan ('1'…'5'; başka değer gelirse yok say). Günlük event_totals; sayfa haftalık toplayıp %100 yığılmış gösterir."
+  },
+  {
+   "id": "mix",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Tamamlama nedeni, giriş tipi, sürüm payı",
+    "events": [
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [],
+      "group_by": [
+       {
+        "property": "reason",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "lesson_entry_type",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "call_ok",
+      "where": [],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "event_totals"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 500,
+   "sliced": false,
+   "series": [
+    "completed_by_reason",
+    "lesson_start_by_entry_type",
+    "active_by_version"
+   ],
+   "parse": "eventIndex 0: reason (… '(none)' = reason property'si olmayan eski sürümler), 1: lesson_entry_type (current/jump/replay/next), 2: sürüm (event_totals; sürüm payı için act sorgusunun version slice'ı tekil sayıyı verir)."
+  },
+  {
+   "id": "by_lesson",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Ders bazında başlatan ve tamamlayan (tekil, haftalık)",
+    "events": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "lesson_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed",
+      "where": [],
+      "group_by": [
+       {
+        "property": "lesson_id",
+        "scope": "event"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "week"
+   },
+   "groupByLimit": 300,
+   "sliced": false,
+   "series": [
+    "lesson_start",
+    "completed"
+   ],
+   "parse": "Ders tablosu ve yol ilerleme eğrisi. groupByLimit 300. overallSeries = seçili aralığın tekili."
+  },
+  {
+   "id": "dur_lesson",
+   "chart": {
+    "kind": "funnel",
+    "name": "Product v2 · Ders süresi: sayfa -> tamamlama (günlük medyan)",
+    "steps": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     }
+    ],
+    "conversion_window": {
+     "value": 1,
+     "unit": "hour"
+    },
+    "measured_as": {
+     "as": "time_to_convert_over_time"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · iOS",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Android",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United States",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · South Korea",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "South Korea"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Japan",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Japan"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Poland",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Poland"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Czech Republic",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Czech Republic"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Hungary",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Hungary"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United Kingdom",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United Kingdom"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Philippines",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Philippines"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Brazil",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Brazil"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Turkey",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Turkey"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "hold_property": {
+     "property": "lesson_id",
+     "scope": "event"
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "csvResponse: segment satırı başına günlük değer (ms). Ders süresi = değer / 60000 dk."
+  },
+  {
+   "id": "dur_screen",
+   "chart": {
+    "kind": "funnel",
+    "name": "Product v2 · Ders ekranı: sayfa -> oturum sonu (günlük medyan)",
+    "steps": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       }
+      ]
+     }
+    ],
+    "conversion_window": {
+     "value": 1,
+     "unit": "hour"
+    },
+    "measured_as": {
+     "as": "time_to_convert_over_time"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · iOS",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Android",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United States",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · South Korea",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "South Korea"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Japan",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Japan"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Poland",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Poland"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Czech Republic",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Czech Republic"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Hungary",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Hungary"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United Kingdom",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United Kingdom"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Philippines",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Philippines"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Brazil",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Brazil"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Turkey",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Turkey"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "hold_property": {
+     "property": "lesson_id",
+     "scope": "event"
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ders ekranında geçen süre; ders süresiyle karşılaştırma için."
+  },
+  {
+   "id": "aband",
+   "chart": {
+    "kind": "funnel",
+    "name": "Product v2 · Yarım bırakma: sayfa -> oturum sonu, tamamlama hariç (günlük oran)",
+    "steps": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       }
+      ]
+     }
+    ],
+    "conversion_window": {
+     "value": 1,
+     "unit": "hour"
+    },
+    "measured_as": {
+     "as": "conversion_over_time"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · iOS",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Android",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United States",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · South Korea",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "South Korea"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Japan",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Japan"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Poland",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Poland"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Czech Republic",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Czech Republic"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Hungary",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Hungary"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United Kingdom",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United Kingdom"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Philippines",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Philippines"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Brazil",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Brazil"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Turkey",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Turkey"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "hold_property": {
+     "property": "lesson_id",
+     "scope": "event"
+    },
+    "excluded_events": [
+     {
+      "event": {
+       "event": "anm_c_lesson_completed"
+      },
+      "step_index": 0
+     }
+    ]
+   },
+   "groupByLimit": 40,
+   "parse": "csvResponse 'Entire Funnel' satırı: günlük yarım bırakma oranı (0–1)."
+  },
+  {
+   "id": "node_done",
+   "chart": {
+    "kind": "funnel",
+    "name": "Product v2 · Node -> tamamlama (1 gün, günlük oran)",
+    "steps": [
+     {
+      "event": "pre_lesson_viewed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     }
+    ],
+    "conversion_window": {
+     "value": 1,
+     "unit": "day"
+    },
+    "measured_as": {
+     "as": "conversion_over_time"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · iOS",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Android",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Android"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United States",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · South Korea",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "South Korea"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Japan",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Japan"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Poland",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Poland"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Czech Republic",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Czech Republic"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Hungary",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Hungary"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · United Kingdom",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United Kingdom"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Philippines",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Philippines"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Brazil",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Brazil"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Turkey",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Turkey"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "hold_property": {
+     "property": "lesson_id",
+     "scope": "event"
+    }
+   },
+   "groupByLimit": 40,
+   "parse": ""
+  },
+  {
+   "id": "aband_day",
+   "chart": {
+    "kind": "funnel",
+    "name": "Product v2 · Yarım bırakma süre dağılımı (tek gün)",
+    "steps": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_session_ended",
+      "where": [
+       {
+        "property": "conversation_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessontalk"
+        ]
+       }
+      ]
+     }
+    ],
+    "conversion_window": {
+     "value": 1,
+     "unit": "hour"
+    },
+    "measured_as": {
+     "as": "time_to_convert"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<DAY_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day",
+    "hold_property": {
+     "property": "lesson_id",
+     "scope": "event"
+    },
+    "excluded_events": [
+     {
+      "event": {
+       "event": "anm_c_lesson_completed"
+      },
+      "step_index": 0
+     }
+    ]
+   },
+   "groupByLimit": 40,
+   "parse": "HER SABAH yalnızca dün için çalışır (<DAY_START>/<DAY_END>). jsonResponse.data[0]: opened = cumulativeRaw[0], abandoned = cumulativeRaw[1], stepTransTimeDistribution.step_bins[1].bins -> start >= 60000 olan bin'lerin totals toplamı = over60. Nokta {d, opened, abandoned, over60} geçmişe eklenir; ilk kurulumda son 30 gün için tek tek doldurulur."
+  },
+  {
+   "id": "ret",
+   "chart": {
+    "kind": "retention",
+    "name": "Product v2 · Abone retention (call_ok -> call_ok)",
+    "start_event": {
+     "event": "call_ok"
+    },
+    "return_events": [
+     {
+      "event": "call_ok"
+     }
+    ],
+    "retention_method": "nday",
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · iOS",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "paid · Android",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "Android"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 40,
+   "timeSeriesLimit": 1000,
+   "parse": "Segment başına 'Overall' satırı = D0…D30 ortalaması; her başlangıç günü satırı = o günün kohortu. Timeline: kohort gününe göre D1 ve D7 (penceresi dolmamış günler boş)."
+  },
+  {
+   "id": "new_act_sub",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (mağaza) aktivasyon merdiveni, 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_subscription_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        },
+        {
+         "subprop_key": "store",
+         "subprop_op": "is",
+         "subprop_value": [
+          "APP_STORE",
+          "PLAY_STORE"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "call_ok",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (mağaza): ilk rc_subscription_event, store ∈ APP_STORE / PLAY_STORE (28 Eylül öncesi STRIPE girişleri hariç). Adımlar — mağaza: abonelik → konuştu (call_ok) → ders başlattı → ders tamamladı (4 adım; satın alma app içinde olduğu için 'app açtı' adımı yok). <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_a1_sub",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (mağaza) A1 ilk 15 ders, 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_subscription_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        },
+        {
+         "subprop_key": "store",
+         "subprop_op": "is",
+         "subprop_value": [
+          "APP_STORE",
+          "PLAY_STORE"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (mağaza): ilk rc_subscription_event, store ∈ APP_STORE / PLAY_STORE (28 Eylül öncesi STRIPE girişleri hariç). Adımlar — 16 adım: giriş + a1_1 … a1_15 tamamlama. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_done3_sub",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (mağaza) 3 günde 1…10 ders tamamlama",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 259200,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 259200
+     },
+     "events": [
+      {
+       "event_type": "rc_subscription_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        },
+        {
+         "subprop_key": "store",
+         "subprop_op": "is",
+         "subprop_value": [
+          "APP_STORE",
+          "PLAY_STORE"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (mağaza): ilk rc_subscription_event, store ∈ APP_STORE / PLAY_STORE (28 Eylül öncesi STRIPE girişleri hariç). Adımlar — 11 adım: giriş + 1…10 ders tamamlama, pencere 3 gün; k. adım = en az k ders tamamlayan. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_done5_sub",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (mağaza) 5 günde 1…10 ders tamamlama",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 432000,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 432000
+     },
+     "events": [
+      {
+       "event_type": "rc_subscription_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        },
+        {
+         "subprop_key": "store",
+         "subprop_op": "is",
+         "subprop_value": [
+          "APP_STORE",
+          "PLAY_STORE"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (mağaza): ilk rc_subscription_event, store ∈ APP_STORE / PLAY_STORE (28 Eylül öncesi STRIPE girişleri hariç). Adımlar — 11 adım: giriş + 1…10 ders tamamlama, pencere 5 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_done7_sub",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (mağaza) 7 günde 1…10 ders tamamlama",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_subscription_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        },
+        {
+         "subprop_key": "store",
+         "subprop_op": "is",
+         "subprop_value": [
+          "APP_STORE",
+          "PLAY_STORE"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (mağaza): ilk rc_subscription_event, store ∈ APP_STORE / PLAY_STORE (28 Eylül öncesi STRIPE girişleri hariç). Adımlar — 11 adım: giriş + 1…10 ders tamamlama, pencere 7 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_start7_sub",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (mağaza) 7 günde node başlatma",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_subscription_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        },
+        {
+         "subprop_key": "store",
+         "subprop_op": "is",
+         "subprop_value": [
+          "APP_STORE",
+          "PLAY_STORE"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "events": [
+        {
+         "filters": [],
+         "group_by": [],
+         "event_type": "current_lesson_start_bt"
+        },
+        {
+         "filters": [],
+         "group_by": [],
+         "event_type": "not_current_lesson_start_bt"
+        },
+        {
+         "filters": [],
+         "group_by": [],
+         "event_type": "completed_lesson_start_bt"
+        }
+       ],
+       "filters": [],
+       "group_by": [],
+       "event_type": "current_lesson_start_bt",
+       "object_type": "INLINE_CUSTOM_EVENT"
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (mağaza): ilk rc_subscription_event, store ∈ APP_STORE / PLAY_STORE (28 Eylül öncesi STRIPE girişleri hariç). Adımlar — giriş → node'dan başlatma (d_start_continue_lesson_bt), pencere 7 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_act_web",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (web promo) aktivasyon merdiveni, 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_non_subscription_purchase_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "session_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "call_ok",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        }
+       ],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — web: abonelik → app açtı (session_start) → konuştu → ders başlattı → ders tamamladı (5 adım). <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_a1_web",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (web promo) A1 ilk 15 ders, 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_non_subscription_purchase_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        }
+       ],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — 16 adım: giriş + a1_1 … a1_15 tamamlama. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_done3_web",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (web promo) 3 günde 1…10 ders tamamlama",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 259200,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 259200
+     },
+     "events": [
+      {
+       "event_type": "rc_non_subscription_purchase_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        }
+       ],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — 11 adım: giriş + 1…10 ders tamamlama, pencere 3 gün; k. adım = en az k ders tamamlayan. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_done5_web",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (web promo) 5 günde 1…10 ders tamamlama",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 432000,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 432000
+     },
+     "events": [
+      {
+       "event_type": "rc_non_subscription_purchase_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        }
+       ],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — 11 adım: giriş + 1…10 ders tamamlama, pencere 5 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_done7_web",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (web promo) 7 günde 1…10 ders tamamlama",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_non_subscription_purchase_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        }
+       ],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — 11 adım: giriş + 1…10 ders tamamlama, pencere 7 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "new_start7_web",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni abone (web promo) 7 günde node başlatma",
+    "params": {
+     "mode": "ordered",
+     "start": "<WSTART>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 365,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "rc_non_subscription_purchase_event",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "events": [
+        {
+         "filters": [],
+         "group_by": [],
+         "event_type": "current_lesson_start_bt"
+        },
+        {
+         "filters": [],
+         "group_by": [],
+         "event_type": "not_current_lesson_start_bt"
+        },
+        {
+         "filters": [],
+         "group_by": [],
+         "event_type": "completed_lesson_start_bt"
+        }
+       ],
+       "filters": [],
+       "group_by": [],
+       "event_type": "current_lesson_start_bt",
+       "object_type": "INLINE_CUSTOM_EVENT"
+      }
+     ],
+     "segments": [
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        }
+       ],
+       "label": "all"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ],
+       "label": "iOS"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ],
+       "label": "Android"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ],
+       "label": "United States"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ],
+       "label": "South Korea"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ],
+       "label": "Japan"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ],
+       "label": "Poland"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ],
+       "label": "Czech Republic"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ],
+       "label": "Hungary"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ],
+       "label": "United Kingdom"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ],
+       "label": "Philippines"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ],
+       "label": "Brazil"
+      },
+      {
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "rc_subscription_event",
+         "op": "=",
+         "value": 0,
+         "time_type": "absolute",
+         "time_value": [
+          1767225600,
+          1790553599
+         ],
+         "filters": []
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ],
+       "label": "Turkey"
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 40,
+   "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — giriş → node'dan başlatma (d_start_continue_lesson_bt), pencere 7 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  }
+ ],
+ "baseCohortId": null
+}

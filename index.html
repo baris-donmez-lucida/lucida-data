@@ -1,731 +1,1101 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Lucida Data</title>
-<meta name="robots" content="noindex,nofollow,noarchive">
+<!doctype html><html lang="tr"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex, nofollow"><title>Lucida Data</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-  /* Layout: one reading column (max 960px); sections stack in the order they were added.
-     Funnel: two segment cards side by side from 720px, each with a 3-up row of rate tiles.
-     DAU: a 3-up KPI row over one full-width line chart. Cohorts: two cards side by side. */
+  /* Product Engagement v2: fixed left menu (11 sections, hash routes) + one reading column.
+     Every section: KPI cards, then timeline cards, then tables. Same tokens as dashboard.html. */
   :root {
-    --bg: #f9f9f7;
-    --surface: #fcfcfb;
-    --ink: #0b0b0b;
-    --ink-2: #52514e;
-    --muted: #898781;
-    --grid: #e1e0d9;
-    --border: rgba(11, 11, 11, 0.10);
-    --track: #ebeae4;
-    --s1: #2a78d6;   /* Eski Aboneler / aboneler */
-    --s2: #eb6834;   /* Yeni Aboneler */
-    --s3: #1baf7a;   /* Aktif Aboneler (retention) */
-    --cc1: #2a78d6; --cc2: #7cb342; --cc3: #7e3fb8; --cc4: #3bb8c4; --cc5: #e8705f;   /* ülkeler: Güney Kore, Çekya, ABD, Polonya, Japonya */
+    --bg: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --border: rgba(11, 11, 11, 0.10); --track: #ebeae4;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #7e3fb8; --s5: #3bb8c4; --s6: #c9a227; --s7: #e8705f;
     --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
     --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0d0d0d;
-      --surface: #1a1a19;
-      --ink: #f0efec;
-      --ink-2: #c3c2b7;
-      --muted: #898781;
-      --grid: #2c2c2a;
-      --border: rgba(255, 255, 255, 0.10);
-      --track: #2c2c2a;
-      --s1: #3987e5;
-      --s2: #d95926;
-      --s3: #199e70;
-      --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+      --bg: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --border: rgba(255, 255, 255, 0.10); --track: #2c2c2a;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #9b5de5; --s5: #4fc3d0; --s6: #d6b23a; --s7: #ef7f6e;
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0d0d0d;
-    --surface: #1a1a19;
-    --ink: #f0efec;
-    --ink-2: #c3c2b7;
-    --muted: #898781;
-    --grid: #2c2c2a;
-    --border: rgba(255, 255, 255, 0.10);
-    --track: #2c2c2a;
-    --s1: #3987e5;
-    --s2: #d95926;
-    --s3: #199e70;
-    --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+    --bg: #0d0d0d; --surface: #1a1a19; --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --border: rgba(255, 255, 255, 0.10); --track: #2c2c2a;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #9b5de5; --s5: #4fc3d0; --s6: #d6b23a; --s7: #ef7f6e;
     color-scheme: dark;
   }
-
   * { box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--font-body);
-    font-size: 15px;
-    line-height: 1.5;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-block: 0 56px;
-  }
-  .wrap { max-width: 960px; margin: 0 auto; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
   a { color: inherit; }
+  [hidden] { display: none !important; }
   :focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+  button, select { font: inherit; }
 
-  /* Site header */
-  .site {
-    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px;
-    padding-block: 22px 18px;
-    border-bottom: 1px solid var(--grid);
-  }
-  .brand {
-    font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em;
-    margin: 0;
-  }
-  .site-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-  .site-meta b { color: var(--ink-2); font-weight: 500; }
-  .refresh {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
-    background: var(--surface); color: var(--ink-2); cursor: pointer; padding: 0;
-  }
-  .refresh:hover { color: var(--ink); border-color: var(--ink-2); }
-  .refresh:disabled { cursor: not-allowed; opacity: 0.55; }
-  .refresh.busy:disabled { cursor: progress; opacity: 0.8; }
-  .refresh.busy svg { animation: spin 0.9s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { .refresh.busy svg { animation: none; } }
-  .status { font-size: 12px; color: var(--muted); }
-  .status.err { color: var(--ink); }
-
-  /* Section */
-  section { padding-block: 32px 0; }
-  .sec-head { display: grid; gap: 10px; margin-bottom: 22px; }
-  h1 {
-    font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 34px);
-    line-height: 1.1; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
-  }
-
-  /* Segment cards */
-  .segments { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media (min-width: 720px) { .segments { grid-template-columns: 1fr 1fr; } }
-  .seg {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 20px; min-width: 0; display: grid; gap: 18px; align-content: start;
-  }
-  .seg-head { display: grid; gap: 4px; }
-  .seg-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 18px; font-weight: 600; }
-  .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
-  .seg-base { font-size: 13px; color: var(--ink-2); }
-  .seg-base b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
-
-  .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-  .rate { display: grid; gap: 6px; min-width: 0; }
-  .rate-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-  .rate-val { font-size: clamp(26px, 5vw, 36px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
-  .meter { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
-  .meter i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--c); transition: width .5s ease; }
-  @media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
-  .rate-sub { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
-  .rate-sub b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
-
-  /* Retention tiles */
-  .ret-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
-  @media (max-width: 719px) { .ret-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  .ret-card .rate-val { font-size: clamp(22px, 4vw, 30px); }
-
-  /* Step table */
-  .block { margin-top: 28px; display: grid; gap: 10px; }
-  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
-  table { border-collapse: collapse; width: 100%; font-size: 14px; }
-  th, td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
-  th:first-child, td:first-child { text-align: left; }
-  thead th { font-size: 13px; font-weight: 600; color: var(--ink); }
-  thead tr.grp th:first-child { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-  thead tr.grp th span { display: inline-flex; align-items: center; gap: 8px; }
-  thead tr.grp th .swatch { width: 10px; height: 10px; }
-  thead tr.grp th { border-bottom: 0; padding-bottom: 2px; }
-  thead tr.sub th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
-  thead th.gap, td.gap { border-left: 1px solid var(--grid); }
-  tbody td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
-  tbody td:first-child { color: var(--ink); }
-  tbody tr.lesson td { color: var(--ink); font-weight: 600; background: color-mix(in srgb, var(--surface) 90%, var(--ink) 10%); }
-  tbody tr.lesson td:first-child::before { content: "●"; font-size: 8px; vertical-align: 2px; margin-right: 8px; color: var(--muted); }
-  tbody tr:last-child td { border-bottom: 0; }
-  td.pct { color: var(--ink-2); }
-  td.base-pct { font-weight: 500; }
-  td.strong { color: var(--ink); font-weight: 600; }
-  #lessons thead tr.sub th, #weekly thead tr.sub th { padding-top: 10px; }
-  /* Weekly chart: two groups (start / completion), one bar per country, legend below */
-  .weekly-card { padding-top: 10px; padding-bottom: 12px; }
-  .weekly-card .chart .bar { stroke: var(--surface); stroke-width: 1; }
-  .weekly-card .chart .val { font-size: 12px; fill: var(--ink); font-weight: 600; }
-  .weekly-card .chart .grp { font-size: 13px; fill: var(--ink-2); }
-  .weekly-card .chart .hit { fill: transparent; }
-  .wk-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 6px 0; border-top: 1px solid var(--grid); margin-top: 6px; }
-  .wk-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
-  .wk-legend .lg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  .tbl-wrap.inner { border: 0; border-top: 1px solid var(--grid); border-radius: 0; background: transparent; margin-top: 18px; }
-  .tbl-wrap.inner th, .tbl-wrap.inner td { padding-left: 0; padding-right: 10px; }
-  .tbl-wrap.inner th:last-child, .tbl-wrap.inner td:last-child { padding-right: 0; }
-  .tbl-wrap.inner thead tr.sub th { padding-top: 12px; }
-  /* Funnel: both segments + step table in one card */
-  .funnel-card { gap: 0; padding: 18px 20px 8px; }
-  .fn-segs { display: grid; grid-template-columns: 1fr; gap: 18px; }
-  .fn-seg { display: grid; gap: 12px; min-width: 0; align-content: start; }
-  .fn-seg .seg-title { font-size: 16px; }
-  .fn-seg .rates { gap: 12px; }
-  .fn-seg .rate { gap: 5px; }
-  .fn-seg .rate-val { font-size: clamp(20px, 3.4vw, 26px); }
-  .fn-seg .meter { height: 5px; }
-  @media (min-width: 720px) {
-    .fn-segs { grid-template-columns: 1fr 1fr; gap: 28px; }
-    .fn-seg + .fn-seg { border-left: 1px solid var(--grid); padding-left: 28px; }
-  }
-  .funnel-card .tbl-wrap.inner { margin-top: 16px; }
-  .funnel-card .tbl-wrap.inner th, .funnel-card .tbl-wrap.inner td { padding-top: 8px; padding-bottom: 8px; }
-  .funnel-card .tbl-wrap.inner thead tr.grp th { padding-top: 12px; }
-  .funnel-card .tbl-wrap.inner thead tr.sub th { padding-top: 2px; }
-
-  .ref { margin: 4px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-  .ref a { color: var(--ink-2); }
-
-  /* DAU */
-  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
-  .kpi {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 18px; display: grid; gap: 6px; min-width: 0; align-content: start;
-  }
-  .kpi-val { font-size: clamp(24px, 4.5vw, 32px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-  .kpi-sub { font-size: 12px; color: var(--ink-2); }
-  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px 6px; position: relative; }
-  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
-  .chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; }
-  .chart .lbl { fill: var(--ink); font-weight: 600; }
-  .chart .gridline { stroke: var(--grid); stroke-width: 1; }
-  .chart .baseline { stroke: var(--grid); stroke-width: 1; }
-  .chart .area { fill: var(--s1); opacity: 0.12; }
-  .chart .line { fill: none; stroke: var(--s1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-  .chart .dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
-  .chart .hover-line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
-  .chart .hover-dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; opacity: 0; }
-  .chart .hit { fill: transparent; }
-  .tip {
-    position: absolute; pointer-events: none; display: none; z-index: 2;
-    background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.35;
-    padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px));
-  }
-  .tip b { font-weight: 600; font-variant-numeric: tabular-nums; }
-
-  footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
-  /* Lock screen */
-  .lock { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-block: 32px; }
-  .lock-card {
-    width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-    padding: 28px 24px; display: grid; gap: 16px;
-  }
+  /* Lock screen (same as the other pages; password shared through localStorage) */
+  .lock { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 32px 16px; }
+  .lock-card { width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; display: grid; gap: 16px; }
   .lock-card .brand { font-size: 24px; }
   .lock-card p { margin: 0; font-size: 14px; color: var(--ink-2); }
   .lock-card label { font-size: 13px; font-weight: 500; color: var(--ink-2); display: grid; gap: 6px; }
-  .lock-card input[type=password] {
-    font: inherit; font-size: 16px; padding: 11px 12px; border-radius: 9px; border: 1px solid var(--border);
-    background: var(--bg); color: var(--ink); width: 100%;
-  }
+  .lock-card input[type=password] { font: inherit; font-size: 16px; padding: 11px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); width: 100%; }
   .lock-card .remember { display: flex; align-items: center; gap: 8px; font-weight: 400; }
-  .lock-card button {
-    font: inherit; font-weight: 600; font-size: 15px; padding: 11px 14px; border-radius: 9px; border: 0;
-    background: var(--ink); color: var(--bg); cursor: pointer;
-  }
+  .lock-card button { font-weight: 600; font-size: 15px; padding: 11px 14px; border-radius: 9px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
   .lock-card button:disabled { opacity: 0.6; cursor: progress; }
   .lock-err { font-size: 13px; color: var(--s2); min-height: 1.2em; }
-  .lock-out { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+  .brand { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; margin: 0; }
 
-  /* Retention: header note, 7-country average rings, country table */
-  .ret-note { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
-  .ret-note b { color: var(--ink-2); font-weight: 600; }
-  .ret-cap { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: -6px; }
-  .ret-hero { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-  .ret-kpi { display: grid; justify-items: center; gap: 8px; padding: 18px 8px 14px; border-radius: 12px; background: color-mix(in srgb, var(--s3) 8%, var(--surface)); }
-  .ret-ring { width: 92px; height: 92px; position: relative; }
-  .ret-ring svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
-  .ret-ring .trk { stroke: color-mix(in srgb, var(--s3) 20%, transparent); }
-  .ret-ring .arc { stroke: var(--s3); stroke-linecap: round; }
-  .ret-ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-  .ret-kpi-lbl { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-2); }
-  .ret-card .tbl-wrap.inner { margin-top: 2px; }
-  .ret-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .tbl-wrap.inner .ret-table th, .tbl-wrap.inner .ret-table td { padding: 10px 7px; text-align: right; white-space: nowrap; }
-  .tbl-wrap.inner .ret-table th:first-child, .tbl-wrap.inner .ret-table td:first-child { text-align: left; padding-left: 0; padding-right: 12px; position: sticky; left: 0; background: var(--surface); }
-  .tbl-wrap.inner .ret-table th:last-child, .tbl-wrap.inner .ret-table td:last-child { padding-right: 0; }
-  .ret-table thead th { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); border-bottom: 1px solid var(--border); }
-  .ret-table tbody td { font-size: 13px; color: var(--ink-2); border-bottom: 1px solid var(--grid); }
-  .ret-table tbody td:first-child { font-size: 14px; color: var(--ink); }
-  .ret-table tbody tr:last-child td { border-bottom: 0; }
-  @media (max-width: 719px) {
-    .ret-hero { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-    .ret-kpi { flex: 0 0 calc((100% - 16px) / 3); padding: 14px 6px 12px; gap: 6px; }
-    .ret-ring { width: 76px; height: 76px; }
-    .ret-ring b { font-size: 16px; }
-  }
+  /* Shell: sidebar + main */
+  .shell { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100vh; }
+  .side { min-width: 0; }
+  @media (min-width: 960px) { .shell { grid-template-columns: 228px minmax(0, 1fr); } }
+  .side { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px max(16px, env(safe-area-inset-left, 0px)) 0; position: sticky; top: 0; z-index: 5; }
+  @media (min-width: 960px) { .side { border-bottom: 0; border-right: 1px solid var(--border); height: 100vh; overflow-y: auto; padding: 22px 14px; } }
+  .side-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .side-head small { font-size: 12px; color: var(--muted); }
+  .nav { display: flex; gap: 2px; overflow-x: auto; padding: 10px 0 8px; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  @media (min-width: 960px) { .nav { flex-direction: column; overflow: visible; padding: 18px 0 0; } }
+  .nav a { display: block; white-space: nowrap; text-decoration: none; font-size: 13.5px; font-weight: 500; color: var(--ink-2); padding: 6px 10px; border-radius: 8px; }
+  .nav a:hover { color: var(--ink); background: var(--track); }
+  .nav a[aria-current="page"] { color: var(--ink); background: var(--track); font-weight: 600; }
+  .nav .grp { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; white-space: nowrap; align-self: center; }
+  @media (min-width: 960px) { .nav .grp { padding: 18px 10px 4px; } }
+  .nav a.old { color: var(--muted); }
+  .nav a.old::after { content: " ↗"; font-size: 11px; }
 
-  /* Page tabs (shared with engagement.html) */
-  .site { align-items: center; }
-  .site-l { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
-  .tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
-  .tabs a { font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none; padding: 5px 12px; border-radius: 8px; line-height: 1.4; }
-  .tabs a:hover { color: var(--ink); }
-  .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
-</style>
+  main { padding: 0 max(16px, env(safe-area-inset-right, 0px)) 56px max(16px, env(safe-area-inset-left, 0px)); min-width: 0; }
+  @media (min-width: 960px) { main { padding: 0 32px 64px; } }
+  .wrap { max-width: 1120px; margin: 0 auto; min-width: 0; }
 
-<div class="wrap lock" id="lock">
+  /* Top bar: title, data date, range, compare, filters */
+  .top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 20px 0 16px; border-bottom: 1px solid var(--grid); position: sticky; top: 0; background: var(--bg); z-index: 4; }
+  @media (max-width: 959px) { .top { position: static; } }
+  .top-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(24px, 3.4vw, 30px); line-height: 1.1; letter-spacing: -0.015em; margin: 0; }
+  .meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+  .lock-out { background: none; border: 0; padding: 0; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .seg-ctl { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--track); }
+  .seg-ctl button { font-size: 12.5px; font-weight: 500; color: var(--ink-2); background: none; border: 0; padding: 3px 9px; border-radius: 7px; cursor: pointer; line-height: 1.4; }
+  .seg-ctl button:hover { color: var(--ink); }
+  .seg-ctl button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+  .seg-ctl button:disabled { opacity: .45; cursor: not-allowed; }
+  .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+  .chk.off { opacity: .5; cursor: not-allowed; }
+  .flt { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .flt select, .card select { font-size: 12.5px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 6px; max-width: 160px; }
+  .flt select.on { border-color: var(--ink-2); font-weight: 600; }
+
+  /* Sections */
+  .sec { padding-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .sec-intro { margin: 0; font-size: 13px; color: var(--ink-2); max-width: 78ch; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+  @media (min-width: 1100px) { .kpis { grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); } }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px 8px; display: grid; gap: 3px; min-width: 0; position: relative; align-content: start; }
+  .kpi-h { display: flex; align-items: center; gap: 6px; min-height: 20px; }
+  .kpi-l { font-size: 12px; font-weight: 500; color: var(--ink-2); flex: 1; min-width: 0; }
+  .kpi-v { font-size: clamp(22px, 3vw, 28px); font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi-s, .kpi-d { font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 8px; }
+  .kpi-s b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .kpi svg.spark { width: 100%; height: 28px; display: block; margin-top: 2px; }
+  .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
+  .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .delta.good { color: var(--s3); }
+  .delta.bad { color: var(--s2); }
+  .help { flex: none; width: 17px; height: 17px; border-radius: 50%; border: 1px solid var(--border); background: none; color: var(--muted); font-size: 10.5px; font-weight: 600; line-height: 1; padding: 0; cursor: help; }
+  .help:hover { color: var(--ink); border-color: var(--ink-2); }
+  .tag { flex: none; font-size: 10.5px; color: var(--muted); border: 1px dashed var(--border); border-radius: 6px; padding: 0 5px; white-space: nowrap; }
+  .badge { flex: none; font-size: 10.5px; font-weight: 700; color: #fff; background: var(--s2); border-radius: 6px; padding: 0 5px; cursor: help; }
+  .notebox { font-size: 12px; color: var(--ink-2); background: var(--track); border-radius: 8px; padding: 7px 9px; margin: 2px 0; }
+
+  .cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  @media (min-width: 1100px) { .cards { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .card.wide { grid-column: 1 / -1; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 10px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; position: relative; align-content: start; }
+  .card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .card-top h2 { margin: 0; font-size: 14.5px; font-weight: 600; color: var(--ink); flex: 1; min-width: 0; }
+  .card-sub { font-size: 12px; color: var(--muted); margin: -4px 0 0; }
+  .card-sub b { color: var(--ink-2); font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 3px 14px; font-size: 12px; color: var(--ink-2); }
+  .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; background: var(--c); margin-right: 6px; vertical-align: middle; }
+  .legend i.sq { width: 10px; height: 10px; border-radius: 3px; }
+  .legend i.dash { background: repeating-linear-gradient(90deg, var(--c) 0 4px, transparent 4px 7px); }
+  .placeholder { font-size: 13px; color: var(--muted); border: 1px dashed var(--border); border-radius: 10px; padding: 18px; }
+
+  /* Charts (SVG, same approach as dashboard.html) */
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { font-family: var(--font-body); font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  .chart .ln { fill: none; stroke: var(--c); stroke-width: 1.2; opacity: 0.42; stroke-linejoin: round; }
+  .chart .ma { fill: none; stroke: var(--c); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .ma.only { stroke-width: 2; }
+  .chart .prev { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-dasharray: 4 4; opacity: 0.7; }
+  .chart .pt-faded { fill: var(--c); opacity: 0.28; }
+  .chart .pt-hollow { fill: var(--surface); stroke: var(--c); stroke-width: 1.4; }
+  .chart .chg { stroke: var(--s6); stroke-width: 1; stroke-dasharray: 2 3; }
+  .chart .chg-dot { fill: var(--s6); }
+  .chart .thr { stroke: var(--s2); stroke-width: 1; stroke-dasharray: 5 4; }
+  .chart .bar { fill: var(--c); }
+  .chart .hover-line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+  .chart .hover-dot { stroke: var(--surface); stroke-width: 2; opacity: 0; }
+  .chart .hit { fill: transparent; }
+  .chart-empty { font-size: 13px; color: var(--muted); padding: 34px 0; text-align: center; }
+  .tip { position: absolute; pointer-events: none; display: none; z-index: 6; background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.4; padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); }
+  .tip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tip .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+  .tip small { opacity: .75; }
+
+  /* Ladder, flow strip */
+  .ladder { display: grid; gap: 6px; }
+  .rung { display: grid; grid-template-columns: minmax(96px, 30%) 1fr auto; gap: 10px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+  .rung-bar { height: 16px; border-radius: 4px; background: var(--track); overflow: hidden; }
+  .rung-bar i { display: block; height: 100%; background: var(--c, var(--s1)); border-radius: 4px; }
+  .rung b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .rung small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; }
+  .flow .st { flex: 1 1 130px; background: var(--track); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
+  .flow .st span { font-size: 12px; color: var(--ink-2); }
+  .flow .st b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .flow .st small { font-size: 11.5px; color: var(--muted); }
+  .flow .ar { align-self: center; color: var(--muted); font-size: 16px; }
+  .flow .loop { flex-basis: 100%; font-size: 12px; color: var(--ink-2); border: 1px dashed var(--border); border-radius: 10px; padding: 8px 12px; }
+  .buckets { display: grid; gap: 8px; }
+  .bk-row { display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: center; font-size: 12px; color: var(--ink-2); }
+  .bk { display: flex; height: 22px; border-radius: 5px; overflow: hidden; background: var(--track); }
+  .bk i { display: block; height: 100%; background: var(--c); }
+
+  /* Tables */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 12px; font-weight: 600; color: var(--ink-2); position: sticky; top: 0; background: var(--surface); }
+  thead th.sort { cursor: pointer; user-select: none; }
+  thead th.sort:hover { color: var(--ink); }
+  thead th[aria-sort="ascending"]::after { content: " ▲"; font-size: 9px; }
+  thead th[aria-sort="descending"]::after { content: " ▼"; font-size: 9px; }
+  tbody td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  tbody td:first-child { color: var(--ink); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.faded { opacity: .45; }
+  td.wrap, th.wrap { white-space: normal; text-align: left; min-width: 180px; max-width: 320px; }
+  table.daily td.wrap { font-size: 12px; color: var(--muted); }
+  tr.click { cursor: pointer; }
+  tr.click:hover td { background: var(--track); }
+  tr.open td { background: var(--track); }
+  tr.detail td { background: var(--bg); text-align: left; white-space: normal; color: var(--ink-2); font-size: 12.5px; }
+  .det { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 22px; padding: 4px 0; }
+  .det h4 { margin: 0 0 4px; font-size: 12px; color: var(--muted); font-weight: 600; }
+  .det table td { padding: 2px 6px; border: 0; font-size: 12px; }
+  .defs-tbl td.wrap { color: var(--ink-2); }
+  code { font-size: 12px; }
+  footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+</style></head><body>
+
+<div class="lock" id="lock">
   <form class="lock-card" id="lock-form" autocomplete="on">
     <p class="brand">Lucida Data</p>
     <p>Rakamları görmek için şifreyi gir.</p>
     <input type="text" name="username" value="lucida-data" autocomplete="username" hidden>
-    <label>Şifre
-      <input type="password" id="lock-pass" name="password" autocomplete="current-password" required>
-    </label>
+    <label>Şifre <input type="password" id="lock-pass" name="password" autocomplete="current-password" required></label>
     <label class="remember"><input type="checkbox" id="lock-remember" checked> Bu cihazda hatırla</label>
     <button type="submit" id="lock-btn">Aç</button>
     <div class="lock-err" id="lock-err" role="alert"></div>
   </form>
 </div>
 
-<div class="wrap" id="app" hidden>
-  <header class="site">
-    <div class="site-l">
-      <p class="brand">Lucida Data</p>
-      <nav class="tabs" aria-label="Sayfalar"><a href="./" aria-current="page">Genel</a><a href="engagement.html">Engagement</a><a href="dashboard.html">Product</a></nav>
-    </div>
-    <div class="site-meta">
-      <span>Takip aralığı: <b id="range-text">—</b> · Son güncelleme: <b id="updated-at">—</b></span>
-      <button type="button" class="lock-out" id="lock-out">Kilitle</button>
-    </div>
-  </header>
-
+<div class="shell" id="app" hidden>
+  <aside class="side">
+    <div class="side-head"><p class="brand">Lucida Data</p><small>Product · aboneler</small></div>
+    <nav class="nav" id="nav" aria-label="Bölümler"></nav>
+  </aside>
   <main>
-    <section id="aboneler" aria-labelledby="h-aboneler">
-      <div class="sec-head">
-        <h1 id="h-aboneler">Abone Sayıları</h1>
-      </div>
-      <div class="segments" id="cohorts"></div>
-    </section>
-
-    <section id="retention" aria-label="Aktif abone retention">
-      <div class="seg ret-card" id="retention-card"></div>
-      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?sharingId=aZYAr8vJ&source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?sharingId=aZYAr8vJ&source=copy+url</a></p>
-    </section>
-
-    <section id="dau" aria-label="Günlük aktif abone">
-      <div class="kpis" id="dau-kpis"></div>
-
-      <div class="chart-card">
-        <div class="chart" id="dau-chart"></div>
-        <div class="tip" id="dau-tip"></div>
-      </div>
-      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/8cgnfjm1?sharingId=tle9t2XN&source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/8cgnfjm1?sharingId=tle9t2XN&source=copy+url</a></p>
-    </section>
-
-    <section id="haftalik-ders" aria-labelledby="h-weekly">
-      <div class="sec-head">
-        <h1 id="h-weekly">Haftalık Ders Başlatma ve Tamamlama</h1>
-      </div>
-      <div class="block" style="margin-top:0">
-        <div class="seg-base"><span class="swatch" style="--c:var(--s1); display:inline-block; vertical-align:-1px; margin-right:8px"></span>Eski Aboneler</div>
-        <div class="chart-card weekly-card">
-          <div class="chart" id="weekly-chart"></div>
-          <div class="tip" id="weekly-tip"></div>
-          <div class="wk-legend" id="weekly-legend"></div>
+    <div class="wrap">
+      <header class="top">
+        <div class="top-row">
+          <h1 id="title">Genel Bakış</h1>
+          <div class="meta"><span>Veri: <b id="data-date">—</b></span><span>Güncelleme: <b id="updated-at">—</b></span><button type="button" class="lock-out" id="lock-out">Kilitle</button></div>
         </div>
-        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/wf6x32q6?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/wf6x32q6?source=copy+url</a></p>
-      </div>
-    </section>
-
-    <section id="derse-girme" aria-labelledby="h-derse">
-      <div class="sec-head">
-        <h1 id="h-derse">Ders Başlatma Oranları</h1>
-      </div>
-
-      <div class="seg funnel-card">
-        <div class="fn-segs" id="segments"></div>
-        <div class="tbl-wrap inner">
-          <table id="steps">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
+        <div class="ctl-row">
+          <div class="seg-ctl" id="range" role="group" aria-label="Tarih aralığı"></div>
+          <label class="chk" id="cmp-wrap"><input type="checkbox" id="cmp"> Önceki dönemle karşılaştır</label>
+          <label class="flt">Platform <select id="f-platform"></select></label>
+          <label class="flt">Ülke <select id="f-country"></select></label>
+          <label class="flt">Sürüm <select id="f-version"></select></label>
+          <label class="flt">Abone <select id="f-sub"></select></label>
         </div>
-      </div>
-      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url</a></p>
-    </section>
-
-    <section id="a1-sureler" aria-labelledby="h-a1">
-      <div class="sec-head">
-        <h1 id="h-a1">Ders Tamamlama Süresi</h1>
-      </div>
-      <div class="block" style="margin-top:0">
-        <div class="seg-base"><span class="swatch" style="--c:var(--s2); display:inline-block; vertical-align:-1px; margin-right:8px"></span>Yeni Aboneler</div>
-        <div class="tbl-wrap">
-          <table id="lessons">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/47xft6k6" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/47xft6k6</a></p>
-      </div>
-    </section>
+      </header>
+      <div id="sec"></div>
+      <footer><span>Kaynak: Amplitude (Lucida Prod), RevenueCat durumları · günler UTC · bugün hariç</span><span>Her sabah 09:00'da güncellenir</span></footer>
+    </div>
   </main>
-
-  <footer>
-    <span>Amplitude · Lucida Prod (773708)</span>
-  </footer>
 </div>
 
 <script>
 // ============================================================
-// META — yalnızca etiketler ve yöntem bilgisi; rakamlar data.enc.json içinde şifreli durur.
-// Her sabah 09:00 (İstanbul) bir Claude rutini Amplitude'dan yeniler (Lucida Prod 773708, UTC).
+// PRODUCT ENGAGEMENT v2 — product.enc.json (scripts/build-product.mjs):
+//   days, catalog (metrics.json with num/den normalised), m[key][sub][slice] = counts per day,
+//   r[metric][slice] = funnel rates / minutes per day (paid), mix, ret, co (new subscriber cohorts),
+//   les (lessons by week), hist, changes, meta, missing.
+// sub: paid | store | web.  slice: all | p:<platform> | c:<country> | v:<version>.
 // ============================================================
-const DATA = {
-  range: { days: 15, tz: "UTC" },
-  funnel: {
-    steps: [
-      { key: "dashboard_page_viewed",  label: "Anasayfa Açıldı" },
-      { key: "pre_lesson_viewed",      label: "Node Tıklandı" },
-      { key: "pre_lesson_lets_start",  label: "Start Basıldı" },
-      { key: "anm_conv_page_viewed",   label: "Ders 1", lesson: 1 },
-      { key: "post_call_report_shown", label: "Rapor 1" },
-      { key: "anm_conv_page_viewed",   label: "Ders 2", lesson: 2 },
-      { key: "post_call_report_shown", label: "Rapor 2" },
-      { key: "anm_conv_page_viewed",   label: "Ders 3", lesson: 3 }
-    ],
-    segments: [
-      { id: "eski", name: "Eski Aboneler", color: "var(--s1)" },
-      { id: "yeni", name: "Yeni Aboneler", color: "var(--s2)" }
-    ]
-  },
-  cohorts: {
-    items: [
-      { id: "we8ecx07", key: "eski", name: "Eski Aboneler", label: "Aktivasyonu Tamamlanmış Kullanıcı", color: "var(--s1)",
-        url: "https://app.amplitude.com/audiences/applucida-342855/cohort/we8ecx07/details?source=copy+url" },
-      { id: "mkec0q4p", key: "yeni", name: "Yeni Aboneler", label: "Aktivasyon aşamasındaki kullanıcı", color: "var(--s2)",
-        url: "https://app.amplitude.com/audiences/applucida-342855/cohort/mkec0q4p/details?source=copy+url" }
-    ]
-  },
-  retention: { windowDays: 90, days: [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 20, 21, 22] },
-  weekly: { order: ["South Korea", "Czech Republic", "United States", "Poland", "Japan"] },
-  lessons: {
-    items: [
-      { id: "live_lesson_en_a1_1", label: "A1 · Ders 1" },
-      { id: "live_lesson_en_a1_2", label: "A1 · Ders 2" },
-      { id: "live_lesson_en_a1_3", label: "A1 · Ders 3" },
-      { id: "live_lesson_en_a1_4", label: "A1 · Ders 4" },
-      { id: "live_lesson_en_a1_5", label: "A1 · Ders 5" }
-    ]
-  }
-};
+const nf = new Intl.NumberFormat("tr-TR");
+const nf1 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const nf2 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const utc = (ymd) => new Date(ymd + "T00:00:00Z");
+const dShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(utc(ymd));
+const dLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "short", day: "numeric", month: "long", timeZone: "UTC" }).format(utc(ymd));
+const dYear = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(utc(ymd));
+const tsFmt = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" }).format(new Date(iso)) + " UTC";
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+const addDays = (ymd, k) => new Date(utc(ymd).getTime() + k * 864e5).toISOString().slice(0, 10);
+const monday = (ymd) => addDays(ymd, -((utc(ymd).getUTCDay() + 6) % 7));
+const sum = (a) => a.reduce((s, x) => s + (x || 0), 0);
+const nn = (a) => a.filter((x) => x != null && Number.isFinite(x));
+const mean = (a) => { const b = nn(a); return b.length ? sum(b) / b.length : null; };
+const median = (a) => { const b = nn(a).sort((x, y) => x - y); if (!b.length) return null; const h = b.length >> 1; return b.length % 2 ? b[h] : (b[h - 1] + b[h]) / 2; };
+
+const TR_COUNTRY = { "United States": "ABD", "South Korea": "Güney Kore", "Japan": "Japonya", "Poland": "Polonya", "Czech Republic": "Çekya", "Hungary": "Macaristan", "United Kingdom": "Birleşik Krallık", "Philippines": "Filipinler", "Brazil": "Brezilya", "Turkey": "Türkiye" };
+const SUB_LABEL = { paid: "Tümü", store: "Mağaza", web: "Web" };
+const COL = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)", "var(--s7)"];
+const MIN_DEN = 50;
+// lower is better for these (colour of the change arrows)
+const LOWER_BETTER = new Set(["abandon_rate", "abandon_after_1min", "rating_low_rate", "tech_fail_rate", "speech_zero_rate"]);
+
+const D = { d: null, cat: {} };
+const S = { tab: "genel", range: 28, cmp: false, dim: null, val: "", sub: "paid" };
+const N = () => D.d.days.length;
+const win = () => { const n = N(); return [Math.max(0, n - S.range), n - 1]; };
+const prevWin = () => { const [i0] = win(); return i0 - S.range >= 0 ? [i0 - S.range, i0 - 1] : null; };
+const sliceKey = () => (S.dim ? { platform: "p:", country: "c:", version: "v:" }[S.dim] + S.val : "all");
 
 // ---------- formatting ----------
-const COUNTRIES = ["Japan", "South Korea", "Poland", "United States", "Czech Republic"];
-const COUNTRY_TR = { "Japan": "Japonya", "South Korea": "Güney Kore", "Poland": "Polonya", "United States": "ABD", "Czech Republic": "Çekya" };
-const nf = new Intl.NumberFormat("tr-TR");
-const pf = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-const pct = (a, b) => (b ? "%" + pf.format((a / b) * 100) : "—");
-const ratio = (a, b) => (b ? (a / b) * 100 : 0);
-const fmtDate = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Istanbul" }).format(new Date(iso));
-const fmtDayShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
-const fmtDayLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+function fmt(unit, v, opts = {}) {
+  if (v == null || !Number.isFinite(v)) return "—";
+  if (unit === "pct") return "%" + nf1.format(v * 100);
+  if (unit === "min") return (v >= 1000 ? nf.format(Math.round(v)) : nf1.format(v)) + " dk";
+  if (unit === "ratio") return opts.days ? nf1.format(v * 7) + " gün" : nf2.format(v);
+  return nf.format(Math.round(v));
+}
+const PERIOD_LABEL = { sum: "dönem toplamı", daily_mean: "günlük ort.", last: "son gün", ratio_of_sums: "dönem", mean_of_daily: "günlük ort.", median_of_daily: "günlük medyanların medyanı", share_of_sums: "pay", matured_cohorts: "olgun kohortlar", own_selector: "" };
 
-// ---------- state ----------
-const current = {};
-const lessonIdx = DATA.funnel.steps.map((s, i) => (s.lesson ? i : -1)).filter((i) => i >= 0);
-
-// ---------- render: header ----------
-function renderHeader() {
-  const latest = [current.funnel.updatedAt, current.dau.updatedAt, current.cohorts.updatedAt, current.lessons.updatedAt, current.retention.updatedAt, current.weekly.updatedAt].filter(Boolean).sort().pop();
-  document.getElementById("updated-at").textContent = latest ? fmtDate(latest) : "—";
-  document.getElementById("range-text").textContent = `son ${DATA.range.days} gün`;
+// ---------- series ----------
+// raw series of a stored key (m) for sub/slice; a stored key without that slice = no events → zeros
+function raw(key, sub, slice) {
+  const k = D.d.m[key];
+  if (!k || !k[sub]) return null;
+  return k[sub][slice] || (k[sub].all ? k[sub].all.map(() => 0) : null);
+}
+// "a+b", "a-b", "x[cat]" over stored keys
+function expr(e, sub, slice) {
+  const terms = e.match(/[+-]?[^+-]+/g);
+  let out = null;
+  for (const t of terms) {
+    const sign = t[0] === "-" ? -1 : 1, key = t.replace(/^[+-]/, "");
+    const c = D.cat[key];
+    const v = c && c.num ? ratioVals(c, sub, slice).vals : raw(c?.series || key, sub, slice);
+    if (!v) return null;
+    out = out ? out.map((x, i) => (x == null || v[i] == null ? null : x + sign * v[i])) : v.map((x) => (x == null ? null : sign * x));
+  }
+  return out;
+}
+function ratioVals(c, sub, slice) {
+  const num = expr(c.num, sub, slice), den = expr(c.den, sub, slice);
+  if (!num || !den) return { vals: null };
+  return { num, den, vals: num.map((x, i) => (x == null || den[i] == null || !den[i] ? null : x / den[i])) };
+}
+// a metric under the current filters → { vals, num?, den?, tag (filter not supported), sub, slice }
+function series(id, f = S) {
+  const c = D.cat[id];
+  if (!c) return { vals: null };
+  const bd = c.breakdowns || [];
+  const dimOk = !f.dim || bd.includes(f.dim), subOk = f.sub === "paid" || bd.includes("subType");
+  const slice = dimOk ? (f === S ? sliceKey() : f.slice || "all") : "all", sub = subOk ? f.sub : "paid";
+  let o;
+  if (c.rate) o = { vals: D.d.r[c.rate]?.[slice] || null };
+  else if (c.num) o = ratioVals(c, sub, slice);
+  else o = { vals: raw(c.series || id, sub, slice) };
+  return { ...o, tag: !dimOk || !subOk, sub, slice };
+}
+// value of a metric over [i0, i1] by its period rule
+function periodValue(c, s, i0, i1) {
+  if (!s.vals) return null;
+  const v = s.vals.slice(i0, i1 + 1);
+  switch (c.period) {
+    case "sum": return nn(v).length ? sum(v) : null;
+    case "daily_mean": case "mean_of_daily": return mean(v);
+    case "last": { const b = nn(v); return b.length ? b[b.length - 1] : null; }
+    case "median_of_daily": return median(v);
+    case "ratio_of_sums": {
+      if (!s.num) return mean(v);
+      let a = 0, b = 0;
+      for (let i = i0; i <= i1; i++) if (s.num[i] != null && s.den[i] != null && s.den[i] > 0) { a += s.num[i]; b += s.den[i]; }
+      return b ? a / b : null;
+    }
+    default: return mean(v);
+  }
+}
+// 7-day moving average (ratio metrics: Σnum / Σden over the window)
+function movingAvg(s) {
+  const v = s.vals, out = new Array(v.length).fill(null);
+  for (let i = 0; i < v.length; i++) {
+    if (i < 6) continue;
+    if (s.num) {
+      let a = 0, b = 0, k = 0;
+      for (let j = i - 6; j <= i; j++) if (s.num[j] != null && s.den[j] > 0) { a += s.num[j]; b += s.den[j]; k++; }
+      out[i] = k >= 4 && b ? a / b : null;
+    } else {
+      const w = nn(v.slice(i - 6, i + 1));
+      out[i] = w.length >= 4 ? sum(w) / w.length : null;
+    }
+  }
+  return out;
 }
 
-// ---------- render: funnel ----------
-function renderFunnel(f) {
-  document.getElementById("segments").innerHTML = f.segments.map((seg) => {
-    const base = seg.counts[0];
-    const tiles = lessonIdx.map((idx) => {
-      const c = seg.counts[idx];
-      return `
-        <div class="rate">
-          <div class="rate-lbl">${f.steps[idx].label} başlatma</div>
-          <div class="rate-val">${pct(c, base)}</div>
-          <div class="meter" role="img" aria-label="${pct(c, base)}"><i style="--c:${seg.color}; width:${ratio(c, base).toFixed(1)}%"></i></div>
-          <div class="rate-sub"><b>${nf.format(c)}</b> session</div>
-        </div>`;
-    }).join("");
-    return `
-      <article class="fn-seg" aria-labelledby="seg-${seg.id}">
-        <div class="seg-head">
-          <h2 class="seg-title" id="seg-${seg.id}"><span class="swatch" style="--c:${seg.color}"></span>${seg.name}</h2>
-          <div class="seg-base"><b>${nf.format(base)}</b> session anasayfayı gördü</div>
-        </div>
-        <div class="rates">${tiles}</div>
-      </article>`;
+// ---------- alerts ----------
+function alertText(c, s) {
+  const v = s.vals; if (!v) return null;
+  const i = v.length - 1, x = v[i];
+  const msgs = [];
+  if (x != null) {
+    const ref = [7, 14, 21, 28].map((k) => v[i - k]).filter((y) => y != null);
+    if (ref.length === 4) {
+      const m = mean(ref), sd = Math.sqrt(mean(ref.map((y) => (y - m) ** 2)));
+      if (sd > 0 && Math.abs(x - m) > 2 * sd) msgs.push(`Son gün (${fmt(c.unit, x)}) son 4 haftanın aynı günlerinin ortalamasından (${fmt(c.unit, m)}) 2 standart sapmadan fazla ${x > m ? "yüksek" : "düşük"}.`);
+    }
+  }
+  if (c.alert) {
+    const [op, th] = c.alert.split(" "), n = N(), pv = periodValue(c, s, n - 7, n - 1);
+    if (pv != null && (op === ">" ? pv > Number(th) : pv < Number(th))) msgs.push(`Son 7 gün ${fmt(c.unit, pv)}: eşik ${fmt(c.unit, Number(th))} aşıldı.`);
+  }
+  return msgs.length ? msgs.join(" ") : null;
+}
+
+// ---------- change arrows ----------
+function deltaSpan(c, cur, prev, label) {
+  if (cur == null || prev == null) return "";
+  let txt, d;
+  if (c.unit === "pct") { d = cur - prev; txt = `${nf1.format(Math.abs(d) * 100)} puan`; }
+  else { if (!prev) return ""; d = (cur - prev) / Math.abs(prev); txt = "%" + nf1.format(Math.abs(d) * 100); }
+  const flat = c.unit === "pct" ? Math.abs(d) < 0.0005 : Math.abs(d) < 0.005;
+  const good = LOWER_BETTER.has(c.id) ? d < 0 : d > 0;
+  return `<span><span class="delta ${flat ? "" : good ? "good" : "bad"}">${flat ? "=" : d > 0 ? "▲" : "▼"} ${txt}</span> ${label}</span>`;
+}
+
+// ---------- chart primitives ----------
+const niceStep = (span) => { const r = span / 4, mag = 10 ** Math.floor(Math.log10(r || 1)); return [1, 2, 2.5, 5, 10].map((k) => k * mag).find((s) => s >= r) || mag * 10; };
+function placeTip(tip, card, svg, W, H, px, py, html) {
+  const rect = svg.getBoundingClientRect(), box = card.getBoundingClientRect();
+  tip.innerHTML = html;
+  tip.style.left = `${Math.min(Math.max(rect.left - box.left + (px * rect.width) / W, 110), box.width - 110)}px`;
+  tip.style.top = `${rect.top - box.top + (py * rect.height) / H}px`;
+  tip.style.display = "block";
+}
+function changesIn(x) {
+  const set = new Map(x.map((d, i) => [d, i]));
+  return (D.d.changes || []).map((ch) => [set.has(ch.d) ? set.get(ch.d) : x.findIndex((d) => d >= ch.d && d <= addDays(ch.d, 6)), ch]).filter(([i]) => i >= 0);
+}
+// Line chart over x (dates). series: [{ name, color, vals, ma?, prev?, faded?[i], hollow?[i], fmt, detail?(i) }]
+function lineChart(host, card, x, series, opts = {}) {
+  const tip = card.querySelector(".tip");
+  const all = series.flatMap((s) => [...s.vals, ...(s.ma || []), ...(s.prev || [])]).filter((v) => v != null && Number.isFinite(v));
+  if (!all.length) { host.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; return; }
+  const n = x.length, W = Math.max(300, Math.round(host.clientWidth || 600)), H = opts.H || 200;
+  const padL = 50, padR = 12, padT = 12, padB = 24;
+  let maxV = Math.max(...all, opts.threshold ?? 0);
+  const step = niceStep(maxV || 1);
+  let y1 = Math.max(Math.ceil((maxV * 1.06) / step) * step, step);
+  if (opts.pctMax && maxV <= 1) y1 = Math.min(y1, 1);
+  const y = (v) => padT + (1 - v / y1) * (H - padT - padB);
+  const X = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
+  const ticks = []; for (let t = 0; t <= y1 + 1e-9; t += step) ticks.push(t);
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 58)));
+  const xl = x.map((d, i) => ((n - 1 - i) % every === 0 ? `<text x="${X(i).toFixed(1)}" y="${H - 6}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${opts.xFmt ? opts.xFmt(d, i) : dShort(d)}</text>` : "")).join("");
+  const path = (vals) => { let s = "", pen = false; vals.forEach((v, i) => { if (v == null || !Number.isFinite(v)) { pen = false; return; } s += `${pen ? "L" : "M"}${X(i).toFixed(1)} ${y(v).toFixed(1)} `; pen = true; }); return s; };
+  const yf = opts.yFmt || ((t) => nf.format(t));
+  const chg = changesIn(x).map(([i, ch]) => `<line class="chg" x1="${X(i).toFixed(1)}" x2="${X(i).toFixed(1)}" y1="${padT}" y2="${H - padB}"><title>${esc(dShort(ch.d) + " · " + (ch.version ? ch.version + " · " : "") + ch.note)}</title></line><circle class="chg-dot" cx="${X(i).toFixed(1)}" cy="${padT - 2}" r="2.5"><title>${esc(dShort(ch.d) + " · " + ch.note)}</title></circle>`).join("");
+  const body = series.map((s) => {
+    const st = `style="--c:${s.color}"`;
+    let out = "";
+    if (s.prev) out += `<path class="prev" ${st} d="${path(s.prev)}"/>`;
+    if (s.ma) out += `<path class="ln" ${st} d="${path(s.vals)}"/><path class="ma" ${st} d="${path(s.ma)}"/>`;
+    else out += `<path class="ma only" ${st} d="${path(s.vals)}"/>`;
+    s.vals.forEach((v, i) => {
+      if (v == null) return;
+      if (s.hollow?.[i]) out += `<circle class="pt-hollow" ${st} cx="${X(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.8"/>`;
+      else if (s.faded?.[i]) out += `<circle class="pt-faded" ${st} cx="${X(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.6"/>`;
+    });
+    return out;
   }).join("");
-
-  // Step table: per segment, session count + share of homepage sessions (column header left blank on purpose)
-  document.querySelector("#steps thead").innerHTML = `
-    <tr class="grp">
-      <th></th>
-      ${f.segments.map((s, i) => `<th colspan="2" class="${i ? "gap" : ""}"><span><span class="swatch" style="--c:${s.color}"></span>${s.name}</span></th>`).join("")}
-    </tr>
-    <tr class="sub">
-      <th>Adım</th>
-      ${f.segments.map((s, i) => `<th class="${i ? "gap" : ""}">Session count</th><th></th>`).join("")}
-    </tr>`;
-  document.querySelector("#steps tbody").innerHTML = f.steps.map((step, i) => `
-    <tr class="${step.lesson ? "lesson" : ""}">
-      <td>${step.label}</td>
-      ${f.segments.map((s, k) => `<td class="${k ? "gap" : ""}">${nf.format(s.counts[i])}</td><td class="pct base-pct">${pct(s.counts[i], s.counts[0])}</td>`).join("")}
-    </tr>`).join("");
-}
-
-// ---------- render: DAU ----------
-function niceStep(range) {
-  const candidates = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000];
-  return candidates.find((s) => Math.ceil((range * 1.3) / s) <= 5) || candidates[candidates.length - 1];
-}
-
-function renderDau(d) {
-  const vals = d.values, days = d.days, n = vals.length;
-  const last = vals[n - 1], avg = vals.reduce((a, b) => a + b, 0) / n;
-  const maxV = Math.max(...vals), minV = Math.min(...vals);
-
-  document.getElementById("dau-kpis").innerHTML = `
-    <div class="kpi"><div class="rate-lbl">Ortalama DAU</div><div class="kpi-val">${nf.format(Math.round(avg))}</div><div class="kpi-sub">${n} günün ortalaması</div></div>
-    <div class="kpi"><div class="rate-lbl">Son gün</div><div class="kpi-val">${nf.format(last)}</div><div class="kpi-sub">${fmtDayShort(days[n - 1])}</div></div>
-    <div class="kpi"><div class="rate-lbl">Unique User</div><div class="kpi-val">${nf.format(d.overall)}</div><div class="kpi-sub">${n} günde en az bir kez</div></div>`;
-
-  const host = document.getElementById("dau-chart");
-  const W = Math.max(320, Math.round(host.clientWidth || 720)), H = 240;
-  const padL = 44, padR = 16, padT = 14, padB = 30;
-  const step = niceStep(maxV - minV || 10);
-  const y0 = Math.max(0, Math.floor((minV - step * 0.4) / step) * step);
-  const y1 = Math.ceil((maxV + step * 0.4) / step) * step;
-  const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
-  const y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
-
-  const ticks = [];
-  for (let t = y0; t <= y1 + 1e-9; t += step) ticks.push(t);
-  const pts = vals.map((v, i) => [x(i), y(v)]);
-  const linePath = pts.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
-  const areaPath = `${linePath} L${x(n - 1).toFixed(1)} ${y(y0).toFixed(1)} L${x(0).toFixed(1)} ${y(y0).toFixed(1)} Z`;
-
-  // x labels: enough to read, never overlapping (≈ 56px per label)
-  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 56)));
-  const xLabels = days.map((dday, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
-    ? `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(dday)}</text>` : "").join("");
-
-  const iMax = vals.indexOf(maxV), iMin = vals.indexOf(minV);
-  const label = (i, v, dy, cls) => `<text class="${cls}" x="${x(i).toFixed(1)}" y="${(y(v) + dy).toFixed(1)}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${nf.format(v)}</text>`;
-
-  host.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Günlük aktif abone, ${fmtDayShort(days[0])} – ${fmtDayShort(days[n - 1])}">
-      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${nf.format(t)}</text>`).join("")}
-      <path class="area" d="${areaPath}"/>
-      <path class="line" d="${linePath}"/>
-      ${iMax !== n - 1 ? label(iMax, maxV, -10, "") : ""}
-      ${iMin !== n - 1 ? label(iMin, minV, 18, "") : ""}
-      <circle class="dot" cx="${x(n - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="4.5"/>
-      ${label(n - 1, last, -10, "lbl")}
-      ${xLabels}
-      <line class="hover-line" id="dau-hover-line" x1="0" x2="0" y1="${padT}" y2="${(H - padB).toFixed(1)}"/>
-      <circle class="hover-dot" id="dau-hover-dot" r="5" cx="0" cy="0"/>
-      ${pts.map(([px], i) => {
-        const left = i === 0 ? padL : (pts[i - 1][0] + px) / 2;
-        const right = i === n - 1 ? W - padR : (px + pts[i + 1][0]) / 2;
-        return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
-      }).join("")}
-    </svg>`;
-
-  // hover: crosshair + tooltip
-  const svg = host.querySelector("svg"), tip = document.getElementById("dau-tip");
-  const hl = host.querySelector("#dau-hover-line"), hd = host.querySelector("#dau-hover-dot");
+  const thr = opts.threshold != null ? `<line class="thr" x1="${padL}" x2="${W - padR}" y1="${y(opts.threshold).toFixed(1)}" y2="${y(opts.threshold).toFixed(1)}"/><text x="${W - padR}" y="${(y(opts.threshold) - 4).toFixed(1)}" text-anchor="end">eşik ${yf(opts.threshold)}</text>` : "";
+  const hits = x.map((_, i) => { const l = i === 0 ? padL : (X(i - 1) + X(i)) / 2, r = i === n - 1 ? W - padR : (X(i) + X(i + 1)) / 2; return `<rect class="hit" data-i="${i}" x="${l.toFixed(1)}" y="${padT}" width="${Math.max(1, r - l).toFixed(1)}" height="${H - padT - padB}"/>`; }).join("");
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "")}">
+    ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 7}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${yf(t)}</text>`).join("")}
+    ${chg}${thr}${body}${xl}
+    <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}"/>
+    ${series.map((s, k) => `<circle class="hover-dot" data-k="${k}" r="4" style="fill:${s.color}"/>`).join("")}${hits}</svg>`;
+  const svg = host.querySelector("svg"), hl = svg.querySelector(".hover-line"), dots = [...svg.querySelectorAll(".hover-dot")];
   const show = (i) => {
-    const [px, py] = pts[i];
-    hl.setAttribute("x1", px); hl.setAttribute("x2", px); hl.style.opacity = 1;
-    hd.setAttribute("cx", px); hd.setAttribute("cy", py); hd.style.opacity = 1;
-    const rect = svg.getBoundingClientRect(), card = host.parentElement.getBoundingClientRect();
-    const sx = rect.width / W, sy = rect.height / H;
-    tip.innerHTML = `${fmtDayLong(days[i])}<br><b>${nf.format(vals[i])}</b> abone`;
-    tip.style.left = `${rect.left - card.left + px * sx}px`;
-    tip.style.top = `${rect.top - card.top + py * sy}px`;
-    tip.style.display = "block";
+    hl.setAttribute("x1", X(i)); hl.setAttribute("x2", X(i)); hl.style.opacity = 1;
+    dots.forEach((dt, k) => { const v = series[k].ma?.[i] ?? series[k].vals[i]; if (v == null) { dt.style.opacity = 0; return; } dt.setAttribute("cx", X(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
+    const top = Math.min(...series.map((s) => (s.vals[i] == null ? H : y(s.vals[i]))));
+    const lines = series.map((s) => {
+      const v = s.vals[i];
+      const det = s.detail ? s.detail(i) : "";
+      const ma = s.ma && s.ma[i] != null ? ` <small>7g ort. ${s.fmt(s.ma[i])}</small>` : "";
+      const pv = s.prev && s.prev[i] != null ? ` <small>önceki ${s.fmt(s.prev[i])}</small>` : "";
+      return `<br><span class="sw" style="background:${s.color}"></span>${esc(s.name)}: <b>${v == null ? "—" : s.fmt(v)}</b>${det}${ma}${pv}`;
+    }).join("");
+    const ch = opts.xTip ? "" : (D.d.changes || []).filter((c) => (opts.week ? c.d >= x[i] && c.d <= addDays(x[i], 6) : c.d === x[i])).map((c) => `<br><small>◆ ${esc(c.note)}</small>`).join("");
+    placeTip(tip, card, svg, W, H, X(i), top, (opts.xTip ? opts.xTip(i) : opts.week ? dShort(x[i]) + " haftası" : dLong(x[i])) + lines + ch);
   };
-  const hide = () => { hl.style.opacity = 0; hd.style.opacity = 0; tip.style.display = "none"; };
-  svg.addEventListener("pointermove", (ev) => {
-    const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide();
-  });
+  const hide = () => { hl.style.opacity = 0; dots.forEach((d) => { d.style.opacity = 0; }); tip.style.display = "none"; };
+  svg.addEventListener("pointermove", (ev) => { const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide(); });
   svg.addEventListener("pointerleave", hide);
 }
-
-// ---------- render: cohorts ----------
-const fmtDateTime = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(iso));
-function renderCohorts(c) {
-  document.getElementById("cohorts").innerHTML = c.items.map((it) => `
-    <article class="seg" aria-labelledby="coh-${it.key}">
-      <div class="seg-head">
-        <h2 class="seg-title" id="coh-${it.key}"><span class="swatch" style="--c:${it.color}"></span>${it.name}</h2>
-      </div>
-      <div class="rate">
-        <div class="rate-lbl">${it.label}</div>
-        <div class="rate-val">${nf.format(it.size)}</div>
-      </div>
-      <p class="ref">Referans: <a href="${it.url}" target="_blank" rel="noopener">${it.url}</a></p>
-    </article>`).join("");
+// Stacked bars over x. cats: [{ name, color, vals }]; pct → each bar normalised to 100 %
+function stackChart(host, card, x, cats, opts = {}) {
+  const tip = card.querySelector(".tip");
+  const n = x.length, tot = x.map((_, i) => sum(cats.map((c) => c.vals[i] || 0)));
+  if (!tot.some((t) => t > 0)) { host.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; return; }
+  const W = Math.max(300, Math.round(host.clientWidth || 600)), H = opts.H || 200, padL = 50, padR = 12, padT = 10, padB = 24;
+  const maxV = opts.pct ? 1 : Math.max(...tot);
+  const step = opts.pct ? 0.25 : niceStep(maxV), y1 = opts.pct ? 1 : Math.max(Math.ceil((maxV * 1.06) / step) * step, step);
+  const y = (v) => padT + (1 - v / y1) * (H - padT - padB);
+  const slot = (W - padL - padR) / n, bw = Math.max(1, Math.min(26, slot * 0.78));
+  const X = (i) => padL + slot * (i + 0.5);
+  const ticks = []; for (let t = 0; t <= y1 + 1e-9; t += step) ticks.push(t);
+  const yf = opts.pct ? (t) => "%" + nf.format(t * 100) : opts.yFmt || ((t) => nf.format(t));
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 58)));
+  let bars = "";
+  x.forEach((_, i) => {
+    let acc = 0;
+    cats.forEach((c) => {
+      const v = (c.vals[i] || 0) / (opts.pct ? tot[i] || 1 : 1);
+      if (v <= 0) return;
+      bars += `<rect class="bar" style="--c:${c.color}" x="${(X(i) - bw / 2).toFixed(1)}" y="${y(acc + v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(y(acc) - y(acc + v)).toFixed(1)}"/>`;
+      acc += v;
+    });
+  });
+  const xl = x.map((d, i) => ((n - 1 - i) % every === 0 ? `<text x="${X(i).toFixed(1)}" y="${H - 6}" text-anchor="middle">${dShort(d)}</text>` : "")).join("");
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "")}">
+    ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 7}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${yf(t)}</text>`).join("")}
+    ${bars}${xl}${x.map((_, i) => `<rect class="hit" data-i="${i}" x="${(X(i) - slot / 2).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${H - padT - padB}"/>`).join("")}</svg>`;
+  const svg = host.querySelector("svg");
+  svg.addEventListener("pointermove", (ev) => {
+    const t = ev.target.closest("rect.hit"); if (!t) { tip.style.display = "none"; return; }
+    const i = Number(t.dataset.i), f = opts.fmt || ((v) => nf.format(Math.round(v)));
+    const rows = [...cats].reverse().filter((c) => c.vals[i]).map((c) => `<br><span class="sw" style="background:${c.color}"></span>${esc(c.name)}: <b>${opts.pct ? "%" + nf1.format((100 * c.vals[i]) / (tot[i] || 1)) : f(c.vals[i])}</b>${opts.pct ? ` <small>${f(c.vals[i])}</small>` : ""}`).join("");
+    placeTip(tip, card, svg, W, H, X(i), padT, (opts.week ? dShort(x[i]) + " haftası" : dLong(x[i])) + rows + `<br><small>toplam ${f(tot[i])}</small>`);
+  });
+  svg.addEventListener("pointerleave", () => { tip.style.display = "none"; });
+}
+function spark(vals) {
+  const v = vals.map((x) => (x == null ? null : x)), b = nn(v);
+  if (b.length < 2) return "";
+  const W = 200, H = 28, lo = Math.min(...b), hi = Math.max(...b), sp = hi - lo || 1;
+  let d = "", pen = false;
+  v.forEach((x, i) => { if (x == null) { pen = false; return; } d += `${pen ? "L" : "M"}${((i / (v.length - 1)) * W).toFixed(1)} ${(H - 2 - ((x - lo) / sp) * (H - 4)).toFixed(1)} `; pen = true; });
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
 }
 
-// ---------- render: A1 lesson session times ----------
-const fmtDur = (ms) => {
-  const s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60;
-  return `${m} dk ${String(r).padStart(2, "0")} sn`;
+// ---------- building blocks ----------
+const helpBtn = (txt) => (txt ? `<button type="button" class="help" title="${esc(txt)}" data-help="${esc(txt)}">?</button>` : "");
+const tagHtml = (on, txt = "bu kırılım yok") => (on ? `<span class="tag" title="Seçili filtre bu metrikte yok; tümü gösteriliyor">${txt}</span>` : "");
+const badgeHtml = (txt) => (txt ? `<span class="badge" title="${esc(txt)}">!</span>` : "");
+function noteOf(c) {
+  const src = c.num ? `Pay: ${c.num} · payda: ${c.den}.` : "";
+  return [c.note, src, `Dönem değeri: ${PERIOD_LABEL[c.period] || c.period}.`].filter(Boolean).join(" ");
+}
+
+// KPI card: [metric, countMetric?, extraMetric?]
+function kpiCard(id, countId, extraId) {
+  const c = D.cat[id];
+  if (!c) return "";
+  const s = series(id), [i0, i1] = win(), pw = prevWin();
+  if (!s.vals) return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(c.label)}</span>${helpBtn(noteOf(c))}</div><div class="kpi-v">—</div><div class="kpi-s">veri yok</div></div>`;
+  const cur = periodValue(c, s, i0, i1);
+  const isStick = id === "stickiness";
+  let subs = [];
+  if (isStick) subs.push(`<span>haftada <b>${fmt("ratio", cur, { days: true })}</b></span>`);
+  if (countId && D.cat[countId]) { const cc = D.cat[countId], cs = series(countId); subs.push(`<span><b>${fmt(cc.unit, periodValue(cc, cs, i0, i1))}</b> ${esc(shortLabel(cc))}</span>`); }
+  if (extraId && D.cat[extraId]) { const ec = D.cat[extraId], es = series(extraId); subs.push(`<span>${esc(shortLabel(ec))} <b>${fmt(ec.unit, periodValue(ec, es, i0, i1))}</b></span>`); }
+  subs.push(`<span>${PERIOD_LABEL[c.period] || ""}</span>`);
+  const deltas = [];
+  if (pw) deltas.push(deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), `önceki ${S.range} güne göre`));
+  const n = N();
+  if (n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
+  return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
+    <div class="kpi-v">${fmt(c.unit, cur, { days: false })}</div><div class="kpi-s">${subs.join("")}</div><div class="kpi-d">${deltas.join("")}</div>${spark(s.vals.slice(-28))}</div>`;
+}
+// drop a trailing "(event_name)" only; keep qualifiers such as "(/ bağlanan)"
+const shortLabel = (c) => c.label.replace(/\s*\([^()]*_[^()]*\)\s*$/, "");
+
+// Timeline card: counts (left chart) and rates (mini chart below), each with daily + 7-day average
+function trendCard(title, counts, rates = [], opts = {}) {
+  const id = "c" + Math.random().toString(36).slice(2, 8);
+  return { html: `<div class="card${opts.wide ? " wide" : ""}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2><span class="tags"></span></div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}<div class="legend"></div><div class="chart ch-a"></div>${rates.length && counts.length ? `<div class="legend lg-b"></div><div class="chart ch-b"></div>` : ""}<div class="tip"></div></div>`,
+    draw: () => drawTrend(document.getElementById(id), counts, rates, opts) };
+}
+function seriesFor(ids, k0, [i0, i1], pw) {
+  return ids.map((mid, k) => {
+    const c = D.cat[mid], s = series(mid);
+    if (!c || !s.vals) return null;
+    const ma = movingAvg(s);
+    const f = (v) => fmt(c.unit, v);
+    const o = {
+      id: mid, name: shortLabel(c), color: COL[(k0 + k) % COL.length], fmt: f, tag: s.tag,
+      vals: s.vals.slice(i0, i1 + 1), ma: ma.slice(i0, i1 + 1),
+      prev: S.cmp && pw ? ma.slice(pw[0], pw[1] + 1) : null,
+      faded: s.den ? s.den.slice(i0, i1 + 1).map((d) => d != null && d < MIN_DEN) : null,
+      detail: s.num ? (i) => (s.num[i0 + i] != null && s.den[i0 + i] != null ? ` <small>${fmtCount(s.num[i0 + i], c)} / ${fmtCount(s.den[i0 + i], c)}</small>` : "") : null,
+    };
+    return o;
+  }).filter(Boolean);
+}
+const fmtCount = (v, c) => (/speech_min/.test(c.num || "") ? nf1.format(v) : nf.format(Math.round(v * 10) / 10));
+function legendHtml(ser) {
+  return ser.map((s) => `<span><i style="--c:${s.color}"></i>${esc(s.name)}</span>`).join("") + (ser.some((s) => s.prev) ? `<span><i class="dash" style="--c:var(--muted)"></i>önceki dönem (7g ort.)</span>` : "");
+}
+function drawTrend(card, counts, rates, opts) {
+  if (!card) return;
+  const w = win(), pw = prevWin(), x = D.d.days.slice(w[0], w[1] + 1);
+  const A = seriesFor(counts.length ? counts : rates, 0, w, pw), B = counts.length ? seriesFor(rates, counts.length, w, pw) : [];
+  const tags = [...A, ...B].some((s) => s.tag);
+  card.querySelector(".tags").innerHTML = tagHtml(tags) + (opts.help ? helpBtn(opts.help) : "");
+  const unitA = D.cat[(counts.length ? counts : rates)[0]]?.unit;
+  card.querySelector(".legend").innerHTML = legendHtml(A);
+  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, aria: card.querySelector("h2").textContent });
+  if (B.length) {
+    card.querySelector(".lg-b").innerHTML = legendHtml(B);
+    lineChart(card.querySelector(".ch-b"), card, x, B, { yFmt: yFmtFor(D.cat[rates[0]]?.unit), pctMax: D.cat[rates[0]]?.unit === "pct", H: 150 });
+  }
+}
+const yFmtFor = (unit) => (unit === "pct" ? (t) => "%" + nf.format(Math.round(t * 1000) / 10) : unit === "min" ? (t) => nf.format(t) + " dk" : unit === "ratio" ? (t) => nf2.format(t) : (t) => nf.format(t));
+
+// Generic card with custom draw(cardEl)
+function customCard(title, inner, draw, opts = {}) {
+  const id = "c" + Math.random().toString(36).slice(2, 8);
+  return { html: `<div class="card${opts.wide === false ? "" : " wide"}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2>${opts.ctl || ""}<span class="tags">${opts.help ? helpBtn(opts.help) : ""}</span></div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}${inner}<div class="tip"></div></div>`,
+    draw: () => { const el = document.getElementById(id); if (el) draw(el); } };
+}
+function sortableTable(cols, rows, opts = {}) {
+  // cols: [{ k, label, num?, fmt?(v,row), cls?(v,row) }]
+  const id = "t" + Math.random().toString(36).slice(2, 8);
+  return { id, html: `<div class="tbl-wrap"${opts.max ? ` style="max-height:${opts.max}px"` : ""}><table id="${id}"><thead><tr>${cols.map((c, i) => `<th class="sort${c.wrap ? " wrap" : ""}" data-i="${i}">${esc(c.label)}</th>`).join("")}</tr></thead><tbody></tbody></table></div>`,
+    bind: () => {
+      const t = document.getElementById(id); if (!t) return;
+      let key = opts.sort ?? null, dir = opts.dir || -1;
+      const paint = () => {
+        const rs = key == null ? rows : [...rows].sort((a, b) => { const x = a[cols[key].k], y = b[cols[key].k]; return (x == null) - (y == null) || (x < y ? -1 : x > y ? 1 : 0) * dir; });
+        t.tBodies[0].innerHTML = rs.map((r) => `<tr>${cols.map((c) => `<td class="${c.wrap ? "wrap " : ""}${c.cls ? c.cls(r[c.k], r) : ""}">${c.fmt ? c.fmt(r[c.k], r) : esc(r[c.k] ?? "—")}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${cols.length}">Veri yok.</td></tr>`;
+        t.tHead.querySelectorAll("th").forEach((th, i) => th.setAttribute("aria-sort", i === key ? (dir > 0 ? "ascending" : "descending") : "none"));
+      };
+      t.tHead.addEventListener("click", (ev) => { const th = ev.target.closest("th"); if (!th) return; const i = Number(th.dataset.i); dir = key === i ? -dir : cols[i].num ? -1 : 1; key = i; paint(); });
+      paint();
+    } };
+}
+
+// ---------- sections ----------
+const SECTIONS = {};
+const intro = (t) => `<p class="sec-intro">${t}</p>`;
+
+SECTIONS.genel = () => {
+  const blocks = [
+    trendCard("Aktif → Regular → North Star", ["active", "regular", "northstar"], ["ns_rate", "regular_rate"], { wide: true, help: "Aktif = gün içinde ≥1 call_ok. Regular = ≥1 ders sayfası. North Star = ≥2 ders sayfası (" + (D.d.northstar?.options?.[D.d.northstar.default] || "") + ")" }),
+    trendCard("App açan → konuşan", ["openers", "active"], ["talk_rate"]),
+    trendCard("Node akışı", ["node_tap", "node_start", "chain_start"], ["node_start_rate", "chain_share"]),
+    trendCard("Ders başlatma ve tamamlama", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"]),
+    trendCard("Konuşma dakikası", ["speech_min"], ["min_per_active", "lesson_duration"]),
+  ];
+  const tbl = dailyTable();
+  return { html: kpiRow([["ns_rate", "northstar"], ["talk_rate", "active"], ["activity_rate", "wau"], ["stickiness"], ["node_start_rate", "node_tap"], ["completion_rate", "lesson_completed"], ["min_per_active", "speech_min"], ["rating_high_rate", "ratings", "rating_low_rate"]])
+      + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
+    draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
-function renderLessons(l) {
-  document.querySelector("#lessons thead").innerHTML = `
-    <tr class="sub">
-      <th>Ders</th><th>Başlayan</th><th>Tamamlayan</th><th>Tamamlama</th><th>Session time · medyan</th><th>Session time · ortalama</th>
-    </tr>`;
-  document.querySelector("#lessons tbody").innerHTML = l.items.map((it) => `
-    <tr>
-      <td>${it.label}</td>
-      <td>${nf.format(it.started)}</td>
-      <td>${nf.format(it.completed)}</td>
-      <td class="pct base-pct">${pct(it.completed, it.started)}</td>
-      <td class="strong">${fmtDur(it.medianMs)}</td>
-      <td>${fmtDur(it.avgMs)}</td>
-    </tr>`).join("");
-}
+const kpiCols = (n) => (n <= 6 ? n : Math.ceil(n / 2));
+const kpiRow = (specs) => `<div class="kpis" style="--cols:${kpiCols(specs.length)}">${specs.map((s) => kpiCard(...s)).join("")}</div>`;
 
-// ---------- render: retention ----------
-// Chart 9abjsm95: paid users' first dashboard_page_viewed = Day 0, back on exactly day N, last 90 days, 7 countries.
-// Rings = the 7 countries pooled (sum retained / sum eligible); the table is per country.
-const RET_COUNTRIES = ["South Korea", "United States", "Czech Republic", "Hungary", "Japan", "Poland", "United Kingdom"];
-const RET_TR = { ...COUNTRY_TR, "Hungary": "Macaristan", "United Kingdom": "Birleşik Krallık" };
-const RET_HERO_DAYS = [1, 3, 8, 15, 21];
-function renderRetention(r) {
-  const fmtP = (v) => (Number.isFinite(Number(v)) ? "%" + pf.format(Number(v)) : "—");
-  const byCountry = (Array.isArray(r.byCountry) ? r.byCountry : []).filter((c) => c && RET_COUNTRIES.includes(c.id));
-  const ring = (v) => {
-    const c = 2 * Math.PI * 40, p = Math.max(0, Math.min(100, Number(v) || 0)) / 100;
-    return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="40" fill="none" stroke-width="9"/><circle class="arc" cx="50" cy="50" r="40" fill="none" stroke-width="9" stroke-dasharray="${(c * p).toFixed(1)} ${c.toFixed(1)}"/></svg>`;
-  };
-  const hero = RET_HERO_DAYS.map((d) => {
-    const v = Number(r.values ? r.values[String(d)] : NaN), ok = Number.isFinite(v);
-    return `
-      <div class="ret-kpi">
-        <div class="ret-ring" role="img" aria-label="D${d}: ${fmtP(v)}">${ring(ok ? v : 0)}<b>${fmtP(v)}</b></div>
-        <div class="ret-kpi-lbl">D${d}</div>
-      </div>`;
-  }).join("");
-  const total = Number(r.total);
-  document.getElementById("retention-card").innerHTML = `
-    <div class="seg-head">
-      <h2 class="seg-title"><span class="swatch" style="--c:var(--s3)"></span>Aktif Abone Product Retention</h2>
-      <p class="ret-note">Son 90 gün içerisindeki paid user'ların ilk dashboard_view gördüğü gün DAY0 olarak hesaplanmıştır. Toplam: <b>${Number.isFinite(total) && total > 0 ? nf.format(total) : "—"}</b> user</p>
-    </div>
-    <div class="ret-cap">7 ülke ortalaması</div>
-    <div class="ret-hero">${hero}</div>
-    <div class="tbl-wrap inner">
-      <table class="ret-table">
-        <thead><tr><th>Ülke</th>${r.days.map((d) => `<th>D${d}</th>`).join("")}</tr></thead>
-        <tbody>${byCountry.map((c) => `<tr><td>${RET_TR[c.id] || c.id}</td>${r.days.map((d) => `<td>${fmtP(c.values ? c.values[String(d)] : null)}</td>`).join("")}</tr>`).join("")}</tbody>
-      </table>
-    </div>`;
-}
-
-// ---------- render: weekly lessons per user by country ----------
-// Grouped bars like the Amplitude chart: two groups (start / completion), one bar per country, value on top.
-const COUNTRY_COLOR = { "South Korea": "var(--cc1)", "Czech Republic": "var(--cc2)", "United States": "var(--cc3)", "Poland": "var(--cc4)", "Japan": "var(--cc5)" };
-function renderWeekly(w) {
-  const host = document.getElementById("weekly-chart");
-  if (!host) return;
-  const order = Array.isArray(w.order) && w.order.length ? w.order : COUNTRIES;
-  const items = order.map((id) => w.items.find((x) => x && x.id === id)).filter(Boolean);
-  if (!items.length) return;
-  const groups = [{ key: "start", label: "Ders Başlatma" }, { key: "done", label: "Ders Tamamlama" }];
-  const vals = items.flatMap((it) => [Number(it.start), Number(it.done)]).filter(Number.isFinite);
-  const step = niceStep(Math.max(...vals, 0.0001) / 1.3);
-  const yMax = Math.ceil((Math.max(...vals, 0.0001) * 1.12) / step) * step;
-
-  const W = Math.max(320, Math.round(host.clientWidth || 880)), H = 300;
-  const padL = 34, padR = 10, padT = 18, padB = 34;
-  const plotW = W - padL - padR, plotH = H - padT - padB, base = padT + plotH;
-  const groupW = plotW / groups.length, gapOuter = Math.min(groupW * 0.12, 40);
-  const innerW = groupW - 2 * gapOuter, barGap = 6, barW = Math.min((innerW - barGap * (items.length - 1)) / items.length, 72);
-  const used = barW * items.length + barGap * (items.length - 1);
-  const y = (v) => base - ((Number(v) || 0) / yMax) * plotH;
-  const ticks = []; for (let t = 0; t <= yMax + 1e-9; t += step) ticks.push(t);
-  const pf2 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const fmtV = (v) => pf2.format(v);
-
-  const bars = groups.map((g, gi) => {
-    const x0 = padL + gi * groupW + (groupW - used) / 2;
-    return items.map((it, k) => {
-      const v = Number(it[g.key]); if (!Number.isFinite(v)) return "";
-      const x = x0 + k * (barW + barGap);
-      return `
-        <rect class="hit" data-k="${k}" data-g="${gi}" x="${(x - barGap / 2).toFixed(1)}" y="${padT}" width="${(barW + barGap).toFixed(1)}" height="${plotH}"/>
-        <rect class="bar" x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${barW.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3" style="fill:${COUNTRY_COLOR[it.id] || "var(--s1)"}"/>
-        ${barW >= 22 ? `<text class="val" x="${(x + barW / 2).toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${fmtV(v)}</text>` : ""}`;
-    }).join("") + `<text class="grp" x="${(padL + gi * groupW + groupW / 2).toFixed(1)}" y="${H - 10}" text-anchor="middle">${g.label}</text>`;
-  }).join("");
-
-  host.innerHTML = `
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ders başlatma ve tamamlama, ülkeye göre, son 4 hafta">
-      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${fmtV(t)}</text>`).join("")}
-      ${bars}
-    </svg>`;
-  document.getElementById("weekly-legend").innerHTML = items.map((it) => `<span class="lg"><i style="background:${COUNTRY_COLOR[it.id] || "var(--s1)"}"></i>${COUNTRY_TR[it.id] || it.id}</span>`).join("");
-
-  const svg = host.querySelector("svg"), tip = document.getElementById("weekly-tip"), card = host.parentElement;
-  const hide = () => { tip.style.display = "none"; };
-  svg.addEventListener("pointermove", (ev) => {
-    const hit = ev.target.closest("rect.hit, rect.bar");
-    const h = hit && hit.classList.contains("bar") ? hit.previousElementSibling : hit;
-    if (!h || !h.dataset) return hide();
-    const it = items[Number(h.dataset.k)], g = groups[Number(h.dataset.g)];
-    if (!it || !g) return hide();
-    tip.innerHTML = `${COUNTRY_TR[it.id] || it.id} · ${g.label}<br><b>${fmtV(Number(it[g.key]))}</b> / unique user`;
-    const r = h.getBoundingClientRect(), cr = card.getBoundingClientRect();
-    tip.style.left = `${r.left - cr.left + r.width / 2}px`;
-    tip.style.top = `${r.top - cr.top + 8}px`;
-    tip.style.display = "block";
+// Daily table (the reference site's transaction list): newest day first, click a row for its breakdown
+function dailyTable() {
+  const COLS = [["active", "Aktif"], ["northstar", "NS"], ["ns_rate", "NS / Aktif"], ["talk_rate", "Konuşan / açan"], ["node_start_rate", "Node → başla"], ["lesson_start", "Ders başlatma"], ["completion_rate", "Tamamlama"], ["abandon_rate", "Yarım bırakma"], ["min_per_active", "dk / aktif"], ["rating_high_rate", "4–5★"]];
+  return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Satıra tıkla: o günün platform ve ülke kırılımı.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
+    const [i0, i1] = win();
+    const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id)]));
+    const cell = (id, i) => { const c = D.cat[id], s = ser[id]; const v = s.vals?.[i]; const faded = s.den && s.den[i] != null && s.den[i] < MIN_DEN; return `<td class="${faded ? "faded" : ""}">${fmt(c.unit, v)}</td>`; };
+    const rows = [];
+    for (let i = i1; i >= i0; i--) {
+      const d = D.d.days[i], note = (D.d.changes || []).filter((c) => c.d === d).map((c) => c.note).join(" · ");
+      rows.push(`<tr class="click" data-i="${i}"><td>${dShort(d)}</td>${COLS.map(([id]) => cell(id, i)).join("")}<td class="wrap">${esc(note)}</td></tr>`);
+    }
+    const tb = card.querySelector("tbody");
+    tb.innerHTML = rows.join("");
+    tb.addEventListener("click", (ev) => {
+      const tr = ev.target.closest("tr.click"); if (!tr) return;
+      const open = tr.classList.contains("open");
+      tb.querySelectorAll("tr.detail").forEach((r) => r.remove()); tb.querySelectorAll("tr.open").forEach((r) => r.classList.remove("open"));
+      if (open) return;
+      tr.classList.add("open");
+      tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="${COLS.length + 2}">${dayBreakdown(Number(tr.dataset.i))}</td></tr>`);
+    });
   });
-  svg.addEventListener("pointerleave", hide);
+}
+function dayBreakdown(i) {
+  const keys = [["p:iOS", "iOS"], ["p:Android", "Android"], ...D.d.countries.map((c) => ["c:" + c, TR_COUNTRY[c] || c])];
+  const ids = ["active", "ns_rate", "completion_rate", "min_per_active"];
+  const f = { dim: null, sub: S.sub };
+  const rows = keys.map(([k, l]) => `<tr><td>${esc(l)}</td>${ids.map((id) => { const s = series(id, { ...f, dim: k[0] === "p" ? "platform" : "country", slice: k }); return `<td>${fmt(D.cat[id].unit, s.vals?.[i])}</td>`; }).join("")}</tr>`).join("");
+  return `<div class="det"><div><h4>${dLong(D.d.days[i])} · ${SUB_LABEL[S.sub]}</h4><table><tr><td></td>${ids.map((id) => `<td><b>${esc(shortLabel(D.cat[id]))}</b></td>`).join("")}</tr>${rows}</table></div></div>`;
 }
 
+SECTIONS.aktif = () => {
+  const b = [
+    trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"], { wide: true }),
+    trendCard("WAU, MAU ve abone tabanı", ["wau", "mau", "base"], ["activity_rate"], { help: "WAU/MAU = o güne kadar 7/28 günde ≥1 call_ok yapan abone. Taban = Amplitude cohort'u (güncel RevenueCat durumu aboneli), her sabah kaydedilir." }),
+    trendCard("Stickiness ve DAU / MAU", ["stickiness"], ["dau_mau"], { help: "Stickiness = DAU / WAU; × 7 = bir aktif abonenin haftada ortalama aktif gün sayısı." }),
+    trendCard("App açan → konuşan", ["openers", "active"], ["talk_rate"]),
+    customCard("Haftalık aktif gün dağılımı (0–7 gün)", `<div class="placeholder">Faz 2: kullanıcı bazlı ham event gerektiriyor (abone başına haftada kaç gün call_ok). Şu an Amplitude toplu sorgularıyla hesaplanamıyor.</div>`, () => {}, { wide: false }),
+  ];
+  return { html: kpiRow([["active"], ["wau"], ["mau"], ["base"], ["activity_rate", "wau"], ["stickiness"], ["dau_mau"], ["talk_rate", "active"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+};
 
-function renderAll() { renderHeader(); renderFunnel(current.funnel); renderDau(current.dau); renderCohorts(current.cohorts); renderLessons(current.lessons); renderRetention(current.retention); renderWeekly(current.weekly); }
-let resizeTimer = null;
-window.addEventListener("resize", () => { if (!current.dau) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { renderDau(current.dau); renderWeekly(current.weekly); }, 150); });
+SECTIONS.konusma = () => {
+  const ct = customCard("Konuşma dakikası (konuşma tipine göre)", `<div class="legend"></div><div class="chart ch-a"></div><p class="card-sub">Konuşma tipi kırılımı yalnızca tüm abonelerde ve kırılımsız; platform / ülke / sürüm seçiliyken toplam çizilir.</p>`, (card) => {
+    const [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1);
+    const CT = [["lessontalk", "Ders"], ["freetalk", "Serbest"], ["topictalk", "Konu"], ["liveevent", "Canlı etkinlik"]];
+    let cats;
+    if (!S.dim) cats = CT.map(([k, l], j) => ({ name: l, color: COL[j], vals: (raw(`speech_min[${k}]`, S.sub, "all") || []).slice(i0, i1 + 1) })).filter((c) => c.vals.length);
+    if (!cats || !cats.length) { const s = series("speech_min"); cats = [{ name: "Toplam", color: COL[0], vals: (s.vals || []).slice(i0, i1 + 1) }]; }
+    card.querySelector(".legend").innerHTML = cats.map((c) => `<span><i class="sq" style="--c:${c.color}"></i>${esc(c.name)}</span>`).join("");
+    stackChart(card.querySelector(".ch-a"), card, x, cats, { fmt: (v) => nf.format(Math.round(v)) + " dk", yFmt: (t) => nf.format(t) + " dk", aria: "Konuşma dakikası" });
+  });
+  const b = [
+    ct,
+    trendCard("Aktif abone başına dakika", ["min_per_active"], []),
+    trendCard("Ders süresi ve ders ekranı süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
+    trendCard("Ders dakikası payı", ["lesson_min_share"], []),
+    trendCard("speech_duration = 0 oranı (veri sağlığı)", ["speech_zero_rate"], [], { threshold: 0.05, help: "Sınırsız konuşma modunda speech_duration 0 yazılıyor. %5'i geçerse konuşma dakikası eksik sayılıyor demektir." }),
+  ];
+  return { html: kpiRow([["speech_min"], ["min_per_active", "speech_min"], ["lesson_duration"], ["screen_duration"], ["lesson_min_share"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+};
 
-// Decrypted payload = the six documents of the claude.ai artifact's data store, keyed by doc id.
-function load(docs) {
-  const f = docs["ders-baslatma"], d = docs["dau"], c = docs["cohorts"], l = docs["a1-session-time"], r = docs["retention"], w = docs["weekly-lessons"];
-  current.funnel = { ...DATA.funnel, updatedAt: f.updatedAt, segments: DATA.funnel.segments.map((s, i) => ({ ...s, counts: f.counts[i] })) };
-  current.dau = { updatedAt: d.updatedAt, days: d.days, values: d.values, overall: Number(d.overall) || 0 };
-  current.cohorts = { updatedAt: c.updatedAt, items: DATA.cohorts.items.map((it) => ({ ...it, size: Number(c.sizes?.[it.id]?.size) || 0 })) };
-  current.lessons = { updatedAt: l.updatedAt, items: DATA.lessons.items.map((it) => ({ ...it, ...(l.items.find((x) => x && x.id === it.id) || { started: 0, completed: 0, medianMs: 0, avgMs: 0 }) })) };
-  current.retention = { ...DATA.retention, updatedAt: r.updatedAt, total: Number(r.total) || 0, values: r.values || {}, byCountry: Array.isArray(r.byCountry) ? r.byCountry : [] };
-  current.weekly = { updatedAt: w.updatedAt, order: Array.isArray(w.order) && w.order.length ? w.order : DATA.weekly.order, items: Array.isArray(w.items) ? w.items : [] };
+SECTIONS.dersler = () => {
+  const reasons = mixCard("Tamamlama nedeni karışımı", "completion_reasons", { help: "anm_c_lesson_completed.reason; 19 Ekim 2026 haftasından önce çoğunlukla boş ('(none)')." });
+  const b = [
+    trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
+    trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
+    abandonCard(),
+    trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], []),
+    trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
+    reasons,
+    trendCard("Başlatma kaynağı: Sıradaki ders zinciri", ["chain_start"], ["chain_share"]),
+    lessonTable(),
+  ];
+  return { html: kpiRow([["lesson_start"], ["connect_rate", "lesson_connected"], ["completion_rate", "lesson_completed"], ["completion_rate_connected"], ["abandon_rate"], ["abandon_after_1min"], ["lesson_duration"], ["lessons_per_active"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+};
+function abandonCard() {
+  return customCard("Yarım bırakma", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const [i0, i1] = win(), pw = prevWin(), x = D.d.days.slice(i0, i1 + 1);
+    const A = seriesFor(["abandon_rate", "abandon_after_1min"], 1, [i0, i1], pw);
+    // first-minute abandons = (abandoned − over60) / opened, from the same history points
+    const op = raw("aband_day.opened", "paid", "all"), ab = raw("aband_day.abandoned", "paid", "all"), o6 = raw("aband_day.over60", "paid", "all");
+    if (op && ab && o6) {
+      const v = op.map((o, i) => (o && ab[i] != null && o6[i] != null ? (ab[i] - o6[i]) / o : null));
+      A.push({ name: "İlk dakikada bırakma", color: COL[3], fmt: (z) => fmt("pct", z), vals: v.slice(i0, i1 + 1), ma: null, prev: null });
+    }
+    card.querySelector(".legend").innerHTML = legendHtml(A);
+    lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor("pct"), aria: "Yarım bırakma" });
+  }, { wide: false, sub: "Açılan ders (kullanıcı × lesson_id) içinde tamamlanmadan biten pay. 1. dk sonrası ve ilk dakika ayrımı 26 Eylül'den itibaren günlük geçmişten.", help: "abandon_rate: funnel ders sayfası → oturum sonu, arada tamamlama hariç (Amplitude günlük oran, dönem değeri günlük ortalama). 1. dk sonrası: aynı funnel'ın süre dağılımında ≥ 60 sn." });
+}
+function mixCard(title, key, opts = {}) {
+  return customCard(title, `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const mx = D.d.mix[key]?.[key === "version_mix" ? S.sub : "paid"];
+    card.querySelector(".tags").insertAdjacentHTML("afterbegin", tagHtml(!!S.dim || (key !== "version_mix" && S.sub !== "paid")));
+    if (!mx) { card.querySelector(".ch-a").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    let [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1);
+    let cats = Object.entries(mx).map(([k, v]) => ({ name: k === "(none)" ? "(boş)" : k, total: sum(v.slice(i0, i1 + 1)), vals: v.slice(i0, i1 + 1) })).sort((a, b) => b.total - a.total);
+    if (opts.week) {
+      const wk = [...new Set(x.map(monday))];
+      cats = cats.map((c) => ({ ...c, vals: wk.map((w) => sum(c.vals.filter((_, i) => monday(x[i]) === w))) }));
+      x = wk;
+    }
+    if (opts.order) cats.sort((a, b) => opts.order.indexOf(a.name) - opts.order.indexOf(b.name));
+    cats.forEach((c, j) => { c.color = opts.colors ? opts.colors[j] : COL[j % COL.length]; });
+    card.querySelector(".legend").innerHTML = cats.map((c) => `<span><i class="sq" style="--c:${c.color}"></i>${esc(c.name)} <small>%${nf1.format((100 * c.total) / (sum(cats.map((z) => z.total)) || 1))}</small></span>`).join("");
+    stackChart(card.querySelector(".ch-a"), card, x, cats, { pct: true, week: opts.week, aria: title });
+  }, { wide: opts.wide ?? false, help: opts.help, sub: opts.sub });
 }
 
-// ---------- decryption ----------
-// keys.json: RSA-OAEP public key + its private key sealed with PBKDF2(password) / AES-GCM.
-// data.enc.json: payload sealed with a fresh AES-GCM key, which is wrapped with the RSA public key.
+// Lesson table + path progress (own selector: last complete week / last 90 days)
+const LES = { span: "90", lvl: "A1", lang: "en" };
+const LANG = { en: "İngilizce", es: "İspanyolca", de: "Almanca", fr: "Fransızca", ar: "Arapça", pt: "Portekizce" };
+function lessonTable() {
+  return customCard("Ders tablosu", `<p class="card-sub">Tekil abone; global tarih aralığı bu tabloya uygulanmaz (tekil sayılar haftalar arasında toplanmaz).</p><div class="tbl-host"></div>`, (card) => drawLessons(card, false), {
+    ctl: lesCtl(), help: "by_lesson sorgusu: ders sayfası açan (başlatan) ve anm_c_lesson_completed atan tekil abone, lesson_id'ye göre. Seviye lesson_id'den (live_lesson_en_a1_3 → A1, 3. ders).",
+  });
+}
+function lesCtl() {
+  const lv = ["A1", "A2", "B1", "B2", "C1", "Tümü"];
+  const langs = [...new Set((D.d.les?.rows || []).map((r) => r.lang).filter(Boolean))].sort((a, b) => (a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : 1));
+  return `<div class="seg-ctl les-span" role="group"><button type="button" data-v="week">Son tam hafta</button><button type="button" data-v="90">Son 90 gün</button></div><select class="les-lvl" aria-label="Seviye">${lv.map((l) => `<option${l === LES.lvl ? " selected" : ""}>${l}</option>`).join("")}</select><select class="les-lang" aria-label="Hedef dil">${[...langs, "Tümü"].map((l) => `<option value="${l}"${l === LES.lang ? " selected" : ""}>${LANG[l] || l}</option>`).join("")}</select>`;
+}
+function lesData() {
+  const L = D.d.les; if (!L) return null;
+  const k = L.partial.lastIndexOf(false);
+  return L.rows.filter((r) => (LES.lvl === "Tümü" || r.lvl === LES.lvl) && (LES.lang === "Tümü" || r.lang === LES.lang)).map((r) => {
+    const s = LES.span === "week" ? (k >= 0 ? r.s[k] : 0) : r.S, c = LES.span === "week" ? (k >= 0 ? r.c[k] : 0) : r.C;
+    return { id: r.id, lvl: r.lvl || "—", no: r.no, lang: r.lang, s, c, rate: s ? c / s : null, row: r };
+  }).filter((r) => r.s || r.c);
+}
+function bindLesCtl(card) {
+  card.querySelectorAll(".les-span button").forEach((b) => { b.setAttribute("aria-pressed", String(b.dataset.v === LES.span)); b.onclick = () => { LES.span = b.dataset.v; renderSection(); }; });
+  const sel = card.querySelector(".les-lvl"); if (sel) sel.onchange = () => { LES.lvl = sel.value; renderSection(); };
+  const lg = card.querySelector(".les-lang"); if (lg) lg.onchange = () => { LES.lang = lg.value; renderSection(); };
+}
+function drawLessons(card) {
+  bindLesCtl(card);
+  const rows = lesData();
+  const host = card.querySelector(".tbl-host");
+  if (!rows) { host.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+  const L = D.d.les, k = L.partial.lastIndexOf(false);
+  const t = sortableTable([
+    { k: "id", label: "Ders", fmt: (v, r) => `${esc(r.lvl)}${r.no ? " · " + r.no : ""}${r.lang && r.lang !== "en" ? " · " + esc(r.lang.toUpperCase()) : ""} <small style="color:var(--muted)">${esc(v)}</small>` },
+    { k: "s", label: "Başlatan", num: true, fmt: (v) => nf.format(v) },
+    { k: "c", label: "Tamamlayan", num: true, fmt: (v) => nf.format(v) },
+    { k: "rate", label: "Tamamlama %", num: true, fmt: (v) => fmt("pct", v), cls: (v, r) => (r.s < MIN_DEN ? "faded" : "") },
+  ], rows.sort((a, b) => (a.lvl < b.lvl ? -1 : a.lvl > b.lvl ? 1 : (a.no || 0) - (b.no || 0) || (a.lang < b.lang ? -1 : 1))), { max: 420 });
+  host.innerHTML = `<p class="card-sub">${LES.span === "week" ? `Hafta: <b>${k >= 0 ? dShort(L.weeks[k]) + " – " + dShort(addDays(L.weeks[k], 6)) : "—"}</b>` : `Aralık: <b>${dShort(L.weeks[0])} – ${dShort(D.d.dataDate)}</b>`} · ${rows.length} ders</p>` + t.html;
+  t.bind();
+}
+// Path progress: completers of lesson 1…N inside a level (bars) + weekly snapshots of a few steps
+function pathCard() {
+  return customCard("Yol ilerleme eğrisi", `<div class="ladder lad"></div><div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    bindLesCtl(card);
+    const L = D.d.les; if (!L) { card.querySelector(".lad").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const lvl = LES.lvl === "Tümü" ? "A1" : LES.lvl;
+    const byNo = new Map();
+    for (const r of L.rows) {
+      if (r.lvl !== lvl || !r.no || (LES.lang !== "Tümü" && r.lang !== LES.lang)) continue;
+      const o = byNo.get(r.no) || { no: r.no, C: 0, c: L.weeks.map(() => 0) };
+      o.C += r.C; r.c.forEach((v, i) => { o.c[i] += v; });
+      byNo.set(r.no, o);
+    }
+    const rows = [...byNo.values()].sort((a, b) => a.no - b.no);
+    const k = L.partial.lastIndexOf(false);
+    const val = (r) => (LES.span === "week" ? (k >= 0 ? r.c[k] : 0) : r.C);
+    const top = Math.max(1, ...rows.map(val));
+    const first = rows.length ? val(rows[0]) || 1 : 1;
+    card.querySelector(".lad").innerHTML = rows.slice(0, 20).map((r) => `<div class="rung"><span>${lvl} · ${r.no}. ders</span><div class="rung-bar"><i style="width:${((100 * val(r)) / top).toFixed(1)}%"></i></div><span><b>${nf.format(val(r))}</b> <small>%${nf.format(Math.round((100 * val(r)) / first))}</small></span></div>`).join("") || `<div class="chart-empty">Bu seviyede ders yok.</div>`;
+    const pick = rows.filter((r) => [1, 5, 10, 15].includes(r.no));
+    const wk = L.weeks.map((w, i) => (L.partial[i] ? null : w));
+    const idx = wk.map((w, i) => (w ? i : -1)).filter((i) => i >= 0);
+    const ser = pick.map((r, j) => ({ name: `${lvl} · ${r.no}. ders`, color: COL[j], fmt: (v) => nf.format(v), vals: idx.map((i) => r.c[i]), ma: null }));
+    card.querySelector(".legend").innerHTML = legendHtml(ser);
+    lineChart(card.querySelector(".ch-a"), card, idx.map((i) => L.weeks[i]), ser, { week: true, H: 170, aria: "Haftalık tamamlayan" });
+  }, { ctl: lesCtl(), sub: "Seviye içinde 1…N. dersi tamamlayan tekil abone (%: ilk derse göre), hedef dile göre ('Tümü' dilleri toplar). Altta seçili derslerin haftalık tamamlayanları (tam haftalar).", help: "Tamamlayan = anm_c_lesson_completed atan tekil abone, lesson_id bazında; seçili dönem kartın kendi seçicisi." });
+}
+
+SECTIONS.node = () => {
+  const flow = customCard("Node akışı (seçili dönem)", `<div class="flow"></div>`, (card) => {
+    const [i0, i1] = win();
+    const v = (id) => periodValue(D.cat[id], series(id), i0, i1);
+    const st = [["node_tap", "Node tıklama", "pre_lesson_viewed"], ["node_start", "Node'dan başlatma", "d_start_continue_lesson_bt"], ["lesson_start", "Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["lesson_completed", "Ders tamamlama", "anm_c_lesson_completed"]];
+    const vals = st.map(([id]) => v(id));
+    const pct = (a, b) => (a != null && b ? "%" + nf1.format((100 * a) / b) : "—");
+    card.querySelector(".flow").innerHTML = st.map(([, l, e], j) => `${j ? `<span class="ar">→</span>` : ""}<div class="st"><span>${esc(l)}</span><b>${fmt("count", vals[j])}</b><small>${j === 2 ? "başlatma + zincir → sayfa " + pct(vals[2], (vals[1] || 0) + (v("chain_start") || 0)) : j ? pct(vals[j], vals[j - 1]) + " önceki adıma göre" : esc(e)}</small></div>`).join("")
+      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · ders sayfalarının ${pct(v("chain_start"), vals[2])}'i. Ders sayfası = node'dan başlatma + zincir − vazgeçilen (Başlatma → ders sayfası: ${fmt("pct", v("start_to_page"))}).</div>`;
+  }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
+  const b = [
+    flow,
+    trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
+    trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
+    trendCard("Başlatma → ders sayfası, zincir payı", ["start_to_page", "chain_share"], []),
+    trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
+    trendCard("İlk kez tamamlanan node", ["lesson_completed_first"], []),
+    mixCard("Node tipi karışımı (lesson_entry_type)", "entry_type_mix", { help: "Ders başlatmaların giriş tipi: current (sıradaki node), jump (ileri atlama), replay (tekrar), next (zincir)." }),
+    pathCard(),
+    a1LadderCard(),
+  ];
+  return { html: kpiRow([["node_tap_rate", "node_tap_users"], ["node_start_rate", "node_start"], ["start_to_page", "lesson_start"], ["chain_share", "chain_start"], ["node_done_rate"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+};
+
+// ---------- new subscribers (cohorts by entry day) ----------
+const NEW = { kind: "both" };
+const NEW_STEPS = {
+  sub: ["Abonelik", "Konuştu", "Ders başlattı", "Ders tamamladı"],
+  web: ["Abonelik", "App açtı", "Konuştu", "Ders başlattı", "Ders tamamladı"],
+  both: ["Abonelik", "Konuştu", "Ders başlattı", "Ders tamamladı"],
+};
+// counts per entry day for a cohort set, summed over store + web when kind = both (shared steps only)
+function coSet(name, kind = NEW.kind) {
+  const C = D.d.co; if (!C || !C.sets[name]) return null;
+  const slice = S.dim === "platform" || S.dim === "country" ? sliceKey() : "all";
+  const get = (k) => C.sets[name][k]?.[slice];
+  const map = name === "act" ? { sub: [0, 1, 2, 3], web: [0, 2, 3, 4] } : null;
+  if (kind !== "both") {
+    const o = get(kind); if (!o) return null;
+    return { steps: o.steps, complete: o.complete, tag: S.dim === "version" || S.sub !== "paid" };
+  }
+  const a = get("sub"), b = get("web"); if (!a && !b) return null;
+  const n = (a || b).steps.length;
+  const idxA = map ? map.sub : [...Array(n).keys()], idxB = map ? map.web : [...Array(n).keys()];
+  const steps = idxA.map((ia, j) => C.days.map((_, i) => (a ? a.steps[ia][i] : 0) + (b ? b.steps[idxB[j]][i] : 0)));
+  const complete = C.days.map((_, i) => (a ? a.complete[i] : true) && (b ? b.complete[i] : true));
+  return { steps, complete, tag: S.dim === "version" || S.sub !== "paid" };
+}
+// matured entry days among the last 28: indices
+function maturedIdx(set, lastN = 28) {
+  const C = D.d.co, out = [];
+  for (let i = C.days.length - 1; i >= 0 && out.length < lastN; i--) if (set.complete[i]) out.push(i);
+  return out.reverse();
+}
+const newKindCtl = () => `<div class="seg-ctl new-kind" role="group">${[["both", "İkisi birden"], ["sub", "Mağaza"], ["web", "Web"]].map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${NEW.kind === v}">${l}</button>`).join("")}</div>`;
+function bindNewKind(card) { card.querySelectorAll(".new-kind button").forEach((b) => { b.onclick = () => { NEW.kind = b.dataset.v; renderSection(); }; }); }
+function ladderHtml(labels, sums, base = sums[0]) {
+  const top = Math.max(1, sums[0]);
+  return `<div class="ladder">${labels.map((l, k) => `<div class="rung"><span>${esc(l)}</span><div class="rung-bar"><i style="width:${((100 * sums[k]) / top).toFixed(1)}%"></i></div><span><b>${nf.format(sums[k])}</b> <small>%${nf1.format(base ? (100 * sums[k]) / base : 0)}</small></span></div>`).join("")}</div>`;
+}
+// cohort rate timeline: by entry day (or Monday week), hollow = window not closed (not in averages)
+function cohortTimeline(card, host, set, rates, week) {
+  const C = D.d.co, [i0] = [Math.max(0, C.days.length - Math.max(S.range, 28) - 7)];
+  let x = C.days.slice(i0), ent = set.steps[0].slice(i0), comp = set.complete.slice(i0), st = set.steps.map((s) => s.slice(i0));
+  if (week) {
+    const wk = [...new Set(x.map(monday))];
+    const agg = (arr) => wk.map((w) => sum(arr.filter((_, i) => monday(x[i]) === w)));
+    st = st.map(agg); comp = wk.map((w) => x.every((d, i) => monday(d) !== w || comp[i])); ent = st[0]; x = wk;
+  }
+  const ser = rates.map(([k, name], j) => ({ name, color: COL[j], fmt: (v) => fmt("pct", v), vals: st[k].map((v, i) => (ent[i] ? v / ent[i] : null)), ma: null, hollow: comp.map((c) => !c), faded: ent.map((e) => e < MIN_DEN), detail: (i) => ` <small>${nf.format(st[k][i])} / ${nf.format(ent[i])}</small>` }));
+  card.querySelector(".legend").innerHTML = legendHtml(ser) + `<span><i class="sq" style="--c:var(--surface);border:1.4px solid var(--muted)"></i>penceresi dolmamış</span>`;
+  lineChart(host, card, x, ser, { yFmt: yFmtFor("pct"), week, aria: "Kohort oranları" });
+}
+function newActivationCard() {
+  return customCard("Aktivasyon merdiveni (ilk 7 gün)", `<div class="lad"></div><div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    bindNewKind(card);
+    const set = coSet("act");
+    if (!set) { card.querySelector(".lad").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const idx = maturedIdx(set), sums = set.steps.map((s) => sum(idx.map((i) => s[i])));
+    card.querySelector(".tags").insertAdjacentHTML("afterbegin", tagHtml(set.tag));
+    card.querySelector(".lad").innerHTML = `<p class="card-sub">Olgun son 28 giriş günü (${idx.length ? dShort(D.d.co.days[idx[0]]) + " – " + dShort(D.d.co.days[idx[idx.length - 1]]) : "—"}).</p>` + ladderHtml(NEW_STEPS[NEW.kind], sums);
+    const L = NEW_STEPS[NEW.kind];
+    cohortTimeline(card, card.querySelector(".ch-a"), set, L.slice(1).map((l, k) => [k + 1, l]), false);
+  }, { ctl: newKindCtl(), sub: "Mağaza: ilk rc_subscription_event (App Store / Play). Web: ilk rc_non_subscription_purchase_event (web_promo), 28 Eylül 2026 öncesi aboneler hariç. Mağaza merdiveni alt sınırdır: ilk mağaza aboneliklerinin yaklaşık beşte biri app kimliğiyle birleşmemiş görünüyor.", help: "İkisi birden: ortak adımlar (giriş, konuştu, ders başlattı, ders tamamladı) gün ve segment bazında toplanır; web'in 'app açtı' adımı yalnızca Web seçiliyken." });
+}
+function a1LadderCard() {
+  return customCard("A1 ilk 15 ders merdiveni (7 gün)", `<div class="lad"></div><div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    bindNewKind(card);
+    const set = coSet("a1");
+    if (!set) { card.querySelector(".lad").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const idx = maturedIdx(set), sums = set.steps.map((s) => sum(idx.map((i) => s[i])));
+    const labels = ["Yeni abone", ...Array.from({ length: sums.length - 1 }, (_, k) => `A1 · ${k + 1}. ders`)];
+    const top = Math.max(1, sums[0]);
+    card.querySelector(".lad").innerHTML = `<p class="card-sub">Olgun son 28 giriş günü · %: yeni aboneye / A1-1'i tamamlayana göre.</p><div class="ladder">${labels.map((l, k) => `<div class="rung"><span>${l}</span><div class="rung-bar"><i style="width:${((100 * sums[k]) / top).toFixed(1)}%"></i></div><span><b>${nf.format(sums[k])}</b> <small>%${nf1.format(sums[0] ? (100 * sums[k]) / sums[0] : 0)}${k >= 1 ? " · %" + nf.format(sums[1] ? Math.round((100 * sums[k]) / sums[1]) : 0) : ""}</small></span></div>`).join("")}</div>`;
+    cohortTimeline(card, card.querySelector(".ch-a"), set, [[1, "A1-1"], [5, "A1-5"], [10, "A1-10"], [15, "A1-15"]].filter(([k]) => k < sums.length), true);
+  }, { ctl: newKindCtl(), sub: "Yeni abonenin ilk 7 günde A1 yolunda kaçıncı derse kadar geldiği (A1-k = en az k. A1 dersini tamamladı).", help: "Funnel: giriş → a1_1 … a1_15 tamamlama, 7 gün. İki payda: girişe göre ve a1_1'e göre (seviye karışımı etkisini kaldırır)." });
+}
+function nodesCard() {
+  const BK = [["0", 0, 1], ["1", 1, 2], ["2", 2, 3], ["3–4", 3, 5], ["5–9", 5, 10], ["10+", 10, null]];
+  return customCard("İlk 3 / 5 / 7 günde tamamlanan node", `<div class="legend lg-k"></div><div class="buckets"></div><div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    bindNewKind(card);
+    const sets = { 3: coSet("done3"), 5: coSet("done5"), 7: coSet("done7") };
+    if (!sets[7]) { card.querySelector(".buckets").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    card.querySelector(".lg-k").innerHTML = BK.map(([l], j) => `<span><i class="sq" style="--c:${COL[j]}"></i>${l} node</span>`).join("");
+    card.querySelector(".buckets").innerHTML = [3, 5, 7].map((dd) => {
+      const set = sets[dd]; if (!set) return "";
+      const idx = maturedIdx(set), s = set.steps.map((x) => sum(idx.map((i) => x[i]))), n = s[0] || 1;
+      const parts = BK.map(([l, a, b]) => ({ l, v: s[a] - (b == null ? 0 : s[b]) }));
+      return `<div class="bk-row"><span>${dd} gün</span><div class="bk" title="${parts.map((p) => `${p.l}: %${nf1.format((100 * p.v) / n)}`).join(" · ")}">${parts.map((p, j) => `<i style="--c:${COL[j]};width:${((100 * p.v) / n).toFixed(2)}%"></i>`).join("")}</div></div>`;
+    }).join("") + `<p class="card-sub">3+ node: ${[3, 5, 7].map((dd) => { const set = sets[dd]; if (!set) return ""; const idx = maturedIdx(set); return `<b>${dd} günde %${nf1.format((100 * sum(idx.map((i) => set.steps[3][i]))) / (sum(idx.map((i) => set.steps[0][i])) || 1))}</b>`; }).join(" · ")} (olgun son 28 giriş günü)</p>`;
+    // weekly share with 3+ nodes, by window
+    const C = D.d.co, i0 = Math.max(0, C.days.length - Math.max(S.range, 28) - 7);
+    const x0 = C.days.slice(i0), wk = [...new Set(x0.map(monday))];
+    const ser = [3, 5, 7].filter((dd) => sets[dd]).map((dd, j) => {
+      const set = sets[dd], g = (arr) => wk.map((w) => sum(arr.slice(i0).filter((_, i) => monday(x0[i]) === w)));
+      const e = g(set.steps[0]), t = g(set.steps[3]), comp = wk.map((w) => x0.every((d, i) => monday(d) !== w || set.complete[i0 + i]));
+      return { name: `${dd} günde 3+`, color: COL[j], fmt: (v) => fmt("pct", v), vals: t.map((v, i) => (e[i] ? v / e[i] : null)), ma: null, hollow: comp.map((c) => !c), faded: e.map((z) => z < MIN_DEN), detail: (i) => ` <small>${nf.format(t[i])} / ${nf.format(e[i])}</small>` };
+    });
+    card.querySelector(".legend:not(.lg-k)").innerHTML = legendHtml(ser);
+    lineChart(card.querySelector(".ch-a"), card, wk, ser, { yFmt: yFmtFor("pct"), week: true, aria: "3+ node" });
+  }, { ctl: newKindCtl(), sub: "Kovalar: girişten sonraki 3 / 5 / 7 günde tamamlanan ders (anm_c_lesson_completed) sayısı. Alttaki çizgi: haftalık giriş kohortlarında 3+ tamamlayan payı." });
+}
+function nodeStart7Card() {
+  return customCard("İlk 7 günde node başlatan yeni abone", `<div class="lad"></div><div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    bindNewKind(card);
+    const set = coSet("start7");
+    if (!set) { card.querySelector(".lad").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const idx = maturedIdx(set), s = set.steps.map((x) => sum(idx.map((i) => x[i])));
+    card.querySelector(".lad").innerHTML = ladderHtml(["Yeni abone", "Node başlattı (7 gün)"], s);
+    cohortTimeline(card, card.querySelector(".ch-a"), set, [[1, "Node başlatan"]], false);
+  }, { ctl: newKindCtl(), wide: false, sub: "Node başlatma = current_lesson_start_bt (sorgu tanımı paketteki gibi)." });
+}
+SECTIONS.yeni = () => {
+  const b = [newActivationCard(), a1LadderCard(), nodesCard(), nodeStart7Card()];
+  // KPIs from matured cohorts of the last 28 entry days
+  const kp = () => {
+    const act = coSet("act"), a1 = coSet("a1"), d3 = coSet("done3"), d5 = coSet("done5"), d7 = coSet("done7");
+    const r = (set, k) => { if (!set) return null; const idx = maturedIdx(set); const e = sum(idx.map((i) => set.steps[0][i])); return e ? sum(idx.map((i) => set.steps[k][i])) / e : null; };
+    const n = act ? sum(maturedIdx(act).map((i) => act.steps[0][i])) : null;
+    const box = (l, v, s) => `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(l)}</span></div><div class="kpi-v">${v}</div><div class="kpi-s">${s}</div></div>`;
+    return `<div class="kpis" style="--cols:6">${box("Yeni abone (olgun 28 gün)", fmt("count", n), { both: "mağaza + web", sub: "mağaza", web: "web" }[NEW.kind])}
+      ${box("7 günde ders tamamlayan", fmt("pct", act ? r(act, act.steps.length - 1) : null), "aktivasyon merdiveninin son basamağı")}
+      ${box("7 günde A1-5'e ulaşan", fmt("pct", r(a1, 5)), "yeni aboneye göre")}
+      ${box("3 günde 3+ node", fmt("pct", r(d3, 3)), "tamamlanan ders")}${box("5 günde 3+ node", fmt("pct", r(d5, 3)), "")}${box("7 günde 3+ node", fmt("pct", r(d7, 3)), "")}</div>`;
+  };
+  return { html: intro("Yeni abonelerin ilk haftası: girişten sonra konuşuyor mu, ders başlatıp tamamlıyor mu, A1 yolunda nereye kadar gidiyor. Penceresi dolmamış (son 7 gün) giriş günleri içi boş halka ve ortalamalara girmez. Abone tipi bu bölümde kartların üstündeki seçiciyle; Sürüm filtresi bu bölümde yok.") + `<div class="kp-host"></div><div class="cards">${b.map((x) => x.html).join("")}</div>`,
+    draw: () => { document.querySelector(".kp-host").innerHTML = kp(); b.forEach((x) => x.draw()); } };
+};
+
+SECTIONS.yerlesik = () => {
+  const items = [
+    ["Abonelik yaşı bantları", "0–30 / 31–90 / 91–180 / 180+ gün aboneler; her bantta aktiflik, North Star oranı ve ders sayısı."],
+    ["Sağlık durumu dağılımı", "Abone başına son 28 günde aktif gün ve ders sayısından sağlıklı / risk altında / uyuyan sınıflaması."],
+    ["Uyuyan ve hiç başlamamış abone", "Erişimi olup son 14 günde hiç call_ok yapmayan; aboneliği boyunca hiç ders başlatmamış abone."],
+    ["İptal öncesi düşüş", "rc_cancellation_event'ten önceki 4 haftada kullanım eğrisi; iptal sinyali olarak erken uyarı."],
+  ];
+  return { html: intro("Faz 2: bu kartlar kullanıcı bazlı veri gerektiriyor (Amplitude'un toplu sorguları abone yaşı ve kullanıcı bazlı sınıflama veremiyor). İlk sürümde yalnızca iskelet.") + `<div class="cards">${items.map(([t, d]) => `<div class="card"><div class="card-top"><h2>${esc(t)}</h2></div><div class="placeholder">${esc(d)}</div></div>`).join("")}</div>`, draw: () => {} };
+};
+
+SECTIONS.retention = () => {
+  const curve = customCard("Abone retention eğrisi (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const R = retFor(); if (!R) { card.querySelector(".ch-a").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const [i0] = win(), from = D.d.days[i0];
+    const rows = R.rows.filter((r) => r.d >= from);
+    const Ns = Array.from({ length: 31 }, (_, k) => k);
+    const pts = Ns.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { v: a / b, n: b } : null; });
+    const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
+    card.querySelector(".legend").innerHTML = legendHtml(ser);
+    lineChart(card.querySelector(".ch-a"), card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), aria: "Retention eğrisi", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
+  }, { wide: false, sub: "Kohort: o gün call_ok yapan abone; N. gün tekrar call_ok (tam N. gün). Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort.", help: "Amplitude retention, call_ok → call_ok, N-day. Bugünü içeren ve dolmamış hücreler kullanılmaz." });
+  const tl = customCard("Kohort gününe göre D1 ve D7", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const R = retFor(); if (!R) { card.querySelector(".ch-a").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
+    const ser = [1, 7, 14].map((k, j) => ({ name: "D" + k, color: COL[j], fmt: (v) => fmt("pct", v), ma: null,
+      vals: x.map((d) => { const r = at.get(d); return r && r.cells[k] != null && r.users ? r.cells[k] / r.users : null; }),
+      faded: x.map((d) => (at.get(d)?.users || 0) < MIN_DEN),
+      detail: (i) => { const r = at.get(x[i]); return r && r.cells[k] != null ? ` <small>${nf.format(r.cells[k])} / ${nf.format(r.users)}</small>` : ""; } }));
+    card.querySelector(".legend").innerHTML = legendHtml(ser);
+    lineChart(card.querySelector(".ch-a"), card, x, ser, { yFmt: yFmtFor("pct"), aria: "D1 D7" });
+  }, { wide: false, sub: "Son günlerde D7 / D14 henüz dolmadığı için çizilmez." });
+  const kp = () => {
+    const R = retFor(); if (!R) return "";
+    const [i0] = win(), rows = R.rows.filter((r) => r.d >= D.d.days[i0]);
+    const at = (k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? a / b : null; };
+    return `<div class="kpis" style="--cols:5">${[1, 3, 7, 14, 30].map((k) => `<div class="kpi"><div class="kpi-h"><span class="kpi-l">D${k} retention</span>${R.tag ? tagHtml(true) : ""}</div><div class="kpi-v">${fmt("pct", at(k))}</div><div class="kpi-s">${R.label} · dolmuş kohortlar</div></div>`).join("")}</div>`;
+  };
+  return { html: `<div class="kp-host"></div><div class="cards">${curve.html}${tl.html}</div>`, draw: () => { document.querySelector(".kp-host").innerHTML = kp(); curve.draw(); tl.draw(); } };
+};
+function retFor() {
+  const R = D.d.ret; if (!R) return null;
+  const k = S.dim === "platform" ? "p:" + S.val : "all";
+  return { rows: R[k] || R.all, label: S.dim === "platform" ? S.val : "Tüm aboneler", tag: (S.dim && S.dim !== "platform") || S.sub !== "paid" };
+}
+
+SECTIONS.memnuniyet = () => {
+  const b = [
+    trendCard("4–5★ ve 1–2★ oranı", ["rating_high_rate", "rating_low_rate"], [], { help: "call_feedback_submitted puanları; yalnızca tüm aboneler (kırılım yok)." }),
+    trendCard("Puan yanıt oranı", ["rating_response_rate"], [], { help: "Gönderilen puan / puan ekranı gösterimi." }),
+    trendCard("Teknik hata oranı", ["tech_fail_rate"], [], { help: "call_failed / call_attempt." }),
+    trendCard("Puan sayısı", ["ratings"], []),
+    mixCard("Puan dağılımı (1–5★, haftalık)", "rating_dist", { week: true, order: ["1", "2", "3", "4", "5"], colors: ["var(--s2)", "var(--s7)", "var(--s6)", "var(--s5)", "var(--s3)"], wide: true }),
+  ];
+  return { html: kpiRow([["rating_high_rate", "ratings"], ["rating_low_rate"], ["rating_response_rate"], ["tech_fail_rate"], ["ratings"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+};
+
+SECTIONS.degisiklik = () => {
+  const rows = (D.d.changes || []).map((c) => ({ d: c.d, version: c.version || "—", flag: c.flag || "—", note: c.note }));
+  const t = sortableTable([{ k: "d", label: "Tarih", fmt: (v) => dYear(v) }, { k: "version", label: "Sürüm" }, { k: "flag", label: "Flag" }, { k: "note", label: "Açıklama", wrap: true }], rows, { sort: 0, dir: -1 });
+  const tbl = customCard("Değişiklik günlüğü", t.html, () => t.bind(), { sub: "product/changes.json elle düzenlenir; her tarih tüm timeline'larda ◆ dikey çizgi olarak görünür." });
+  const vm = mixCard("Sürüm yayılımı (aktif abonelerin sürüm payı)", "version_mix", { wide: true, help: "act sorgusunun sürüm kırılımı (tekil call_ok). Abone tipi filtresi uygulanır." });
+  return { html: `<div class="cards">${tbl.html}${vm.html}</div>`, draw: () => { tbl.draw(); vm.draw(); } };
+};
+
+SECTIONS.tanimlar = () => {
+  const ns = trendCard("North Star: iki tanımın karşılaştırması", ["ns_rate", "ns_rate_strict"], [], { wide: true, sub: `Varsayılan: <b>${esc(D.d.northstar?.options?.[D.d.northstar.default] || "")}</b> Dar: ${esc(D.d.northstar?.options?.tiers_strict || "")}` });
+  const health = trendCard("Veri sağlığı: speech_duration = 0 ve teknik hata", ["speech_zero_rate", "tech_fail_rate"], [], { threshold: 0.05 });
+  const qrows = Object.entries(D.d.meta?.runs || {}).map(([id, t]) => ({ id, t }));
+  const qt = sortableTable([{ k: "id", label: "Sorgu" }, { k: "t", label: "Son çalışma", fmt: (v) => tsFmt(v) }], qrows, { sort: 0, dir: 1, max: 330 });
+  const runs = customCard("Sorgu çalışma saatleri", `${(D.d.missing || []).length ? `<div class="notebox"><b>Eksik:</b> ${D.d.missing.map(esc).join(", ")} — bunlara bağlı kartlar "veri yok" gösterir.</div>` : `<div class="notebox">Eksik ham dosya yok.</div>`}${qt.html}`, () => qt.bind(), { wide: false });
+  const dict = D.d.catalog.map((c) => ({ label: c.label, id: c.id, tabs: (c.tabs || []).map((t) => D.d.tabs.find((x) => x.id === t)?.label || t).join(", "), period: PERIOD_LABEL[c.period] || c.period, src: c.num ? `${c.num} / ${c.den}` : c.rate ? "funnel (Amplitude)" : c.series || c.id, note: c.note || "" }));
+  const dt = sortableTable([{ k: "label", label: "Metrik" }, { k: "note", label: "Tanım", wrap: true }, { k: "src", label: "Kaynak", fmt: (v) => `<code>${esc(v)}</code>` }, { k: "period", label: "Dönem değeri" }, { k: "tabs", label: "Bölümler", wrap: true }], dict, { max: 560 });
+  const dk = customCard("Metrik sözlüğü", dt.html, () => dt.bind(), { sub: "product/metrics.json'dan otomatik. Abone = event anındaki gp:rc_subscription_status ∈ active, intro, cancelled, grace_period, promotional (mağaza: ilk dördü, web: promotional). Trial ve role play kolu kapsam dışı." });
+  return { html: kpiRow([["ns_rate", "northstar"], ["ns_rate_strict", "northstar_strict"], ["speech_zero_rate"], ["tech_fail_rate"]]) + `<div class="cards">${ns.html}${health.html}${runs.html}${dk.html}</div>`, draw: () => { ns.draw(); health.draw(); runs.draw(); dk.draw(); } };
+};
+
+// ---------- shell: nav, filters, routing ----------
+const OLD = [["genel.html", "Genel (eski)"], ["engagement.html", "Engagement (eski)"], ["dashboard.html", "Product Dashboard (eski)"]];
+function buildNav() {
+  document.getElementById("nav").innerHTML = D.d.tabs.map((t) => `<a href="#${t.id}" data-tab="${t.id}">${esc(t.label)}</a>`).join("")
+    + `<span class="grp">Eski veriler</span>` + OLD.map(([h, l]) => `<a class="old" href="${h}">${esc(l)}</a>`).join("");
+}
+function buildControls() {
+  document.getElementById("range").innerHTML = [7, 14, 28, 90].map((r) => `<button type="button" data-r="${r}">${r} gün</button>`).join("");
+  const opt = (v, l) => `<option value="${esc(v)}">${esc(l)}</option>`;
+  document.getElementById("f-platform").innerHTML = opt("", "Tümü") + opt("iOS", "iOS") + opt("Android", "Android");
+  document.getElementById("f-country").innerHTML = opt("", "Tümü") + D.d.countries.map((c) => opt(c, TR_COUNTRY[c] || c)).join("");
+  document.getElementById("f-version").innerHTML = opt("", "Tümü") + D.d.versions.map((v) => opt(v, v)).join("");
+  document.getElementById("f-sub").innerHTML = opt("paid", "Tümü") + opt("store", "Mağaza") + opt("web", "Web");
+  document.getElementById("range").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; S.range = Number(b.dataset.r); if (S.range === 90) S.cmp = false; go(); });
+  document.getElementById("cmp").addEventListener("change", (ev) => { S.cmp = ev.target.checked; go(); });
+  for (const dim of ["platform", "country", "version"]) document.getElementById("f-" + dim).addEventListener("change", (ev) => { const v = ev.target.value; S.dim = v ? dim : null; S.val = v; go(); });
+  document.getElementById("f-sub").addEventListener("change", (ev) => { S.sub = ev.target.value; go(); });
+}
+function syncControls() {
+  document.querySelectorAll("#range button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.r) === S.range)));
+  const cmp = document.getElementById("cmp"), off = S.range === 90;
+  cmp.checked = S.cmp && !off; cmp.disabled = off;
+  document.getElementById("cmp-wrap").classList.toggle("off", off);
+  document.getElementById("cmp-wrap").title = off ? "90 günde önceki dönem verisi yok" : "";
+  for (const dim of ["platform", "country", "version"]) { const el = document.getElementById("f-" + dim); el.value = S.dim === dim ? S.val : ""; el.classList.toggle("on", S.dim === dim); }
+  const fs = document.getElementById("f-sub"); fs.value = S.sub; fs.classList.toggle("on", S.sub !== "paid");
+  document.querySelectorAll("#nav a[data-tab]").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === S.tab ? "page" : "false"));
+  document.getElementById("title").textContent = D.d.tabs.find((t) => t.id === S.tab)?.label || "";
+}
+function toHash() {
+  const p = new URLSearchParams();
+  if (S.dim) p.set(S.dim, S.val);
+  if (S.sub !== "paid") p.set("sub", S.sub);
+  if (S.range !== 28) p.set("range", S.range);
+  if (S.cmp) p.set("cmp", "1");
+  const q = p.toString();
+  return "#" + S.tab + (q ? "?" + q : "");
+}
+function fromHash() {
+  const [tab, q] = location.hash.slice(1).split("?");
+  S.tab = D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
+  const p = new URLSearchParams(q || "");
+  S.dim = null; S.val = "";
+  for (const dim of ["platform", "country", "version"]) if (p.get(dim)) { S.dim = dim; S.val = p.get(dim); }
+  S.sub = ["store", "web"].includes(p.get("sub")) ? p.get("sub") : "paid";
+  S.range = [7, 14, 28, 90].includes(Number(p.get("range"))) ? Number(p.get("range")) : 28;
+  S.cmp = p.get("cmp") === "1" && S.range !== 90;
+}
+function go() { const h = toHash(); if (location.hash !== h) history.replaceState(null, "", h); renderSection(); }
+let current = null;
+function renderSection() {
+  syncControls();
+  const host = document.getElementById("sec");
+  current = (SECTIONS[S.tab] || SECTIONS.genel)();
+  const warn = S.sub !== "paid" && S.tab !== "yeni" ? `<div class="notebox"><b>Abone tipi notu:</b> 28 Eylül 2026'ya kadar web (Stripe) aboneleri RevenueCat'te <code>active</code> durumundaydı ve <b>Mağaza</b>'da sayılıyor; o gün web_promo'ya (<code>promotional</code>) taşındılar. Mağaza / Web karşılaştırması 28 Eylül'den itibaren anlamlı.</div>` : "";
+  host.innerHTML = `<section class="sec">${warn}${current.html}</section>`;
+  current.draw();
+}
+document.addEventListener("click", (ev) => {
+  const h = ev.target.closest(".help"); if (!h) return;
+  const card = h.closest(".kpi, .card"); const box = card.querySelector(".notebox.h");
+  if (box) { box.remove(); return; }
+  card.querySelector(".kpi-h, .card-top").insertAdjacentHTML("afterend", `<div class="notebox h">${esc(h.dataset.help)}</div>`);
+});
+window.addEventListener("hashchange", () => { fromHash(); renderSection(); window.scrollTo(0, 0); });
+let rt = null;
+window.addEventListener("resize", () => { if (!D.d) return; clearTimeout(rt); rt = setTimeout(() => current && current.draw(), 150); });
+
+// ---------- decryption (same keys as the other pages) ----------
 const b64 = (s) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
-const getJson = async (path) => {
-  const res = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`${path} yüklenemedi (${res.status})`);
-  return res.json();
-};
+const getJson = async (path) => { const res = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" }); if (!res.ok) throw new Error(`${path} yüklenemedi (${res.status})`); return res.json(); };
 async function unlock(password) {
-  const [keys, box] = await Promise.all([getJson("keys.json"), getJson("data.enc.json")]);
+  const [keys, box] = await Promise.all([getJson("keys.json"), getJson("product.enc.json")]);
   const s = keys.sealedPrivateKey;
   const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
   const kek = await crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: b64(s.salt), iterations: s.iterations }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
@@ -737,39 +1107,44 @@ async function unlock(password) {
   const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(box.iv) }, dek, b64(box.ct));
   return JSON.parse(new TextDecoder().decode(plain));
 }
+function load(data) {
+  if (data.v !== 1 || data.page !== "product") throw new Error("veri biçimi beklenenden farklı, yenileme bekleniyor");
+  D.d = data;
+  D.cat = Object.fromEntries(data.catalog.map((c) => [c.id, c]));
+  document.getElementById("data-date").textContent = dYear(data.dataDate);
+  document.getElementById("updated-at").textContent = tsFmt(data.generatedAt);
+  buildNav(); buildControls(); fromHash();
+  lockEl.hidden = true; appEl.hidden = false;
+  renderSection();
+}
 
-// ---------- lock screen ----------
+// ---------- lock screen (password shared with the other pages) ----------
 const STORE_KEY = "lucida-data:pass";
 const store = {
   get() { try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; } },
   set(v) { try { localStorage.setItem(STORE_KEY, v); } catch (e) { /* private mode */ } },
-  clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ } }
+  clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ } },
 };
 const lockEl = document.getElementById("lock"), appEl = document.getElementById("app");
 const form = document.getElementById("lock-form"), passEl = document.getElementById("lock-pass");
 const rememberEl = document.getElementById("lock-remember"), btnEl = document.getElementById("lock-btn"), errEl = document.getElementById("lock-err");
-
 async function open(password, remember) {
   btnEl.disabled = true; errEl.textContent = ""; btnEl.textContent = "Açılıyor…";
   try {
     load(await unlock(password));
     if (remember) store.set(password);
-    lockEl.hidden = true; appEl.hidden = false;
-    renderAll();
   } catch (e) {
     if (e.wrong) store.clear();
     errEl.textContent = e.wrong ? "Şifre yanlış." : "Veri yüklenemedi: " + (e.message || e);
     lockEl.hidden = false; appEl.hidden = true;
-  } finally {
-    btnEl.disabled = false; btnEl.textContent = "Aç";
-  }
+  } finally { btnEl.disabled = false; btnEl.textContent = "Aç"; }
 }
 form.addEventListener("submit", (ev) => { ev.preventDefault(); open(passEl.value, rememberEl.checked); });
-document.getElementById("lock-out").addEventListener("click", () => {
-  store.clear(); passEl.value = ""; appEl.hidden = true; lockEl.hidden = false; passEl.focus();
-});
-const saved = store.get();
-if (saved) open(saved, true); else passEl.focus();
-</script>
+document.getElementById("lock-out").addEventListener("click", () => { store.clear(); passEl.value = ""; appEl.hidden = true; lockEl.hidden = false; passEl.focus(); });
 
+// Local testing only: ?plain=<file> reads an unencrypted payload, and only on localhost.
+const plain = new URLSearchParams(location.search).get("plain");
+if (plain && ["localhost", "127.0.0.1"].includes(location.hostname)) getJson(plain).then(load).catch((e) => { errEl.textContent = "Yerel veri yüklenemedi: " + e.message; });
+else { const saved = store.get(); if (saved) open(saved, true); else passEl.focus(); }
+</script>
 </body></html>

@@ -1,9 +1,37 @@
 # Lucida Data
 
-Lucida'nın Amplitude metriklerini (abone sayıları, retention, ders başlatma, DAU, haftalık ders, ders süreleri)
-gösteren, şifreyle açılan statik sayfa. GitHub Pages'te yayında.
+Lucida'nın Amplitude metriklerini gösteren, şifreyle açılan statik site. GitHub Pages'te yayında.
 
-- `index.html` — sayfa. Rakam içermez; açılışta şifre ister, `data.enc.json`'u tarayıcıda çözer.
+## Product Engagement v2 (ana sayfa)
+
+Ödeme yapan aboneler ürünü gerçekten kullanıyor mu ve alışkanlık iyiye mi gidiyor: sol menüde 11 bölüm (Genel Bakış,
+Aktif Kullanım, Konuşma, Dersler, Node Sistemi, Yeni Aboneler, Yerleşik Aboneler, Retention, Memnuniyet, Değişiklikler,
+Tanımlar ve Veri Sağlığı), her metrik gün gün timeline ve oranıyla; üstte tarih aralığı, önceki dönem karşılaştırması
+ve tek boyutlu filtreler (platform | ülke | sürüm, + abone tipi). Eski sayfalar menünün "Eski veriler" kısmında.
+
+- `index.html` — sayfa. Rakam içermez; şifreyle `product.enc.json`'u tarayıcıda çözer. Yerelde
+  `index.html?plain=<dosya>` şifresiz bir payload okur (yalnızca `localhost` / `127.0.0.1`).
+- `product/queries.json` — 35 Amplitude sorgusu (son 90 tam UTC gün; yeni abone funnel'ları 17 hafta).
+- `product/metrics.json` — metrik kataloğu: sekme, birim, kaynak, pay / payda, dönem kuralı, North Star tanımı
+  (`northstar_def.default`, tek yerden değişir).
+- `product/changes.json` — değişiklik günlüğü (elle düzenlenir); tüm timeline'larda dikey çizgi.
+- `product/ROUTINE.md` — her sabahki yenileme adımları ve bir kerelik kurulum.
+- `product.enc.json` — veri, diğerleriyle aynı şekilde şifreli.
+- `scripts/build-product.mjs`, `scripts/product-lib.mjs` — ham yanıtları ayrıştırıp payload'ı kurar ve şifreler.
+  Eksik ya da başarısız bir ham dosya build'i durdurmaz; ona bağlı kartlar "veri yok" gösterir.
+
+Yenileme (ayrıntı `product/ROUTINE.md`'de): sorguların ham yanıtları ve `_meta.json` bir klasöre, geçmiş
+(`base`, `abandon_after_1min`) "Lucida Data" artifact'ının `product-history` koleksiyonundan bir klasöre indirilir, sonra:
+
+    node scripts/build-product.mjs <ham-klasör> <geçmiş-klasörü>
+
+İlk kurulumda kabul testi: `--check <baseline.json>` (repoya girmez). Yerel test: `--plain <çıktı.plain.json>`.
+Ayrıştırıcı testleri: `node --test scripts/*.test.mjs` (gerçek yanıt örnekleri `fixtures/`'ta, repoya girmez).
+
+## Eski sayfalar
+
+- `genel.html` — ilk sayfa (abone sayıları, retention, ders başlatma, DAU, haftalık ders, ders süreleri). Rakam içermez;
+  açılışta şifre ister, `data.enc.json`'u tarayıcıda çözer.
 - `data.enc.json` — veri, AES-256-GCM ile şifreli. Anahtarı `keys.json`'daki RSA-OAEP açık anahtarıyla sarılı.
 - `engagement.html` — ikinci sayfa (Product Engagement). Metrikler ham event'lerden (Amplitude, RevenueCat) hesaplanır,
   günlük değerler zaman çizelgesi olarak gösterilir.

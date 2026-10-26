@@ -1,0 +1,775 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lucida Data</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  /* Layout: one reading column (max 960px); sections stack in the order they were added.
+     Funnel: two segment cards side by side from 720px, each with a 3-up row of rate tiles.
+     DAU: a 3-up KPI row over one full-width line chart. Cohorts: two cards side by side. */
+  :root {
+    --bg: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --border: rgba(11, 11, 11, 0.10);
+    --track: #ebeae4;
+    --s1: #2a78d6;   /* Eski Aboneler / aboneler */
+    --s2: #eb6834;   /* Yeni Aboneler */
+    --s3: #1baf7a;   /* Aktif Aboneler (retention) */
+    --cc1: #2a78d6; --cc2: #7cb342; --cc3: #7e3fb8; --cc4: #3bb8c4; --cc5: #e8705f;   /* ülkeler: Güney Kore, Çekya, ABD, Polonya, Japonya */
+    --font-display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --border: rgba(255, 255, 255, 0.10);
+      --track: #2c2c2a;
+      --s1: #3987e5;
+      --s2: #d95926;
+      --s3: #199e70;
+      --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --border: rgba(255, 255, 255, 0.10);
+    --track: #2c2c2a;
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
+    --cc1: #3987e5; --cc2: #8bc34a; --cc3: #9b5de5; --cc4: #4fc3d0; --cc5: #ef7f6e;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 56px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; }
+
+  /* Site header */
+  .site {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px;
+    padding-block: 22px 18px;
+    border-bottom: 1px solid var(--grid);
+  }
+  .brand {
+    font-family: var(--font-display); font-weight: 700; font-size: 22px; letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .site-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .site-meta b { color: var(--ink-2); font-weight: 500; }
+  .refresh {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface); color: var(--ink-2); cursor: pointer; padding: 0;
+  }
+  .refresh:hover { color: var(--ink); border-color: var(--ink-2); }
+  .refresh:disabled { cursor: not-allowed; opacity: 0.55; }
+  .refresh.busy:disabled { cursor: progress; opacity: 0.8; }
+  .refresh.busy svg { animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .refresh.busy svg { animation: none; } }
+  .status { font-size: 12px; color: var(--muted); }
+  .status.err { color: var(--ink); }
+
+  /* Section */
+  section { padding-block: 32px 0; }
+  .sec-head { display: grid; gap: 10px; margin-bottom: 22px; }
+  h1 {
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(26px, 4vw, 34px);
+    line-height: 1.1; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+  }
+
+  /* Segment cards */
+  .segments { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 720px) { .segments { grid-template-columns: 1fr 1fr; } }
+  .seg {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; min-width: 0; display: grid; gap: 18px; align-content: start;
+  }
+  .seg-head { display: grid; gap: 4px; }
+  .seg-title { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 18px; font-weight: 600; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; background: var(--c); flex: none; }
+  .seg-base { font-size: 13px; color: var(--ink-2); }
+  .seg-base b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .rates { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .rate { display: grid; gap: 6px; min-width: 0; }
+  .rate-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .rate-val { font-size: clamp(26px, 5vw, 36px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
+  .meter { height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--c); transition: width .5s ease; }
+  @media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+  .rate-sub { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+  .rate-sub b { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* Retention tiles */
+  .ret-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 719px) { .ret-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ret-card .rate-val { font-size: clamp(22px, 4vw, 30px); }
+
+  /* Step table */
+  .block { margin-top: 28px; display: grid; gap: 10px; }
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 13px; font-weight: 600; color: var(--ink); }
+  thead tr.grp th:first-child { font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  thead tr.grp th span { display: inline-flex; align-items: center; gap: 8px; }
+  thead tr.grp th .swatch { width: 10px; height: 10px; }
+  thead tr.grp th { border-bottom: 0; padding-bottom: 2px; }
+  thead tr.sub th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+  thead th.gap, td.gap { border-left: 1px solid var(--grid); }
+  tbody td { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  tbody td:first-child { color: var(--ink); }
+  tbody tr.lesson td { color: var(--ink); font-weight: 600; background: color-mix(in srgb, var(--surface) 90%, var(--ink) 10%); }
+  tbody tr.lesson td:first-child::before { content: "●"; font-size: 8px; vertical-align: 2px; margin-right: 8px; color: var(--muted); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.pct { color: var(--ink-2); }
+  td.base-pct { font-weight: 500; }
+  td.strong { color: var(--ink); font-weight: 600; }
+  #lessons thead tr.sub th, #weekly thead tr.sub th { padding-top: 10px; }
+  /* Weekly chart: two groups (start / completion), one bar per country, legend below */
+  .weekly-card { padding-top: 10px; padding-bottom: 12px; }
+  .weekly-card .chart .bar { stroke: var(--surface); stroke-width: 1; }
+  .weekly-card .chart .val { font-size: 12px; fill: var(--ink); font-weight: 600; }
+  .weekly-card .chart .grp { font-size: 13px; fill: var(--ink-2); }
+  .weekly-card .chart .hit { fill: transparent; }
+  .wk-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 6px 0; border-top: 1px solid var(--grid); margin-top: 6px; }
+  .wk-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); }
+  .wk-legend .lg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .tbl-wrap.inner { border: 0; border-top: 1px solid var(--grid); border-radius: 0; background: transparent; margin-top: 18px; }
+  .tbl-wrap.inner th, .tbl-wrap.inner td { padding-left: 0; padding-right: 10px; }
+  .tbl-wrap.inner th:last-child, .tbl-wrap.inner td:last-child { padding-right: 0; }
+  .tbl-wrap.inner thead tr.sub th { padding-top: 12px; }
+  /* Funnel: both segments + step table in one card */
+  .funnel-card { gap: 0; padding: 18px 20px 8px; }
+  .fn-segs { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .fn-seg { display: grid; gap: 12px; min-width: 0; align-content: start; }
+  .fn-seg .seg-title { font-size: 16px; }
+  .fn-seg .rates { gap: 12px; }
+  .fn-seg .rate { gap: 5px; }
+  .fn-seg .rate-val { font-size: clamp(20px, 3.4vw, 26px); }
+  .fn-seg .meter { height: 5px; }
+  @media (min-width: 720px) {
+    .fn-segs { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .fn-seg + .fn-seg { border-left: 1px solid var(--grid); padding-left: 28px; }
+  }
+  .funnel-card .tbl-wrap.inner { margin-top: 16px; }
+  .funnel-card .tbl-wrap.inner th, .funnel-card .tbl-wrap.inner td { padding-top: 8px; padding-bottom: 8px; }
+  .funnel-card .tbl-wrap.inner thead tr.grp th { padding-top: 12px; }
+  .funnel-card .tbl-wrap.inner thead tr.sub th { padding-top: 2px; }
+
+  .ref { margin: 4px 0 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+  .ref a { color: var(--ink-2); }
+
+  /* DAU */
+  .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 14px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: grid; gap: 6px; min-width: 0; align-content: start;
+  }
+  .kpi-val { font-size: clamp(24px, 4.5vw, 32px); font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi-sub { font-size: 12px; color: var(--ink-2); }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 12px 6px; position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { font-family: var(--font-body); font-size: 12px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .chart .lbl { fill: var(--ink); font-weight: 600; }
+  .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  .chart .baseline { stroke: var(--grid); stroke-width: 1; }
+  .chart .area { fill: var(--s1); opacity: 0.12; }
+  .chart .line { fill: none; stroke: var(--s1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; }
+  .chart .hover-line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+  .chart .hover-dot { fill: var(--s1); stroke: var(--surface); stroke-width: 2; opacity: 0; }
+  .chart .hit { fill: transparent; }
+  .tip {
+    position: absolute; pointer-events: none; display: none; z-index: 2;
+    background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.35;
+    padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px));
+  }
+  .tip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  /* Lock screen */
+  .lock { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding-block: 32px; }
+  .lock-card {
+    width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 24px; display: grid; gap: 16px;
+  }
+  .lock-card .brand { font-size: 24px; }
+  .lock-card p { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .lock-card label { font-size: 13px; font-weight: 500; color: var(--ink-2); display: grid; gap: 6px; }
+  .lock-card input[type=password] {
+    font: inherit; font-size: 16px; padding: 11px 12px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--ink); width: 100%;
+  }
+  .lock-card .remember { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+  .lock-card button {
+    font: inherit; font-weight: 600; font-size: 15px; padding: 11px 14px; border-radius: 9px; border: 0;
+    background: var(--ink); color: var(--bg); cursor: pointer;
+  }
+  .lock-card button:disabled { opacity: 0.6; cursor: progress; }
+  .lock-err { font-size: 13px; color: var(--s2); min-height: 1.2em; }
+  .lock-out { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+
+  /* Retention: header note, 7-country average rings, country table */
+  .ret-note { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.45; }
+  .ret-note b { color: var(--ink-2); font-weight: 600; }
+  .ret-cap { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: -6px; }
+  .ret-hero { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .ret-kpi { display: grid; justify-items: center; gap: 8px; padding: 18px 8px 14px; border-radius: 12px; background: color-mix(in srgb, var(--s3) 8%, var(--surface)); }
+  .ret-ring { width: 92px; height: 92px; position: relative; }
+  .ret-ring svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ret-ring .trk { stroke: color-mix(in srgb, var(--s3) 20%, transparent); }
+  .ret-ring .arc { stroke: var(--s3); stroke-linecap: round; }
+  .ret-ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .ret-kpi-lbl { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-2); }
+  .ret-card .tbl-wrap.inner { margin-top: 2px; }
+  .ret-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .tbl-wrap.inner .ret-table th, .tbl-wrap.inner .ret-table td { padding: 10px 7px; text-align: right; white-space: nowrap; }
+  .tbl-wrap.inner .ret-table th:first-child, .tbl-wrap.inner .ret-table td:first-child { text-align: left; padding-left: 0; padding-right: 12px; position: sticky; left: 0; background: var(--surface); }
+  .tbl-wrap.inner .ret-table th:last-child, .tbl-wrap.inner .ret-table td:last-child { padding-right: 0; }
+  .ret-table thead th { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .ret-table tbody td { font-size: 13px; color: var(--ink-2); border-bottom: 1px solid var(--grid); }
+  .ret-table tbody td:first-child { font-size: 14px; color: var(--ink); }
+  .ret-table tbody tr:last-child td { border-bottom: 0; }
+  @media (max-width: 719px) {
+    .ret-hero { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .ret-kpi { flex: 0 0 calc((100% - 16px) / 3); padding: 14px 6px 12px; gap: 6px; }
+    .ret-ring { width: 76px; height: 76px; }
+    .ret-ring b { font-size: 16px; }
+  }
+
+  /* Page tabs (shared with engagement.html) */
+  .site { align-items: center; }
+  .site-l { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+  .tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--track); }
+  .tabs a { font-size: 13px; font-weight: 500; color: var(--ink-2); text-decoration: none; padding: 5px 12px; border-radius: 8px; line-height: 1.4; }
+  .tabs a:hover { color: var(--ink); }
+  .tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+</style>
+
+<div class="wrap lock" id="lock">
+  <form class="lock-card" id="lock-form" autocomplete="on">
+    <p class="brand">Lucida Data</p>
+    <p>Rakamları görmek için şifreyi gir.</p>
+    <input type="text" name="username" value="lucida-data" autocomplete="username" hidden>
+    <label>Şifre
+      <input type="password" id="lock-pass" name="password" autocomplete="current-password" required>
+    </label>
+    <label class="remember"><input type="checkbox" id="lock-remember" checked> Bu cihazda hatırla</label>
+    <button type="submit" id="lock-btn">Aç</button>
+    <div class="lock-err" id="lock-err" role="alert"></div>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header class="site">
+    <div class="site-l">
+      <p class="brand">Lucida Data</p>
+      <nav class="tabs" aria-label="Sayfalar"><a href="./">Product v2</a><a href="genel.html" aria-current="page">Genel</a><a href="engagement.html">Engagement</a><a href="dashboard.html">Product</a></nav>
+    </div>
+    <div class="site-meta">
+      <span>Takip aralığı: <b id="range-text">—</b> · Son güncelleme: <b id="updated-at">—</b></span>
+      <button type="button" class="lock-out" id="lock-out">Kilitle</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="aboneler" aria-labelledby="h-aboneler">
+      <div class="sec-head">
+        <h1 id="h-aboneler">Abone Sayıları</h1>
+      </div>
+      <div class="segments" id="cohorts"></div>
+    </section>
+
+    <section id="retention" aria-label="Aktif abone retention">
+      <div class="seg ret-card" id="retention-card"></div>
+      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?sharingId=aZYAr8vJ&source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/9abjsm95?sharingId=aZYAr8vJ&source=copy+url</a></p>
+    </section>
+
+    <section id="dau" aria-label="Günlük aktif abone">
+      <div class="kpis" id="dau-kpis"></div>
+
+      <div class="chart-card">
+        <div class="chart" id="dau-chart"></div>
+        <div class="tip" id="dau-tip"></div>
+      </div>
+      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/8cgnfjm1?sharingId=tle9t2XN&source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/8cgnfjm1?sharingId=tle9t2XN&source=copy+url</a></p>
+    </section>
+
+    <section id="haftalik-ders" aria-labelledby="h-weekly">
+      <div class="sec-head">
+        <h1 id="h-weekly">Haftalık Ders Başlatma ve Tamamlama</h1>
+      </div>
+      <div class="block" style="margin-top:0">
+        <div class="seg-base"><span class="swatch" style="--c:var(--s1); display:inline-block; vertical-align:-1px; margin-right:8px"></span>Eski Aboneler</div>
+        <div class="chart-card weekly-card">
+          <div class="chart" id="weekly-chart"></div>
+          <div class="tip" id="weekly-tip"></div>
+          <div class="wk-legend" id="weekly-legend"></div>
+        </div>
+        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/wf6x32q6?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/wf6x32q6?source=copy+url</a></p>
+      </div>
+    </section>
+
+    <section id="derse-girme" aria-labelledby="h-derse">
+      <div class="sec-head">
+        <h1 id="h-derse">Ders Başlatma Oranları</h1>
+      </div>
+
+      <div class="seg funnel-card">
+        <div class="fn-segs" id="segments"></div>
+        <div class="tbl-wrap inner">
+          <table id="steps">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/ltoi6xjm?source=copy+url</a></p>
+    </section>
+
+    <section id="a1-sureler" aria-labelledby="h-a1">
+      <div class="sec-head">
+        <h1 id="h-a1">Ders Tamamlama Süresi</h1>
+      </div>
+      <div class="block" style="margin-top:0">
+        <div class="seg-base"><span class="swatch" style="--c:var(--s2); display:inline-block; vertical-align:-1px; margin-right:8px"></span>Yeni Aboneler</div>
+        <div class="tbl-wrap">
+          <table id="lessons">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="ref">Referans: <a href="https://app.amplitude.com/analytics/applucida-342855/chart/47xft6k6" target="_blank" rel="noopener">https://app.amplitude.com/analytics/applucida-342855/chart/47xft6k6</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Amplitude · Lucida Prod (773708)</span>
+  </footer>
+</div>
+
+<script>
+// ============================================================
+// META — yalnızca etiketler ve yöntem bilgisi; rakamlar data.enc.json içinde şifreli durur.
+// Her sabah 09:00 (İstanbul) bir Claude rutini Amplitude'dan yeniler (Lucida Prod 773708, UTC).
+// ============================================================
+const DATA = {
+  range: { days: 15, tz: "UTC" },
+  funnel: {
+    steps: [
+      { key: "dashboard_page_viewed",  label: "Anasayfa Açıldı" },
+      { key: "pre_lesson_viewed",      label: "Node Tıklandı" },
+      { key: "pre_lesson_lets_start",  label: "Start Basıldı" },
+      { key: "anm_conv_page_viewed",   label: "Ders 1", lesson: 1 },
+      { key: "post_call_report_shown", label: "Rapor 1" },
+      { key: "anm_conv_page_viewed",   label: "Ders 2", lesson: 2 },
+      { key: "post_call_report_shown", label: "Rapor 2" },
+      { key: "anm_conv_page_viewed",   label: "Ders 3", lesson: 3 }
+    ],
+    segments: [
+      { id: "eski", name: "Eski Aboneler", color: "var(--s1)" },
+      { id: "yeni", name: "Yeni Aboneler", color: "var(--s2)" }
+    ]
+  },
+  cohorts: {
+    items: [
+      { id: "we8ecx07", key: "eski", name: "Eski Aboneler", label: "Aktivasyonu Tamamlanmış Kullanıcı", color: "var(--s1)",
+        url: "https://app.amplitude.com/audiences/applucida-342855/cohort/we8ecx07/details?source=copy+url" },
+      { id: "mkec0q4p", key: "yeni", name: "Yeni Aboneler", label: "Aktivasyon aşamasındaki kullanıcı", color: "var(--s2)",
+        url: "https://app.amplitude.com/audiences/applucida-342855/cohort/mkec0q4p/details?source=copy+url" }
+    ]
+  },
+  retention: { windowDays: 90, days: [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 20, 21, 22] },
+  weekly: { order: ["South Korea", "Czech Republic", "United States", "Poland", "Japan"] },
+  lessons: {
+    items: [
+      { id: "live_lesson_en_a1_1", label: "A1 · Ders 1" },
+      { id: "live_lesson_en_a1_2", label: "A1 · Ders 2" },
+      { id: "live_lesson_en_a1_3", label: "A1 · Ders 3" },
+      { id: "live_lesson_en_a1_4", label: "A1 · Ders 4" },
+      { id: "live_lesson_en_a1_5", label: "A1 · Ders 5" }
+    ]
+  }
+};
+
+// ---------- formatting ----------
+const COUNTRIES = ["Japan", "South Korea", "Poland", "United States", "Czech Republic"];
+const COUNTRY_TR = { "Japan": "Japonya", "South Korea": "Güney Kore", "Poland": "Polonya", "United States": "ABD", "Czech Republic": "Çekya" };
+const nf = new Intl.NumberFormat("tr-TR");
+const pf = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const pct = (a, b) => (b ? "%" + pf.format((a / b) * 100) : "—");
+const ratio = (a, b) => (b ? (a / b) * 100 : 0);
+const fmtDate = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Istanbul" }).format(new Date(iso));
+const fmtDayShort = (ymd) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+const fmtDayLong = (ymd) => new Intl.DateTimeFormat("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(ymd + "T00:00:00Z"));
+
+// ---------- state ----------
+const current = {};
+const lessonIdx = DATA.funnel.steps.map((s, i) => (s.lesson ? i : -1)).filter((i) => i >= 0);
+
+// ---------- render: header ----------
+function renderHeader() {
+  const latest = [current.funnel.updatedAt, current.dau.updatedAt, current.cohorts.updatedAt, current.lessons.updatedAt, current.retention.updatedAt, current.weekly.updatedAt].filter(Boolean).sort().pop();
+  document.getElementById("updated-at").textContent = latest ? fmtDate(latest) : "—";
+  document.getElementById("range-text").textContent = `son ${DATA.range.days} gün`;
+}
+
+// ---------- render: funnel ----------
+function renderFunnel(f) {
+  document.getElementById("segments").innerHTML = f.segments.map((seg) => {
+    const base = seg.counts[0];
+    const tiles = lessonIdx.map((idx) => {
+      const c = seg.counts[idx];
+      return `
+        <div class="rate">
+          <div class="rate-lbl">${f.steps[idx].label} başlatma</div>
+          <div class="rate-val">${pct(c, base)}</div>
+          <div class="meter" role="img" aria-label="${pct(c, base)}"><i style="--c:${seg.color}; width:${ratio(c, base).toFixed(1)}%"></i></div>
+          <div class="rate-sub"><b>${nf.format(c)}</b> session</div>
+        </div>`;
+    }).join("");
+    return `
+      <article class="fn-seg" aria-labelledby="seg-${seg.id}">
+        <div class="seg-head">
+          <h2 class="seg-title" id="seg-${seg.id}"><span class="swatch" style="--c:${seg.color}"></span>${seg.name}</h2>
+          <div class="seg-base"><b>${nf.format(base)}</b> session anasayfayı gördü</div>
+        </div>
+        <div class="rates">${tiles}</div>
+      </article>`;
+  }).join("");
+
+  // Step table: per segment, session count + share of homepage sessions (column header left blank on purpose)
+  document.querySelector("#steps thead").innerHTML = `
+    <tr class="grp">
+      <th></th>
+      ${f.segments.map((s, i) => `<th colspan="2" class="${i ? "gap" : ""}"><span><span class="swatch" style="--c:${s.color}"></span>${s.name}</span></th>`).join("")}
+    </tr>
+    <tr class="sub">
+      <th>Adım</th>
+      ${f.segments.map((s, i) => `<th class="${i ? "gap" : ""}">Session count</th><th></th>`).join("")}
+    </tr>`;
+  document.querySelector("#steps tbody").innerHTML = f.steps.map((step, i) => `
+    <tr class="${step.lesson ? "lesson" : ""}">
+      <td>${step.label}</td>
+      ${f.segments.map((s, k) => `<td class="${k ? "gap" : ""}">${nf.format(s.counts[i])}</td><td class="pct base-pct">${pct(s.counts[i], s.counts[0])}</td>`).join("")}
+    </tr>`).join("");
+}
+
+// ---------- render: DAU ----------
+function niceStep(range) {
+  const candidates = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000];
+  return candidates.find((s) => Math.ceil((range * 1.3) / s) <= 5) || candidates[candidates.length - 1];
+}
+
+function renderDau(d) {
+  const vals = d.values, days = d.days, n = vals.length;
+  const last = vals[n - 1], avg = vals.reduce((a, b) => a + b, 0) / n;
+  const maxV = Math.max(...vals), minV = Math.min(...vals);
+
+  document.getElementById("dau-kpis").innerHTML = `
+    <div class="kpi"><div class="rate-lbl">Ortalama DAU</div><div class="kpi-val">${nf.format(Math.round(avg))}</div><div class="kpi-sub">${n} günün ortalaması</div></div>
+    <div class="kpi"><div class="rate-lbl">Son gün</div><div class="kpi-val">${nf.format(last)}</div><div class="kpi-sub">${fmtDayShort(days[n - 1])}</div></div>
+    <div class="kpi"><div class="rate-lbl">Unique User</div><div class="kpi-val">${nf.format(d.overall)}</div><div class="kpi-sub">${n} günde en az bir kez</div></div>`;
+
+  const host = document.getElementById("dau-chart");
+  const W = Math.max(320, Math.round(host.clientWidth || 720)), H = 240;
+  const padL = 44, padR = 16, padT = 14, padB = 30;
+  const step = niceStep(maxV - minV || 10);
+  const y0 = Math.max(0, Math.floor((minV - step * 0.4) / step) * step);
+  const y1 = Math.ceil((maxV + step * 0.4) / step) * step;
+  const x = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
+  const y = (v) => padT + (1 - (v - y0) / (y1 - y0)) * (H - padT - padB);
+
+  const ticks = [];
+  for (let t = y0; t <= y1 + 1e-9; t += step) ticks.push(t);
+  const pts = vals.map((v, i) => [x(i), y(v)]);
+  const linePath = pts.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L${x(n - 1).toFixed(1)} ${y(y0).toFixed(1)} L${x(0).toFixed(1)} ${y(y0).toFixed(1)} Z`;
+
+  // x labels: enough to read, never overlapping (≈ 56px per label)
+  const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 56)));
+  const xLabels = days.map((dday, i) => (i % every === 0 || i === n - 1) && !(i !== n - 1 && n - 1 - i < every)
+    ? `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${fmtDayShort(dday)}</text>` : "").join("");
+
+  const iMax = vals.indexOf(maxV), iMin = vals.indexOf(minV);
+  const label = (i, v, dy, cls) => `<text class="${cls}" x="${x(i).toFixed(1)}" y="${(y(v) + dy).toFixed(1)}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${nf.format(v)}</text>`;
+
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Günlük aktif abone, ${fmtDayShort(days[0])} – ${fmtDayShort(days[n - 1])}">
+      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${nf.format(t)}</text>`).join("")}
+      <path class="area" d="${areaPath}"/>
+      <path class="line" d="${linePath}"/>
+      ${iMax !== n - 1 ? label(iMax, maxV, -10, "") : ""}
+      ${iMin !== n - 1 ? label(iMin, minV, 18, "") : ""}
+      <circle class="dot" cx="${x(n - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="4.5"/>
+      ${label(n - 1, last, -10, "lbl")}
+      ${xLabels}
+      <line class="hover-line" id="dau-hover-line" x1="0" x2="0" y1="${padT}" y2="${(H - padB).toFixed(1)}"/>
+      <circle class="hover-dot" id="dau-hover-dot" r="5" cx="0" cy="0"/>
+      ${pts.map(([px], i) => {
+        const left = i === 0 ? padL : (pts[i - 1][0] + px) / 2;
+        const right = i === n - 1 ? W - padR : (px + pts[i + 1][0]) / 2;
+        return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
+      }).join("")}
+    </svg>`;
+
+  // hover: crosshair + tooltip
+  const svg = host.querySelector("svg"), tip = document.getElementById("dau-tip");
+  const hl = host.querySelector("#dau-hover-line"), hd = host.querySelector("#dau-hover-dot");
+  const show = (i) => {
+    const [px, py] = pts[i];
+    hl.setAttribute("x1", px); hl.setAttribute("x2", px); hl.style.opacity = 1;
+    hd.setAttribute("cx", px); hd.setAttribute("cy", py); hd.style.opacity = 1;
+    const rect = svg.getBoundingClientRect(), card = host.parentElement.getBoundingClientRect();
+    const sx = rect.width / W, sy = rect.height / H;
+    tip.innerHTML = `${fmtDayLong(days[i])}<br><b>${nf.format(vals[i])}</b> abone`;
+    tip.style.left = `${rect.left - card.left + px * sx}px`;
+    tip.style.top = `${rect.top - card.top + py * sy}px`;
+    tip.style.display = "block";
+  };
+  const hide = () => { hl.style.opacity = 0; hd.style.opacity = 0; tip.style.display = "none"; };
+  svg.addEventListener("pointermove", (ev) => {
+    const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide();
+  });
+  svg.addEventListener("pointerleave", hide);
+}
+
+// ---------- render: cohorts ----------
+const fmtDateTime = (iso) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(new Date(iso));
+function renderCohorts(c) {
+  document.getElementById("cohorts").innerHTML = c.items.map((it) => `
+    <article class="seg" aria-labelledby="coh-${it.key}">
+      <div class="seg-head">
+        <h2 class="seg-title" id="coh-${it.key}"><span class="swatch" style="--c:${it.color}"></span>${it.name}</h2>
+      </div>
+      <div class="rate">
+        <div class="rate-lbl">${it.label}</div>
+        <div class="rate-val">${nf.format(it.size)}</div>
+      </div>
+      <p class="ref">Referans: <a href="${it.url}" target="_blank" rel="noopener">${it.url}</a></p>
+    </article>`).join("");
+}
+
+// ---------- render: A1 lesson session times ----------
+const fmtDur = (ms) => {
+  const s = Math.round(ms / 1000), m = Math.floor(s / 60), r = s % 60;
+  return `${m} dk ${String(r).padStart(2, "0")} sn`;
+};
+function renderLessons(l) {
+  document.querySelector("#lessons thead").innerHTML = `
+    <tr class="sub">
+      <th>Ders</th><th>Başlayan</th><th>Tamamlayan</th><th>Tamamlama</th><th>Session time · medyan</th><th>Session time · ortalama</th>
+    </tr>`;
+  document.querySelector("#lessons tbody").innerHTML = l.items.map((it) => `
+    <tr>
+      <td>${it.label}</td>
+      <td>${nf.format(it.started)}</td>
+      <td>${nf.format(it.completed)}</td>
+      <td class="pct base-pct">${pct(it.completed, it.started)}</td>
+      <td class="strong">${fmtDur(it.medianMs)}</td>
+      <td>${fmtDur(it.avgMs)}</td>
+    </tr>`).join("");
+}
+
+// ---------- render: retention ----------
+// Chart 9abjsm95: paid users' first dashboard_page_viewed = Day 0, back on exactly day N, last 90 days, 7 countries.
+// Rings = the 7 countries pooled (sum retained / sum eligible); the table is per country.
+const RET_COUNTRIES = ["South Korea", "United States", "Czech Republic", "Hungary", "Japan", "Poland", "United Kingdom"];
+const RET_TR = { ...COUNTRY_TR, "Hungary": "Macaristan", "United Kingdom": "Birleşik Krallık" };
+const RET_HERO_DAYS = [1, 3, 8, 15, 21];
+function renderRetention(r) {
+  const fmtP = (v) => (Number.isFinite(Number(v)) ? "%" + pf.format(Number(v)) : "—");
+  const byCountry = (Array.isArray(r.byCountry) ? r.byCountry : []).filter((c) => c && RET_COUNTRIES.includes(c.id));
+  const ring = (v) => {
+    const c = 2 * Math.PI * 40, p = Math.max(0, Math.min(100, Number(v) || 0)) / 100;
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="40" fill="none" stroke-width="9"/><circle class="arc" cx="50" cy="50" r="40" fill="none" stroke-width="9" stroke-dasharray="${(c * p).toFixed(1)} ${c.toFixed(1)}"/></svg>`;
+  };
+  const hero = RET_HERO_DAYS.map((d) => {
+    const v = Number(r.values ? r.values[String(d)] : NaN), ok = Number.isFinite(v);
+    return `
+      <div class="ret-kpi">
+        <div class="ret-ring" role="img" aria-label="D${d}: ${fmtP(v)}">${ring(ok ? v : 0)}<b>${fmtP(v)}</b></div>
+        <div class="ret-kpi-lbl">D${d}</div>
+      </div>`;
+  }).join("");
+  const total = Number(r.total);
+  document.getElementById("retention-card").innerHTML = `
+    <div class="seg-head">
+      <h2 class="seg-title"><span class="swatch" style="--c:var(--s3)"></span>Aktif Abone Product Retention</h2>
+      <p class="ret-note">Son 90 gün içerisindeki paid user'ların ilk dashboard_view gördüğü gün DAY0 olarak hesaplanmıştır. Toplam: <b>${Number.isFinite(total) && total > 0 ? nf.format(total) : "—"}</b> user</p>
+    </div>
+    <div class="ret-cap">7 ülke ortalaması</div>
+    <div class="ret-hero">${hero}</div>
+    <div class="tbl-wrap inner">
+      <table class="ret-table">
+        <thead><tr><th>Ülke</th>${r.days.map((d) => `<th>D${d}</th>`).join("")}</tr></thead>
+        <tbody>${byCountry.map((c) => `<tr><td>${RET_TR[c.id] || c.id}</td>${r.days.map((d) => `<td>${fmtP(c.values ? c.values[String(d)] : null)}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table>
+    </div>`;
+}
+
+// ---------- render: weekly lessons per user by country ----------
+// Grouped bars like the Amplitude chart: two groups (start / completion), one bar per country, value on top.
+const COUNTRY_COLOR = { "South Korea": "var(--cc1)", "Czech Republic": "var(--cc2)", "United States": "var(--cc3)", "Poland": "var(--cc4)", "Japan": "var(--cc5)" };
+function renderWeekly(w) {
+  const host = document.getElementById("weekly-chart");
+  if (!host) return;
+  const order = Array.isArray(w.order) && w.order.length ? w.order : COUNTRIES;
+  const items = order.map((id) => w.items.find((x) => x && x.id === id)).filter(Boolean);
+  if (!items.length) return;
+  const groups = [{ key: "start", label: "Ders Başlatma" }, { key: "done", label: "Ders Tamamlama" }];
+  const vals = items.flatMap((it) => [Number(it.start), Number(it.done)]).filter(Number.isFinite);
+  const step = niceStep(Math.max(...vals, 0.0001) / 1.3);
+  const yMax = Math.ceil((Math.max(...vals, 0.0001) * 1.12) / step) * step;
+
+  const W = Math.max(320, Math.round(host.clientWidth || 880)), H = 300;
+  const padL = 34, padR = 10, padT = 18, padB = 34;
+  const plotW = W - padL - padR, plotH = H - padT - padB, base = padT + plotH;
+  const groupW = plotW / groups.length, gapOuter = Math.min(groupW * 0.12, 40);
+  const innerW = groupW - 2 * gapOuter, barGap = 6, barW = Math.min((innerW - barGap * (items.length - 1)) / items.length, 72);
+  const used = barW * items.length + barGap * (items.length - 1);
+  const y = (v) => base - ((Number(v) || 0) / yMax) * plotH;
+  const ticks = []; for (let t = 0; t <= yMax + 1e-9; t += step) ticks.push(t);
+  const pf2 = new Intl.NumberFormat("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtV = (v) => pf2.format(v);
+
+  const bars = groups.map((g, gi) => {
+    const x0 = padL + gi * groupW + (groupW - used) / 2;
+    return items.map((it, k) => {
+      const v = Number(it[g.key]); if (!Number.isFinite(v)) return "";
+      const x = x0 + k * (barW + barGap);
+      return `
+        <rect class="hit" data-k="${k}" data-g="${gi}" x="${(x - barGap / 2).toFixed(1)}" y="${padT}" width="${(barW + barGap).toFixed(1)}" height="${plotH}"/>
+        <rect class="bar" x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${barW.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3" style="fill:${COUNTRY_COLOR[it.id] || "var(--s1)"}"/>
+        ${barW >= 22 ? `<text class="val" x="${(x + barW / 2).toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${fmtV(v)}</text>` : ""}`;
+    }).join("") + `<text class="grp" x="${(padL + gi * groupW + groupW / 2).toFixed(1)}" y="${H - 10}" text-anchor="middle">${g.label}</text>`;
+  }).join("");
+
+  host.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ders başlatma ve tamamlama, ülkeye göre, son 4 hafta">
+      ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${fmtV(t)}</text>`).join("")}
+      ${bars}
+    </svg>`;
+  document.getElementById("weekly-legend").innerHTML = items.map((it) => `<span class="lg"><i style="background:${COUNTRY_COLOR[it.id] || "var(--s1)"}"></i>${COUNTRY_TR[it.id] || it.id}</span>`).join("");
+
+  const svg = host.querySelector("svg"), tip = document.getElementById("weekly-tip"), card = host.parentElement;
+  const hide = () => { tip.style.display = "none"; };
+  svg.addEventListener("pointermove", (ev) => {
+    const hit = ev.target.closest("rect.hit, rect.bar");
+    const h = hit && hit.classList.contains("bar") ? hit.previousElementSibling : hit;
+    if (!h || !h.dataset) return hide();
+    const it = items[Number(h.dataset.k)], g = groups[Number(h.dataset.g)];
+    if (!it || !g) return hide();
+    tip.innerHTML = `${COUNTRY_TR[it.id] || it.id} · ${g.label}<br><b>${fmtV(Number(it[g.key]))}</b> / unique user`;
+    const r = h.getBoundingClientRect(), cr = card.getBoundingClientRect();
+    tip.style.left = `${r.left - cr.left + r.width / 2}px`;
+    tip.style.top = `${r.top - cr.top + 8}px`;
+    tip.style.display = "block";
+  });
+  svg.addEventListener("pointerleave", hide);
+}
+
+
+function renderAll() { renderHeader(); renderFunnel(current.funnel); renderDau(current.dau); renderCohorts(current.cohorts); renderLessons(current.lessons); renderRetention(current.retention); renderWeekly(current.weekly); }
+let resizeTimer = null;
+window.addEventListener("resize", () => { if (!current.dau) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { renderDau(current.dau); renderWeekly(current.weekly); }, 150); });
+
+// Decrypted payload = the six documents of the claude.ai artifact's data store, keyed by doc id.
+function load(docs) {
+  const f = docs["ders-baslatma"], d = docs["dau"], c = docs["cohorts"], l = docs["a1-session-time"], r = docs["retention"], w = docs["weekly-lessons"];
+  current.funnel = { ...DATA.funnel, updatedAt: f.updatedAt, segments: DATA.funnel.segments.map((s, i) => ({ ...s, counts: f.counts[i] })) };
+  current.dau = { updatedAt: d.updatedAt, days: d.days, values: d.values, overall: Number(d.overall) || 0 };
+  current.cohorts = { updatedAt: c.updatedAt, items: DATA.cohorts.items.map((it) => ({ ...it, size: Number(c.sizes?.[it.id]?.size) || 0 })) };
+  current.lessons = { updatedAt: l.updatedAt, items: DATA.lessons.items.map((it) => ({ ...it, ...(l.items.find((x) => x && x.id === it.id) || { started: 0, completed: 0, medianMs: 0, avgMs: 0 }) })) };
+  current.retention = { ...DATA.retention, updatedAt: r.updatedAt, total: Number(r.total) || 0, values: r.values || {}, byCountry: Array.isArray(r.byCountry) ? r.byCountry : [] };
+  current.weekly = { updatedAt: w.updatedAt, order: Array.isArray(w.order) && w.order.length ? w.order : DATA.weekly.order, items: Array.isArray(w.items) ? w.items : [] };
+}
+
+// ---------- decryption ----------
+// keys.json: RSA-OAEP public key + its private key sealed with PBKDF2(password) / AES-GCM.
+// data.enc.json: payload sealed with a fresh AES-GCM key, which is wrapped with the RSA public key.
+const b64 = (s) => Uint8Array.from(atob(s), (ch) => ch.charCodeAt(0));
+const getJson = async (path) => {
+  const res = await fetch(`${path}?t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`${path} yüklenemedi (${res.status})`);
+  return res.json();
+};
+async function unlock(password) {
+  const [keys, box] = await Promise.all([getJson("keys.json"), getJson("data.enc.json")]);
+  const s = keys.sealedPrivateKey;
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  const kek = await crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: b64(s.salt), iterations: s.iterations }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  let jwkBytes;
+  try { jwkBytes = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(s.iv) }, kek, b64(s.ct)); }
+  catch (e) { const err = new Error("Şifre yanlış."); err.wrong = true; throw err; }
+  const priv = await crypto.subtle.importKey("jwk", JSON.parse(new TextDecoder().decode(jwkBytes)), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["unwrapKey"]);
+  const dek = await crypto.subtle.unwrapKey("raw", b64(box.wrappedKey), priv, { name: "RSA-OAEP" }, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(box.iv) }, dek, b64(box.ct));
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+// ---------- lock screen ----------
+const STORE_KEY = "lucida-data:pass";
+const store = {
+  get() { try { return localStorage.getItem(STORE_KEY); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem(STORE_KEY, v); } catch (e) { /* private mode */ } },
+  clear() { try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ } }
+};
+const lockEl = document.getElementById("lock"), appEl = document.getElementById("app");
+const form = document.getElementById("lock-form"), passEl = document.getElementById("lock-pass");
+const rememberEl = document.getElementById("lock-remember"), btnEl = document.getElementById("lock-btn"), errEl = document.getElementById("lock-err");
+
+async function open(password, remember) {
+  btnEl.disabled = true; errEl.textContent = ""; btnEl.textContent = "Açılıyor…";
+  try {
+    load(await unlock(password));
+    if (remember) store.set(password);
+    lockEl.hidden = true; appEl.hidden = false;
+    renderAll();
+  } catch (e) {
+    if (e.wrong) store.clear();
+    errEl.textContent = e.wrong ? "Şifre yanlış." : "Veri yüklenemedi: " + (e.message || e);
+    lockEl.hidden = false; appEl.hidden = true;
+  } finally {
+    btnEl.disabled = false; btnEl.textContent = "Aç";
+  }
+}
+form.addEventListener("submit", (ev) => { ev.preventDefault(); open(passEl.value, rememberEl.checked); });
+document.getElementById("lock-out").addEventListener("click", () => {
+  store.clear(); passEl.value = ""; appEl.hidden = true; lockEl.hidden = false; passEl.focus();
+});
+const saved = store.get();
+if (saved) open(saved, true); else passEl.focus();
+</script>
+
+</body></html>

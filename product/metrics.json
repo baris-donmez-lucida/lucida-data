@@ -1,0 +1,1298 @@
+{
+ "v": 2,
+ "tabs": [
+  {
+   "id": "genel",
+   "label": "Genel Bakış"
+  },
+  {
+   "id": "aktif",
+   "label": "Aktif Kullanım"
+  },
+  {
+   "id": "konusma",
+   "label": "Konuşma"
+  },
+  {
+   "id": "dersler",
+   "label": "Dersler"
+  },
+  {
+   "id": "node",
+   "label": "Node Sistemi"
+  },
+  {
+   "id": "yeni",
+   "label": "Yeni Aboneler (İlk 7 Gün)"
+  },
+  {
+   "id": "yerlesik",
+   "label": "Yerleşik Aboneler"
+  },
+  {
+   "id": "retention",
+   "label": "Retention"
+  },
+  {
+   "id": "memnuniyet",
+   "label": "Memnuniyet"
+  },
+  {
+   "id": "degisiklik",
+   "label": "Değişiklikler"
+  },
+  {
+   "id": "tanimlar",
+   "label": "Tanımlar ve Veri Sağlığı"
+  }
+ ],
+ "conventions": {
+  "sliced segmentation": "Sliced sorgularda her base event 4 seri verir: eventIndex = base*4 + slice (0 tümü, 1 platform, 2 ülke, 3 sürüm). segmentIndex = abone tipi: 0 paid (tümü), 1 store (mağaza), 2 web (promotional).",
+  "tiers": "tiers sorgusunda segmentIndex: 0 paid·regular, 1 paid·northstar, 2 store·regular, 3 store·northstar, 4 web·regular, 5 web·northstar.",
+  "ratio": "Oran = num / den aynı gün, aynı kırılım ve aynı abone tipiyle. num/den'de '+' ve '-' sayıların günlük toplamı/farkıdır. Payda < 50 ise oran soluk gösterilir.",
+  "timeline": "Her metrik günlük (ya da haftalık) seri olarak çizilir; 7 günlük hareketli ortalama ve önceki dönem kesik çizgi. Bugün dahil edilmez.",
+  "units": "count = adet, pct = yüzde (tr-TR, %12,3), ratio = ondalık, min = dakika (1 ondalık)",
+  "num/den syntax": "num / den bir metrik id'si ya da '+' / '-' ile birleşimi (ör. 'node_start+chain_start', 'lesson_completed-lesson_completed_first'): aynı gün, aynı kırılım ve aynı abone tipindeki günlük değerlerin toplamı / farkı. 'metrik[değer]' o metriğin tek bir kategori serisidir: 'speech_min[lessontalk]' = speech sorgusunda conversation_type = lessontalk serisi.",
+  "source.num / source.den": "Sayı olduklarında aynı sorgudaki eventIndex'tir (ör. quality: 0 4–5★, 1 1–2★, 2 tüm puanlar, 3 puan ekranı, 4 call_attempt, 5 call_failed).",
+  "series key": "Segmentation serilerini dizi sırasıyla değil (segmentIndex, eventIndex, eventGroupBys[0]) anahtarıyla eşle. Amplitude değeri olmayan kırılımı hiç döndürmeyebilir ve kırılım sırası segmentten segmente değişir; eksik seri = o gün 0, kırılım hiç yoksa 'veri yok'.",
+  "period": "KPI kartındaki dönem değeri her metriğin 'period' alanına göre: sum = günlük toplam; daily_mean = günlük ortalama (tekil kullanıcı sayıları günler arasında toplanmaz); last = dönemin son günü (kayan pencere ve snapshot); ratio_of_sums = Σ pay / Σ payda; mean_of_daily = günlük oranların basit ortalaması (Amplitude yalnızca oran döndürüyor; kartta 'günlük ortalama' yazar); median_of_daily = günlük medyanların medyanı; share_of_sums = kategori toplamı / dönem toplamı; matured_cohorts = yalnızca penceresi dolmuş giriş günleri, Σ adım / Σ giriş; own_selector = kartın kendi seçicisi.",
+  "filters": "Veride kırılımlar tek boyutlu: Platform, Ülke ve Sürüm aynı anda yalnızca biri seçilebilir (biri seçilince diğerleri 'Tümü'ne döner). Abone tipi bunlardan biriyle birleşebilir (segment × slice). Metriğin 'breakdowns' listesinde olmayan filtrede kart 'bu kırılım yok' etiketiyle tümünü gösterir. Funnel tabanlı metriklerde (aband, node_done, dur_*) yalnızca paid + platform / ülke var.",
+  "hidden": "Varsayılan sayfada değil yalnızca Tanımlar bölümünde gösterilen metrikler tabs: ['tanimlar'] taşır.",
+  "real numbers": "Bu dosyalardaki ve SPEC'teki örnek sayılar kodun, testin ya da yorumun içine kopyalanmaz; repo herkese açık. Testler fixtures/ altındaki (commit edilmeyen) dosyalardan ya da uydurma sayılardan beslenir."
+ },
+ "metrics": [
+  {
+   "id": "active",
+   "label": "Aktif abone (call_ok)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "act",
+    "base": 0,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "Günlük tekil call_ok, abone filtresi.",
+   "period": "daily_mean"
+  },
+  {
+   "id": "openers",
+   "label": "App açan abone (session_start)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "act",
+    "base": 1,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "daily_mean"
+  },
+  {
+   "id": "regular",
+   "label": "Regular (günde ≥1 ders)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "tiers",
+    "base": 0,
+    "segments": "tiers:regular"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "daily_mean"
+  },
+  {
+   "id": "northstar",
+   "label": "North Star (günde ≥2 ders)",
+   "tabs": [
+    "genel",
+    "aktif",
+    "tanimlar"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "tiers",
+    "base": 0,
+    "segments": "tiers:northstar"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "Teyit bekleyen tanım; northstar_def'e bakın. Dar alternatif Tanımlar bölümünde (ns_rate_strict).",
+   "period": "daily_mean"
+  },
+  {
+   "id": "wau",
+   "label": "WAU (7 gün kayan)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "wau",
+    "base": 0,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "last"
+  },
+  {
+   "id": "mau",
+   "label": "MAU (28 gün kayan)",
+   "tabs": [
+    "aktif"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "mau",
+    "base": 0,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "last"
+  },
+  {
+   "id": "base",
+   "label": "Aktif abone tabanı",
+   "tabs": [
+    "aktif"
+   ],
+   "kind": "snapshot",
+   "unit": "count",
+   "source": {
+    "cohort": "Lucida · Aktif abone tabanı (rc_subscription_status)",
+    "history": "product-history koleksiyonu, doküman 'base': points [{d, v}]",
+    "how": "Her sabah cohort size okunur. Geçmiş yok; ilk günden itibaren birikir."
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "period": "last"
+  },
+  {
+   "id": "ns_rate",
+   "label": "North Star / Aktif",
+   "tabs": [
+    "genel",
+    "aktif",
+    "tanimlar"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "northstar",
+   "den": "active",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "regular_rate",
+   "label": "Regular / Aktif",
+   "tabs": [
+    "aktif",
+    "genel"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "regular",
+   "den": "active",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "ns_of_regular",
+   "label": "North Star / Regular",
+   "tabs": [
+    "aktif"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "northstar",
+   "den": "regular",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "talk_rate",
+   "label": "Konuşma oranı (konuşan / açan)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "active",
+   "den": "openers",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "activity_rate",
+   "label": "Haftalık aktiflik (WAU / taban)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "wau",
+   "den": "base",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "stickiness",
+   "label": "Stickiness (DAU / WAU)",
+   "tabs": [
+    "genel",
+    "aktif"
+   ],
+   "kind": "ratio",
+   "unit": "ratio",
+   "num": "active",
+   "den": "wau",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "Gösterim: oran ve 'haftada X gün' (= oran × 7).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "dau_mau",
+   "label": "DAU / MAU",
+   "tabs": [
+    "aktif"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "active",
+   "den": "mau",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "node_tap",
+   "label": "Node tıklama (pre_lesson_viewed)",
+   "tabs": [
+    "node",
+    "genel"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_node",
+    "base": 0,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "sum"
+  },
+  {
+   "id": "node_start",
+   "label": "Node'dan başlatma (continue dahil)",
+   "tabs": [
+    "node",
+    "genel"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_node",
+    "base": 1,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "d_start_continue_lesson_bt. pre_lesson_lets_start ile aynı dokunuşta atılır; toplanmaz.",
+   "period": "sum"
+  },
+  {
+   "id": "node_tap_users",
+   "label": "Node tıklayan abone",
+   "tabs": [
+    "node"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_node_u",
+    "base": 0,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "daily_mean"
+  },
+  {
+   "id": "chain_start",
+   "label": "Zincir başlatma (Sıradaki ders)",
+   "tabs": [
+    "node",
+    "dersler",
+    "genel"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_start",
+    "base": 0,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "sum"
+  },
+  {
+   "id": "lesson_start",
+   "label": "Ders başlatma (ders sayfası)",
+   "tabs": [
+    "dersler",
+    "genel",
+    "node"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_start",
+    "base": 1,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "sum"
+  },
+  {
+   "id": "lesson_start_users",
+   "label": "Ders başlatan abone",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_u",
+    "base": 0,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "daily_mean"
+  },
+  {
+   "id": "node_tap_rate",
+   "label": "Node tıklama oranı",
+   "tabs": [
+    "node"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "node_tap_users",
+   "den": "openers",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "node_start_rate",
+   "label": "Node'dan başlama oranı",
+   "tabs": [
+    "genel",
+    "node"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "node_start",
+   "den": "node_tap",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "start_to_page",
+   "label": "Başlatma → ders sayfası",
+   "tabs": [
+    "node"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "lesson_start",
+   "den": "node_start+chain_start",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "chain_share",
+   "label": "Zincir payı",
+   "tabs": [
+    "genel",
+    "node",
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "chain_start",
+   "den": "lesson_start",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "node_done_rate",
+   "label": "Node → tamamlama (1 gün)",
+   "tabs": [
+    "node"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "node_done",
+    "read": "csv 'Entire Funnel' satırı, segment başına"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country"
+   ],
+   "period": "mean_of_daily"
+  },
+  {
+   "id": "lesson_connected",
+   "label": "Bağlanan ders",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_done",
+    "base": 0,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "sum"
+  },
+  {
+   "id": "lesson_completed",
+   "label": "Ders tamamlama",
+   "tabs": [
+    "dersler",
+    "genel",
+    "node"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_done",
+    "base": 1,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "sum"
+  },
+  {
+   "id": "lesson_completed_first",
+   "label": "İlk kez tamamlama",
+   "tabs": [
+    "dersler",
+    "node"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_first",
+    "base": 0,
+    "segments": "sub",
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "sum"
+  },
+  {
+   "id": "lesson_completers",
+   "label": "Ders tamamlayan abone",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_u",
+    "base": 1,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "",
+   "period": "daily_mean"
+  },
+  {
+   "id": "connect_rate",
+   "label": "Bağlanma oranı",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "lesson_connected",
+   "den": "lesson_start",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "completion_rate",
+   "label": "Tamamlama oranı (/ ders sayfası)",
+   "tabs": [
+    "genel",
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "lesson_completed",
+   "den": "lesson_start",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "completion_rate_connected",
+   "label": "Tamamlama oranı (/ bağlanan)",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "lesson_completed",
+   "den": "lesson_connected",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "replay_share",
+   "label": "Tekrar payı",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "lesson_completed-lesson_completed_first",
+   "den": "lesson_completed",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "lessons_per_active",
+   "label": "Aktif başına tamamlanan ders",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "ratio",
+   "num": "lesson_completed",
+   "den": "active",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "abandon_rate",
+   "label": "Yarım bırakma oranı",
+   "tabs": [
+    "genel",
+    "dersler"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "aband",
+    "read": "csv 'Entire Funnel' satırı (0–1), segment başına"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country"
+   ],
+   "note": "Açılan ders (kullanıcı × lesson_id) içinde tamamlanmadan biten payı.",
+   "period": "mean_of_daily"
+  },
+  {
+   "id": "abandon_after_1min",
+   "label": "1. dakikadan sonra bırakma",
+   "tabs": [
+    "dersler",
+    "genel"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "aband_day",
+    "history": "product-history koleksiyonu, doküman 'abandon_after_1min': points [{d, opened, abandoned, over60}]",
+    "value": "over60 / opened"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "note": "Yanında 'ilk dakikada bırakma' = (abandoned − over60) / opened ve yarım bırakılanların içindeki pay = over60 / abandoned.",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "lesson_duration",
+   "label": "Ders süresi (sayfa → tamamlama, medyan)",
+   "tabs": [
+    "dersler",
+    "konusma",
+    "genel"
+   ],
+   "kind": "duration",
+   "unit": "min",
+   "source": {
+    "query": "dur_lesson",
+    "read": "csv segment satırı, günlük değer ms → dk"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country"
+   ],
+   "period": "median_of_daily"
+  },
+  {
+   "id": "screen_duration",
+   "label": "Ders ekranında geçen süre (medyan)",
+   "tabs": [
+    "dersler",
+    "konusma"
+   ],
+   "kind": "duration",
+   "unit": "min",
+   "source": {
+    "query": "dur_screen",
+    "read": "csv segment satırı, ms → dk"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country"
+   ],
+   "period": "median_of_daily"
+  },
+  {
+   "id": "completion_reasons",
+   "label": "Tamamlama nedeni karışımı",
+   "tabs": [
+    "dersler"
+   ],
+   "kind": "mix",
+   "unit": "pct",
+   "source": {
+    "query": "mix",
+    "event": 0
+   },
+   "chart": "stacked100",
+   "timeline": "day",
+   "breakdowns": [],
+   "period": "share_of_sums"
+  },
+  {
+   "id": "entry_type_mix",
+   "label": "Node tipi karışımı (lesson_entry_type)",
+   "tabs": [
+    "node"
+   ],
+   "kind": "mix",
+   "unit": "pct",
+   "source": {
+    "query": "mix",
+    "event": 1
+   },
+   "chart": "stacked100",
+   "timeline": "day",
+   "breakdowns": [],
+   "period": "share_of_sums"
+  },
+  {
+   "id": "lesson_table",
+   "label": "Ders tablosu ve yol ilerleme eğrisi",
+   "tabs": [
+    "dersler",
+    "node"
+   ],
+   "kind": "table",
+   "unit": "count",
+   "source": {
+    "query": "by_lesson"
+   },
+   "chart": "table+ladder",
+   "timeline": "week",
+   "breakdowns": [],
+   "note": "Satır = lesson_id; başlatan, tamamlayan (tekil), tamamlama %. Global tarih aralığı bu kartta uygulanmaz (tekil sayılar haftalar arasında toplanmaz): kartın kendi seçicisi var — 'Son tam hafta' (timeSeries'in son tam haftası) / 'Son 90 gün' (overallSeries). Merdiven = seviye içinde 1…N. dersi tamamlayan tekil; timeline haftalık snapshot'lar.",
+   "period": "own_selector"
+  },
+  {
+   "id": "speech_min",
+   "label": "Toplam konuşma dakikası",
+   "tabs": [
+    "genel",
+    "konusma"
+   ],
+   "kind": "count",
+   "unit": "min",
+   "source": {
+    "query": "speech",
+    "read": "eventIndex 0, conversation_type serilerinin toplamı; sn / 60"
+   },
+   "chart": "stacked",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType",
+    "conversation_type"
+   ],
+   "period": "sum"
+  },
+  {
+   "id": "min_per_active",
+   "label": "Aktif abone başına dakika",
+   "tabs": [
+    "genel",
+    "konusma"
+   ],
+   "kind": "ratio",
+   "unit": "min",
+   "num": "speech_min",
+   "den": "active",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "lesson_min_share",
+   "label": "Ders dakikası payı",
+   "tabs": [
+    "konusma"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "speech_min[lessontalk]",
+   "den": "speech_min",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "speech_zero_rate",
+   "label": "speech_duration = 0 oranı (veri sağlığı)",
+   "tabs": [
+    "tanimlar",
+    "konusma"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "speech_health",
+    "num": 1,
+    "den": 0
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "alert": "> 0.05",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "retention",
+   "label": "Abone retention (call_ok → call_ok)",
+   "tabs": [
+    "retention"
+   ],
+   "kind": "cohort",
+   "unit": "pct",
+   "source": {
+    "query": "ret",
+    "read": "csv: segment başına başlangıç günü satırları; D1, D7, D14, D30"
+   },
+   "chart": "curve+timeline",
+   "timeline": "day",
+   "breakdowns": [
+    "platform"
+   ],
+   "note": "Timeline: kohort gününe göre D1 ve D7. Dolmamış hücreler (kohort günü + N > dün) boş. Overall satırları kullanılmaz; eğri dolmuş hücrelerin Σ retained / Σ users'ıdır.",
+   "period": "matured_cohorts"
+  },
+  {
+   "id": "ratings",
+   "label": "Puan sayısı",
+   "tabs": [
+    "memnuniyet",
+    "genel"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "quality",
+    "event": 2,
+    "agg": "totals"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "note": "Gönderilen puan sayısı (call_feedback_submitted, tüm puanlar). quality sorgusu yalnızca paid segmentli; kırılım yok.",
+   "period": "sum"
+  },
+  {
+   "id": "rating_high_rate",
+   "label": "4–5★ oranı",
+   "tabs": [
+    "genel",
+    "memnuniyet"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "quality",
+    "num": 0,
+    "den": 2
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "note": "source.num / source.den = quality sorgusundaki eventIndex. Kırılım yok (yalnızca paid).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "rating_low_rate",
+   "label": "1–2★ oranı",
+   "tabs": [
+    "genel",
+    "memnuniyet"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "quality",
+    "num": 1,
+    "den": 2
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "note": "source.num / source.den = quality sorgusundaki eventIndex. Kırılım yok (yalnızca paid).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "rating_response_rate",
+   "label": "Puan yanıt oranı",
+   "tabs": [
+    "memnuniyet"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "quality",
+    "num": 2,
+    "den": 3
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "note": "source.num / source.den = quality sorgusundaki eventIndex. Kırılım yok (yalnızca paid).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "tech_fail_rate",
+   "label": "Teknik hata (call_failed / call_attempt)",
+   "tabs": [
+    "memnuniyet",
+    "tanimlar"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "source": {
+    "query": "quality",
+    "num": 5,
+    "den": 4
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [],
+   "note": "source.num / source.den = quality sorgusundaki eventIndex. Kırılım yok (yalnızca paid).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "new_activation",
+   "label": "Yeni abone aktivasyon merdiveni (7 gün)",
+   "tabs": [
+    "yeni"
+   ],
+   "kind": "cohort",
+   "unit": "pct",
+   "source": {
+    "queries": [
+     "new_act_sub",
+     "new_act_web"
+    ],
+    "read": "csv: segment (all / iOS / Android / 10 ülke) × giriş günü satırları. Mağaza (new_act_sub): abonelik → konuştu (call_ok) → ders başlattı → ders tamamladı. Web (new_act_web): abonelik → app açtı (session_start) → konuştu → ders başlattı → ders tamamladı."
+   },
+   "chart": "ladder+timeline",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "subType"
+   ],
+   "note": "Timeline: giriş gününe göre her adımın oranı; 'Is complete' false olan (son 7 gün) kohortlar soluk ve ortalamaya girmez. 'İkisi birden' seçilince ortak adımlar (giriş, konuştu, ders başlattı, ders tamamladı) gün ve segment bazında toplanır; web'in 'app açtı' adımı yalnızca Web seçiliyken gösterilir. Web kohortları 28 Eylül 2026'dan önce yok (web_promo o gün başladı); web serisi 28 Eylül'den itibaren çizilir. Mağaza merdiveni alt sınırdır: ilk mağaza aboneliklerinin yaklaşık beşte biri app kimliğiyle birleşmemiş görünüyor (bkz. veri sözleşmesi); kartta bu not görünür.",
+   "period": "matured_cohorts"
+  },
+  {
+   "id": "new_a1_ladder",
+   "label": "A1 ilk 15 ders merdiveni (7 gün)",
+   "tabs": [
+    "yeni",
+    "node"
+   ],
+   "kind": "cohort",
+   "unit": "pct",
+   "source": {
+    "queries": [
+     "new_a1_sub",
+     "new_a1_web"
+    ]
+   },
+   "chart": "ladder+timeline",
+   "timeline": "week",
+   "breakdowns": [
+    "platform",
+    "country",
+    "subType"
+   ],
+   "note": "İki payda gösterilir: yeni abone (girişe göre) ve a1_1'i tamamlayan (seviye karışımı etkisini kaldırır). 'İkisi birden': mağaza ve web adımları aynı olduğu için sayılar gün × segment × adım bazında toplanır.",
+   "period": "matured_cohorts"
+  },
+  {
+   "id": "new_nodes_3_5_7",
+   "label": "İlk 3 / 5 / 7 günde tamamlanan node dağılımı",
+   "tabs": [
+    "yeni"
+   ],
+   "kind": "cohort",
+   "unit": "pct",
+   "source": {
+    "queries": [
+     "new_done3_sub",
+     "new_done5_sub",
+     "new_done7_sub",
+     "new_done3_web",
+     "new_done5_web",
+     "new_done7_web"
+    ],
+    "read": "adım k = en az k ders tamamlayan; kovalar 0, 1, 2, 3–4, 5–9, 10+ adım farklarından"
+   },
+   "chart": "stacked+timeline",
+   "timeline": "week",
+   "breakdowns": [
+    "platform",
+    "country",
+    "subType"
+   ],
+   "note": "'İkisi birden': mağaza ve web adımları aynı olduğu için sayılar gün × segment × adım bazında toplanır.",
+   "period": "matured_cohorts"
+  },
+  {
+   "id": "new_node_start7",
+   "label": "İlk 7 günde node başlatan yeni abone",
+   "tabs": [
+    "yeni"
+   ],
+   "kind": "cohort",
+   "unit": "pct",
+   "source": {
+    "queries": [
+     "new_start7_sub",
+     "new_start7_web"
+    ]
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "subType"
+   ],
+   "note": "'İkisi birden': mağaza ve web adımları aynı olduğu için sayılar gün × segment × adım bazında toplanır.",
+   "period": "matured_cohorts"
+  },
+  {
+   "id": "northstar_strict",
+   "label": "North Star — dar tanım (günde ≥2 node 'Başla')",
+   "tabs": [
+    "tanimlar"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "tiers_strict",
+    "base": 0,
+    "segments": "tiers:northstar"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "Karşılaştırma için; varsayılan North Star değil.",
+   "period": "daily_mean"
+  },
+  {
+   "id": "ns_rate_strict",
+   "label": "North Star (dar) / Aktif",
+   "tabs": [
+    "tanimlar"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "northstar_strict",
+   "den": "active",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "Tanımlar bölümünde ns_rate ile aynı grafikte çizilir; iki North Star tanımının farkını gösterir.",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "rating_dist",
+   "label": "Puan dağılımı (1–5★)",
+   "tabs": [
+    "memnuniyet"
+   ],
+   "kind": "mix",
+   "unit": "pct",
+   "source": {
+    "query": "rating_dist",
+    "event": 0
+   },
+   "chart": "stacked100",
+   "timeline": "week",
+   "breakdowns": [],
+   "note": "Günlük event_totals haftalık toplanır; kategori = eventGroupBys[0] ('1'…'5').",
+   "period": "share_of_sums"
+  },
+  {
+   "id": "version_mix",
+   "label": "Sürüm yayılımı (aktif abonelerin sürüm payı)",
+   "tabs": [
+    "degisiklik"
+   ],
+   "kind": "mix",
+   "unit": "pct",
+   "source": {
+    "query": "act",
+    "base": 0,
+    "slice": 3,
+    "segments": "sub"
+   },
+   "chart": "stacked100",
+   "timeline": "day",
+   "breakdowns": [
+    "subType"
+   ],
+   "note": "act sorgusunun sürüm slice'ı (tekil call_ok). Pay = sürüm değeri / o günün slice toplamı (listede olmayan sürümler payda dışında).",
+   "period": "share_of_sums"
+  }
+ ],
+ "northstar_def": {
+  "default": "tiers",
+  "options": {
+   "tiers": "Günde ≥ 2 ders sayfası açan abone (anm_conv_page_viewed, conv_type = lessonTalk). 'Sıradaki ders' zincirini de sayar.",
+   "tiers_strict": "Günde ≥ 2 kez node'dan 'Başla' diyen abone (pre_lesson_lets_start). Zinciri saymaz."
+  },
+  "about": "regular ve northstar metriklerinin source.query alanı 'tiers' yazar; build script bunu northstar_def.default ile değiştirir. Tanım teyit edilince yalnızca default değişir. tiers_strict her gün yine de ayrıştırılır ve Tanımlar bölümünde karşılaştırma için gösterilir (ns_rate_strict)."
+ }
+}
