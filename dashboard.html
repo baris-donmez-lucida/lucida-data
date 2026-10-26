@@ -251,11 +251,37 @@
   .pd-head h1 { margin: 0; }
   .pd-head small { font-size: 13px; color: var(--muted); }
   .subtabs { display: flex; gap: 18px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
-  .subtabs span { font-size: 14px; font-weight: 600; padding: 0 0 9px; border-bottom: 2px solid var(--ink); margin-bottom: -1px; }
+  .subtabs button { font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 0 0 9px; margin-bottom: -1px; cursor: pointer; }
+  .subtabs button:hover { color: var(--ink-2); }
+  .subtabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+  .card-note { font-size: 12px; color: var(--muted); margin: 0; }
+  .card-note b { color: var(--ink-2); font-weight: 600; }
+  .marker { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+  .marker-t { font-size: 10px; fill: var(--muted); }
 
-  .cards { display: grid; grid-template-columns: 1fr; gap: 14px; }
-  @media (min-width: 760px) { .cards { grid-template-columns: 1fr 1fr; } .card.wide { grid-column: 1 / -1; } }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 6px; display: grid; gap: 6px; min-width: 0; position: relative; align-content: start; }
+  /* Lesson steps and version table (plain HTML bars) */
+  .steps { display: grid; gap: 7px; padding: 6px 0 10px; }
+  .step { display: grid; grid-template-columns: 74px 1fr 92px; gap: 8px; align-items: center; font-size: 12px; color: var(--ink-2); }
+  .step-bar { height: 16px; border-radius: 4px; background: var(--track); overflow: hidden; }
+  .step-bar i { display: block; height: 100%; background: var(--s1); border-radius: 4px; }
+  .step-bar i.hi { background: var(--s3); }
+  .step b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .step small { color: var(--muted); }
+  .vtable { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; margin: 4px 0 10px; }
+  .vtable th { text-align: right; font-size: 12px; font-weight: 500; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .vtable td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--border); color: var(--ink-2); }
+  .vtable th:first-child, .vtable td:first-child { text-align: left; }
+  .vtable td.bar { width: 34%; }
+  .vtable td.bar span { display: block; height: 10px; border-radius: 3px; background: var(--s1); }
+  .vtable tr.old td { color: var(--muted); }
+  .vtable tr.old td.bar span { background: var(--track); }
+  .vwrap { overflow-x: auto; contain: inline-size; }
+  .card > * { min-width: 0; }
+  @media (max-width: 600px) { .vtable .opt { display: none; } .vtable th, .vtable td { padding: 6px 5px; } }
+
+  .cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  @media (min-width: 760px) { .cards { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .card.wide { grid-column: 1 / -1; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 6px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; position: relative; align-content: start; }
   .card-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 10px; }
   .card-top h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink-2); }
   .ctls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -314,10 +340,22 @@
 
   <main>
     <div class="pd-head"><h1>Product Dashboard</h1><small>Aboneler</small></div>
-    <div class="subtabs" role="tablist"><span role="tab" aria-selected="true">Overview</span></div>
-    <div class="cards" id="cards"></div>
+    <div class="subtabs" role="tablist"><button type="button" role="tab" data-tab="overview">Overview</button><button type="button" role="tab" data-tab="lessons">Dersler</button></div>
+    <div class="cards" id="cards-overview" data-pane="overview"></div>
+    <div class="cards" id="cards-lessons" data-pane="lessons" hidden></div>
 
-    <details class="defs">
+    <details class="defs" data-pane="lessons" hidden>
+      <summary>Tanımlar</summary>
+      <ul>
+        <li><b>Yeni abone</b>: hayatında ilk kez node başlatan (<code>anm_conv_page_viewed</code>, 1. kez) ve o anda abone olan kullanıcı; başlangıç versiyonu 2.8 veya üstü. Abone tanımı Overview ile aynı. Kohort = ilk node günü (UTC).</li>
+        <li><b>İlk hafta 5 ders</b>: ilk node'dan sonraki 7 gün içinde 5 kez <code>anm_c_lesson_completed</code> atan yeni abonelerin oranı. Bir kohortun penceresi kapanmadan (ilk node'dan 8 gün geçmeden) oran gösterilmez; sayfadaki son kohort günü bu yüzden dünden 8 gün öncedir.</li>
+        <li><b>Ders adımları</b>: aynı kohortların 7 gün içinde 1., 2., … 5. dersi tamamlama oranı.</li>
+        <li><b>5. derse kadar geçen süre</b>: ilk node'dan hayattaki 5. <code>anm_c_lesson_completed</code>'a kadar geçen süre, yalnız 7 gün içinde 5. derse ulaşanlar. Dağılım son 28 tamamlanmış kohort gününden; trend kartı seçili aralığın ortalamasını gösterir.</li>
+        <li><b>2.8.8 değişikliği</b>: 2.8.8'den beri biten görüşmelerin ~%90'ı <code>anm_c_lesson_completed</code> atıyor, öncesinde ~%63 (biten görüşme = <code>post_call_report_shown</code>, node başına oranı versiyonlar arasında sabit ~%60). Eylül sonundaki sıçrama büyük ölçüde bu değişiklikten; versiyonları 2.8.8 ve sonrası kendi içinde karşılaştırın.</li>
+        <li>Kırılımlar ilk node anındaki platform / ülke ve başlangıç versiyonu (<code>start_version</code>). Her kartın aralığı ve kırılımı yalnız o kartı etkiler.</li>
+      </ul>
+    </details>
+    <details class="defs" data-pane="overview">
       <summary>Tanımlar</summary>
       <ul>
         <li><b>Abone</b>: event anındaki RevenueCat durumu active, promotional, cancelled, grace_period veya intro. Sayfadaki her rakam yalnız aboneler.</li>
@@ -415,9 +453,10 @@ function lineChart(host, card, lines, days, opts = {}) {
     const left = i === 0 ? padL : (x(i - 1) + x(i)) / 2, right = i === n - 1 ? W - padR : (x(i) + x(i + 1)) / 2;
     return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
   }).join("");
+  const marks = (opts.markers || []).map((m) => `<line class="marker" x1="${x(m.i).toFixed(1)}" x2="${x(m.i).toFixed(1)}" y1="${padT}" y2="${H - padB}"/><text class="marker-t" x="${(x(m.i) + 4).toFixed(1)}" y="${padT + 9}">${esc(m.label)}</text>`).join("");
   host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "")}">
     ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${nf.format(t)}</text>`).join("")}
-    ${paths}${xl}
+    ${marks}${paths}${xl}
     <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}"/>
     ${lines.map((l, k) => `<circle class="hover-dot" data-k="${k}" r="4" cx="0" cy="0" style="fill:${l.color}"/>`).join("")}
     ${hits}</svg>`;
@@ -432,28 +471,30 @@ function lineChart(host, card, lines, days, opts = {}) {
   svg.addEventListener("pointermove", (ev) => { const t = ev.target.closest("rect.hit"); if (t) show(Number(t.dataset.i)); else hide(); });
   svg.addEventListener("pointerleave", hide);
 }
-function barChart(host, card, pts, color, f) {
+// pts: [{ d: YYYY-MM-DD | lab: category label, v, tip? }]
+function barChart(host, card, pts, color, f, aria = "Mağaza abonelikleri") {
   const tipEl = card.querySelector(".tip");
   if (!pts.length) { host.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
-  const n = pts.length, vals = pts.map((p) => p.v);
+  const n = pts.length, vals = pts.map((p) => p.v), cat = pts[0].lab != null;
   const W = Math.max(300, Math.round(host.clientWidth || 440)), H = 210, padL = 6, padR = 6, padT = 22, padB = 26;
   const maxV = Math.max(...vals) * 1.15 || 1;
   const y = (v) => padT + (1 - v / maxV) * (H - padT - padB);
   const slot = (W - padL - padR) / n, bw = Math.min(40, slot * 0.62), base = H - padB;
   const xs = vals.map((_, i) => padL + slot * (i + 0.5));
-  const every = Math.max(1, Math.ceil(n / Math.floor(W / 64)));
-  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mağaza abonelikleri">
+  const every = cat ? 1 : Math.max(1, Math.ceil(n / Math.floor(W / 64)));
+  const lab = (p) => (cat ? esc(slot < 46 && p.short ? p.short : p.lab) : fmtDayShort(p.d));
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(aria)}">
     <line class="baseline" x1="${padL}" x2="${W - padR}" y1="${base}" y2="${base}"/>
-    ${vals.map((v, i) => `<rect class="bar${i === n - 1 ? " last" : ""}" style="--c:${color}" x="${(xs[i] - bw / 2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3"/>
+    ${vals.map((v, i) => `<rect class="bar${cat || i === n - 1 ? " last" : ""}" style="--c:${color}" x="${(xs[i] - bw / 2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${bw.toFixed(1)}" height="${(base - y(v)).toFixed(1)}" rx="3"/>
       ${slot > 34 || i === n - 1 ? `<text class="val" x="${xs[i].toFixed(1)}" y="${(y(v) - 6).toFixed(1)}" text-anchor="middle">${f(v)}</text>` : ""}
-      ${(n - 1 - i) % every === 0 ? `<text x="${xs[i].toFixed(1)}" y="${H - 7}" text-anchor="middle">${fmtDayShort(pts[i].d)}</text>` : ""}`).join("")}
+      ${(n - 1 - i) % every === 0 ? `<text x="${xs[i].toFixed(1)}" y="${H - 7}" text-anchor="middle">${lab(pts[i])}</text>` : ""}`).join("")}
     ${xs.map((px, i) => `<rect class="hit" data-i="${i}" x="${(px - slot / 2).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${(base - padT).toFixed(1)}"/>`).join("")}
   </svg>`;
   const svg = host.querySelector("svg");
   svg.addEventListener("pointermove", (ev) => {
     const t = ev.target.closest("rect.hit"); if (!t) { tipEl.style.display = "none"; return; }
     const i = Number(t.dataset.i);
-    placeTip(tipEl, card, svg, W, H, xs[i], y(pts[i].v), `${fmtDayLong(pts[i].d)}<br><b>${f(pts[i].v)}</b>${pts[i].tip ? "<br>" + pts[i].tip : ""}`);
+    placeTip(tipEl, card, svg, W, H, xs[i], y(pts[i].v), `${cat ? esc(pts[i].lab) : fmtDayLong(pts[i].d)}<br><b>${f(pts[i].v)}</b>${pts[i].tip ? "<br>" + pts[i].tip : ""}`);
   });
   svg.addEventListener("pointerleave", () => { tipEl.style.display = "none"; });
 }
@@ -509,46 +550,147 @@ const CARDS = [
     } },
 ];
 
+// ---------- Dersler (lessons): one cohort per first-node day; only cohorts whose 7-day window has closed ----------
+// les: { complete:[bool/day], seg|ver: { key: { n:[entered], s:[[1. ders]…[5. ders]] } }, versions, t5: { key: { n, avg, med, k } },
+//        hist: { from, to, all|p:iOS|p:Android: { bins:[168 hourly counts], n, k, med, avg } } }
+const zeros = () => new Array(D.data.days.length).fill(0);
+function lesSeries(slice) {
+  const L = D.data.les;
+  if (slice === "core5") {
+    const out = { n: zeros(), s: [0, 1, 2, 3, 4].map(zeros) };
+    for (const c of CORE5) {
+      const x = L.seg["c:" + c]; if (!x) continue;
+      x.n.forEach((v, i) => { out.n[i] += v; });
+      x.s.forEach((a, k) => a.forEach((v, i) => { out.s[k][i] += v; }));
+    }
+    return out;
+  }
+  return (slice.startsWith("v:") ? L.ver[slice.slice(2)] : L.seg[slice]) || { n: zeros(), s: [0, 1, 2, 3, 4].map(zeros) };
+}
+const MIN_N = 20; // fewer entrants than this → no point on the chart
+const rate = (num, den, i0, i1) => { const d = sumR(den, i0, i1); return d >= MIN_N ? sumR(num, i0, i1) / d : null; };
+const rolling = (num, den) => num.map((_, i) => (i < 6 ? null : rate(num, den, i - 6, i)));
+const ppHtml = (cur, prev, label) => {
+  if (cur == null || prev == null) return "";
+  const d = cur - prev, cls = Math.abs(d) < 0.0005 ? "" : d > 0 ? "up" : "down";
+  return `<span><span class="delta ${cls}">${d > 0 ? "▲" : d < 0 ? "▼" : ""} ${nf1.format(Math.abs(d) * 100)} puan</span> ${label}</span>`;
+};
+const fmtDur = (s) => (s < 3600 ? nf.format(Math.round(s / 60)) + " dk" : s < 172800 ? nf1.format(s / 3600) + " sa" : nf1.format(s / 86400) + " gün");
+const cmpVer = (a, b) => { const x = a.split(".").map(Number), y = b.split(".").map(Number); for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); return 0; };
+// 2.8.8 changed how often a finished call counts as a completed lesson (see Tanımlar).
+const LES_MARKERS = [{ d: "2026-09-27", label: "2.8.8" }];
+const markersIn = (w) => LES_MARKERS.map((m) => ({ i: w.days.indexOf(m.d), label: m.label })).filter((m) => m.i > 0);
+const pctLine = (a) => a.map((v) => (v == null ? null : v * 100));
+const fPct = (v) => "%" + nf1.format(v);
+
+const LES_CARDS = [
+  { id: "l5", title: "İlk hafta 5 ders: yeni aboneler", wide: true, slices: "les", render: (c, s, w) => {
+      const x = lesSeries(s.slice), n = x.n, k5 = x.s[4], i1 = w.i1;
+      const cur = rate(k5, n, i1 - 6, i1), prev = rate(k5, n, i1 - 13, i1 - 7), rng = rate(k5, n, w.i0, i1);
+      c.body.innerHTML = kpi(cur == null ? "—" : F.pct(cur), [sub("son 7 kohort günü"), ppHtml(cur, prev, "önceki 7 güne göre"),
+        sub(`<b>${F.count(sumR(k5, i1 - 6, i1))}</b> / ${F.count(sumR(n, i1 - 6, i1))} yeni abone`), sub(`aralıkta ${rng == null ? "—" : F.pct(rng)}`)])
+        + `<div class="legend"><span><i style="--c:${C1}"></i>7 günlük</span><span><i style="--c:var(--muted)"></i>Günlük kohort</span></div>`
+        + `<p class="card-note">Son kohort ${fmtDayShort(w.days.at(-1))}: sonraki günlerin 7 günlük penceresi henüz kapanmadı. Kesikli çizgi: 2.8.8 (ders tamamlama sayımı değişti).</p>`;
+      const daily = n.map((v, i) => (v >= MIN_N ? k5[i] / v : null));
+      lineChart(c.chart, c.el, [{ name: "Günlük", color: "var(--muted)", vals: pctLine(w.cut(daily)), f: fPct }, { name: "7 günlük", color: C1, vals: pctLine(w.cut(rolling(k5, n))), f: fPct }], w.days,
+        { aria: "İlk hafta 5 ders oranı", markers: markersIn(w), extra: (i) => `<br>${F.count(w.cut(k5)[i])} / ${F.count(w.cut(n)[i])} yeni abone` });
+    } },
+  { id: "lsteps", title: "Ders adımları (ilk 7 gün)", slices: "les", render: (c, s, w) => {
+      const x = lesSeries(s.slice), N = sumR(x.n, w.i0, w.i1), S = x.s.map((a) => sumR(a, w.i0, w.i1));
+      if (N < MIN_N) { c.body.innerHTML = ""; c.chart.innerHTML = `<div class="chart-empty">Bu kırılımda yeterli veri yok.</div>`; return; }
+      const prevs = [N, ...S.slice(0, 4)], drops = S.map((v, k) => 1 - v / prevs[k]), worst = drops.indexOf(Math.max(...drops));
+      c.body.innerHTML = kpi(F.pct(S[4] / N), [sub("5. derse ulaşan"), sub(`en büyük kayıp <b>${worst === 0 ? "ilk node → 1. ders" : `${worst}. → ${worst + 1}. ders`}</b> (%${nf.format(Math.round(drops[worst] * 100))} bırakıyor)`), sub(`${F.count(N)} yeni abone`)]);
+      const row = (label, v, hi) => `<div class="step"><span>${label}</span><div class="step-bar"><i class="${hi ? "hi" : ""}" style="width:${(100 * v / N).toFixed(1)}%"></i></div><span><b>${F.pct(v / N)}</b> <small>${F.count(v)}</small></span></div>`;
+      c.chart.innerHTML = `<div class="steps">${row("İlk node", N)}${S.map((v, k) => row(`${k + 1}. ders`, v, k === 4)).join("")}</div>`;
+    } },
+  { id: "ldist", title: "5. derse kadar geçen süre", fixed: true, slices: "plat", render: (c, s) => {
+      const H = D.data.les.hist, h = H[s.slice] || H.all, b = h.bins, tot = b.reduce((a, v) => a + v, 0) || 1;
+      const cum = (hrs) => Math.round((100 * b.slice(0, hrs).reduce((a, v) => a + v, 0)) / tot);
+      c.body.innerHTML = kpi(fmtDur(h.med), [sub("medyan"), sub(`<b>%${cum(1)}</b> ilk saatte · <b>%${cum(24)}</b> ilk gün · <b>%${cum(72)}</b> 3 günde`)])
+        + `<p class="card-note">${fmtDayShort(H.from)} – ${fmtDayShort(H.to)} kohortları; 7 günde 5. derse ulaşan <b>${F.count(h.k)}</b> / ${F.count(h.n)} yeni abone.</p>`;
+      const B = [[0, 1, "<1 sa", "<1s"], [1, 6, "1–6 sa", "1–6s"], [6, 24, "6–24 sa", "6–24s"], [24, 48, "1–2 g", "1–2g"], [48, 72, "2–3 g", "2–3g"], [72, 96, "3–4 g", "3–4g"], [96, 120, "4–5 g", "4–5g"], [120, 144, "5–6 g", "5–6g"], [144, 168, "6–7 g", "6–7g"]];
+      barChart(c.chart, c.el, B.map(([a, z, lab, short]) => { const k = b.slice(a, z).reduce((p, q) => p + q, 0); return { lab, short, v: k / tot, tip: `${F.count(k)} kişi` }; }), C1, (v) => "%" + nf.format(Math.round(v * 100)), "5. derse kadar geçen süre dağılımı");
+    } },
+  { id: "ltime", title: "5. derse kadar süre: trend", wide: true, slices: "lesTime", render: (c, s, w) => {
+      const t = D.data.les.t5[s.slice] || D.data.les.t5.all, i1 = w.i1, secs = t.avg.map((a, i) => a * t.k[i]);
+      const mean = (i0, i1) => { const k = sumR(t.k, i0, i1); return k >= 5 ? sumR(secs, i0, i1) / k : null; };
+      const cur = mean(i1 - 6, i1), prev = mean(i1 - 13, i1 - 7), rng = mean(w.i0, i1);
+      c.body.innerHTML = kpi(cur == null ? "—" : fmtDur(cur), [sub("ortalama, son 7 kohort günü"), deltaHtml(cur, prev, "önceki 7 güne göre"), sub(`aralıkta ${rng == null ? "—" : fmtDur(rng)}`)]);
+      const roll = t.k.map((_, i) => (i < 6 || sumR(t.k, i - 6, i) < 10 ? null : mean(i - 6, i) / 3600));
+      lineChart(c.chart, c.el, [{ name: "7 günlük ortalama", color: C1, vals: w.cut(roll), f: (v) => nf1.format(v) + " sa" }], w.days,
+        { aria: "5. derse kadar ortalama süre", markers: markersIn(w), extra: (i) => `<br>${F.count(w.cut(t.k)[i])} kişi o gün 5. derse ulaştı` });
+    } },
+  { id: "lver", title: "Başlangıç versiyonuna göre", wide: true, fixed: true, slices: null, render: (c) => {
+      const L = D.data.les, days = D.data.days, i1 = L.complete.lastIndexOf(true);
+      const rows = L.versions.map((v) => {
+        const x = L.ver[v], N = sumR(x.n, 0, i1), act = x.n.map((q, i) => (i <= i1 && q >= 5 ? i : -1)).filter((i) => i >= 0);
+        return { v, N, s1: sumR(x.s[0], 0, i1) / N, s5: sumR(x.s[4], 0, i1) / N, from: days[act[0] ?? 0], to: days[act.at(-1) ?? i1] };
+      });
+      const max = Math.max(...rows.map((r) => r.s5)) || 1;
+      c.body.innerHTML = `<p class="card-note">Kapanmış kohortlar (${fmtDayShort(days[0])} – ${fmtDayShort(days[i1])}). Gri satırlar 2.8.8 öncesi: orada biten görüşmelerin daha azı ders tamamlandı sayılıyordu, oranları yenilerle doğrudan karşılaştırmayın.</p>`;
+      c.chart.innerHTML = `<div class="vwrap"><table class="vtable"><thead><tr><th>Versiyon</th><th class="opt">Dönem</th><th>Yeni abone</th><th>1. ders</th><th>İlk hafta 5 ders</th><th class="opt"></th></tr></thead><tbody>${rows.map((r) => `
+        <tr class="${cmpVer(r.v, "2.8.8") < 0 ? "old" : ""}"><td>${esc(r.v)}</td><td class="opt">${fmtDayShort(r.from)} – ${fmtDayShort(r.to)}</td><td>${F.count(r.N)}</td><td>${F.pct(r.s1)}</td><td><b>${F.pct(r.s5)}</b></td><td class="bar opt"><span style="width:${(100 * r.s5 / max).toFixed(1)}%"></span></td></tr>`).join("")}</tbody></table></div>`;
+    } },
+].map((cd) => ({ ...cd, tab: "lessons", lesson: true }));
+
+// ---------- card shell: own range + breakdown per card ----------
 const RANGES = [["7", "7G"], ["14", "14G"], ["30", "30G"], ["90", "90G"]];
+const LES_RANGES = [["7", "7G"], ["30", "30G"], ["60", "60G"], ["90", "90G"]];
+const ALL_CARDS = () => [...CARDS.map((cd) => ({ ...cd, tab: "overview" })), ...(D.data.les ? LES_CARDS : [])];
+let cards = [];
 const cardState = {};
 const STATE_KEY = "lucida-data:pd2";
 function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify(cardState)); } catch (e) { /* ignore */ } }
+const sliceKind = (card) => (card.rcOnly ? "plat" : card.slices === undefined ? "full" : card.slices);
 
 function sliceOptions(card) {
   const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
-  if (card.rcOnly) return opt("all", "Tüm platformlar") + opt("p:iOS", "iOS") + opt("p:Android", "Android");
-  return opt("all", "Tüm platform / ülke / versiyon")
+  const kind = sliceKind(card);
+  if (kind === "plat") return opt("all", "Tüm platformlar") + opt("p:iOS", "iOS") + opt("p:Android", "Android");
+  const vers = kind === "full" ? D.data.versions : kind === "les" ? D.data.les.versions : [];
+  return opt("all", kind === "full" ? "Tüm platform / ülke / versiyon" : vers.length ? "Tüm platform / ülke / versiyon" : "Tüm platform / ülke")
     + `<optgroup label="Platform">${opt("p:iOS", "iOS")}${opt("p:Android", "Android")}</optgroup>`
     + `<optgroup label="Ülke">${opt("core5", "5 ana pazar")}${D.data.countries.map((c) => opt("c:" + c, TR_COUNTRY[c] || c)).join("")}</optgroup>`
-    + `<optgroup label="Versiyon">${D.data.versions.map((v) => opt("v:" + v, v)).join("")}</optgroup>`;
+    + (vers.length ? `<optgroup label="${kind === "les" ? "Başlangıç versiyonu" : "Versiyon"}">${vers.map((v) => opt("v:" + v, v)).join("")}</optgroup>` : "");
 }
 function validSlice(card, v) {
+  const kind = sliceKind(card);
+  if (kind === null) return v === "all";
   if (v === "all" || v === "p:iOS" || v === "p:Android") return true;
-  if (card.rcOnly) return false;
-  return v === "core5" || (v.startsWith("c:") && D.data.countries.includes(v.slice(2))) || (v.startsWith("v:") && D.data.versions.includes(v.slice(2)));
+  if (kind === "plat") return false;
+  if (v === "core5" || (v.startsWith("c:") && D.data.countries.includes(v.slice(2)))) return true;
+  const vers = kind === "full" ? D.data.versions : kind === "les" ? D.data.les.versions : [];
+  return v.startsWith("v:") && vers.includes(v.slice(2));
 }
 
 function buildCards() {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(STATE_KEY) || "{}") || {}; } catch (e) { saved = {}; }
-  document.getElementById("cards").innerHTML = CARDS.map((cd) => `
+  cards = ALL_CARDS();
+  for (const tab of ["overview", "lessons"]) {
+    const list = cards.filter((cd) => cd.tab === tab);
+    document.getElementById("cards-" + tab).innerHTML = list.length ? list.map((cd) => {
+      const ranges = cd.lesson ? LES_RANGES : RANGES;
+      return `
     <article class="card${cd.wide ? " wide" : ""}" id="card-${cd.id}">
       <div class="card-top">
         <h2>${esc(cd.title)}</h2>
         <div class="ctls">
           ${cd.toggle ? `<div class="seg-ctl" data-role="metric">${cd.toggle.map(([v, t]) => `<button type="button" data-v="${v}">${t}</button>`).join("")}</div>` : ""}
-          <div class="seg-ctl" data-role="range">${RANGES.map(([v, t]) => `<button type="button" data-v="${v}">${t}</button>`).join("")}</div>
-          <select data-role="slice" aria-label="${esc(cd.title)} kırılımı">${sliceOptions(cd)}</select>
+          ${cd.fixed ? "" : `<div class="seg-ctl" data-role="range">${ranges.map(([v, t]) => `<button type="button" data-v="${v}">${t}</button>`).join("")}</div>`}
+          ${sliceKind(cd) === null ? "" : `<select data-role="slice" aria-label="${esc(cd.title)} kırılımı">${sliceOptions(cd)}</select>`}
         </div>
       </div>
       <div data-body></div>
       <div class="chart" data-chart></div>
       <div class="tip"></div>
-    </article>`).join("");
-  for (const cd of CARDS) {
-    const sv = saved[cd.id] || {};
+    </article>`;
+    }).join("") : `<div class="chart-empty">Ders verisi bir sonraki sabah yenilemesinde gelecek.</div>`;
+  }
+  for (const cd of cards) {
+    const sv = saved[cd.id] || {}, ranges = cd.lesson ? LES_RANGES : RANGES;
     cardState[cd.id] = {
-      range: RANGES.some(([v]) => v === sv.range) ? sv.range : "30",
+      range: ranges.some(([v]) => v === sv.range) ? sv.range : cd.lesson ? "60" : "30",
       slice: typeof sv.slice === "string" && validSlice(cd, sv.slice) ? sv.slice : "all",
       metric: cd.toggle && cd.toggle.some(([v]) => v === sv.metric) ? sv.metric : cd.toggle ? cd.toggle[0][0] : null,
     };
@@ -557,19 +699,37 @@ function buildCards() {
       const b = ev.target.closest(".seg-ctl button"); if (!b) return;
       cardState[cd.id][b.parentElement.dataset.role] = b.dataset.v; saveState(); renderCard(cd);
     });
-    el.querySelector('[data-role="slice"]').addEventListener("change", (ev) => { cardState[cd.id].slice = ev.target.value; saveState(); renderCard(cd); });
+    el.querySelector('[data-role="slice"]')?.addEventListener("change", (ev) => { cardState[cd.id].slice = ev.target.value; saveState(); renderCard(cd); });
   }
 }
 
 function renderCard(cd) {
   const s = cardState[cd.id], el = document.getElementById("card-" + cd.id);
   el.querySelectorAll(".seg-ctl").forEach((g) => g.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === s[g.dataset.role]))));
-  el.querySelector('[data-role="slice"]').value = s.slice;
-  const days = D.data.days, i1 = days.length - 1, i0 = Math.max(0, i1 - Number(s.range) + 1);
+  const sel = el.querySelector('[data-role="slice"]'); if (sel) sel.value = s.slice;
+  // Overview cards end at yesterday; lesson cards at the newest cohort whose 7-day window has closed.
+  const days = D.data.days, i1 = cd.lesson ? D.data.les.complete.lastIndexOf(true) : days.length - 1, i0 = Math.max(0, i1 - Number(s.range) + 1);
   const w = { i0, i1, days: days.slice(i0, i1 + 1), cut: (a) => a.slice(i0, i1 + 1) };
   cd.render({ el, body: el.querySelector("[data-body]"), chart: el.querySelector("[data-chart]") }, s, w);
 }
-function renderAll() { for (const cd of CARDS) renderCard(cd); }
+
+// ---------- sub-tabs (Overview / Dersler) ----------
+const TAB_KEY = "lucida-data:pdtab";
+let activeTab = "overview";
+function setTab(tab, push) {
+  activeTab = tab === "lessons" ? "lessons" : "overview";
+  document.querySelectorAll(".subtabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === activeTab)));
+  document.querySelectorAll("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== activeTab; });
+  try { localStorage.setItem(TAB_KEY, activeTab); } catch (e) { /* ignore */ }
+  if (push) history.replaceState(null, "", activeTab === "lessons" ? "#dersler" : location.pathname + location.search);
+  if (!appEl.hidden) renderAll();
+}
+document.querySelector(".subtabs").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-tab]"); if (b) setTab(b.dataset.tab, true); });
+function initialTab() {
+  if (location.hash === "#dersler") return "lessons";
+  try { return localStorage.getItem(TAB_KEY) || "overview"; } catch (e) { return "overview"; }
+}
+function renderAll() { for (const cd of cards) if (cd.tab === activeTab) renderCard(cd); }
 
 let resizeTimer = null;
 window.addEventListener("resize", () => { if (appEl.hidden) return; clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 150); });
@@ -618,7 +778,7 @@ async function open(password, remember) {
     load(await unlock(password));
     if (remember) store.set(password);
     lockEl.hidden = true; appEl.hidden = false;
-    renderAll();
+    setTab(initialTab(), false);
   } catch (e) {
     if (e.wrong) store.clear();
     errEl.textContent = e.wrong ? "Şifre yanlış." : "Veri yüklenemedi: " + (e.message || e);

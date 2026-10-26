@@ -9,9 +9,10 @@ gösteren, şifreyle açılan statik sayfa. GitHub Pages'te yayında.
   günlük değerler zaman çizelgesi olarak gösterilir.
 - `engagement/metrics.json` — Engagement metriklerinin listesi: etiket, birim, açıklama ve rutinin uyguladığı hesaplama tarifi. Rakam içermez.
 - `engagement.enc.json` — Engagement metriklerinin günlük geçmişi, `data.enc.json` ile aynı şekilde şifreli.
-- `dashboard.html` — üçüncü sayfa (Product Dashboard, Overview sekmesi), yalnız aboneler: aktif abone (node başlatan)
-  DAU/WAU/MAU, konuşma süresi, node'lar, uygulamada geçen süre, mağaza abonelikleri. Her kartın kendi tarih ve
-  platform/ülke/versiyon seçimi var.
+- `dashboard.html` — üçüncü sayfa (Product Dashboard), yalnız aboneler. Overview sekmesi: aktif abone (node başlatan)
+  DAU/WAU/MAU, konuşma süresi, node'lar, uygulamada geçen süre, mağaza abonelikleri. Dersler sekmesi (`#dersler`):
+  yeni abonelerin ilk hafta 5 ders tamamlama oranı (ilk node gününe göre kohort), ders adımları, 5. derse kadar geçen
+  süre (dağılım ve trend), başlangıç versiyonu karşılaştırması. Her kartın kendi tarih ve kırılım seçimi var.
 - `dashboard/queries.json` — Product Dashboard'un Amplitude sorguları (90 gün, her filtre kırılımı tek sorguda) ve RevenueCat talimatı. Rakam içermez.
 - `dashboard.enc.json` — Product Dashboard verisi, aynı şekilde şifreli.
 - `keys.json` — açık anahtar + şifreyle (PBKDF2-SHA256) kilitlenmiş özel anahtar. Şifrenin kendisi hiçbir yerde saklanmaz.
@@ -38,7 +39,8 @@ Product Dashboard geçmiş saklamaz: rutin her sabah `dashboard/queries.json`'da
 
     node scripts/build-dashboard.mjs <ham-yanıtların-klasörü>
 
-ile `dashboard.enc.json`'u üretir.
+ile `dashboard.enc.json`'u üretir. Ders sorguları (`les_*`, `t5_*`) 7 günlük pencere kullanır; penceresi kapanmamış kohortlar
+(son 8 gün) sayfada gösterilmez. `t5_hist` yalnız son 28 kapanmış kohort gününü kapsar (`<HSTART>`/`<HEND>`).
 
 ## Şifreyi değiştirmek
 

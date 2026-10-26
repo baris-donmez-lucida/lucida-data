@@ -120,8 +120,73 @@ const rcWeeks = rc.weeks.map((w) => {
   return { d: end < last ? end : last, ios: w.app_store, android: w.play_store };
 });
 
+// Lessons (Dersler tab): subscribers' first-ever node → completed lessons within 7 days, one cohort per first-node
+// day. TIME_TO_CONVERT CSV rows: label, date ("Jul 28"), conversion, entered, avg s, median s, step 2, avg, median, …,
+// last step, isComplete. Segment rows are all labelled "None": a "Total" row opens each segment, in query order.
+const LES_FILES = ["les_seg", "les_ver", "t5_seg", "t5_hist"];
+const lesMissing = LES_FILES.filter((id) => !existsSync(join(dir, id + ".json")));
+let les = null;
+if (lesMissing.length) console.warn(`dersler atlandı (eksik: ${lesMissing.join(", ")}); Overview yine yazılıyor`);
+else les = (() => {
+  const SEG_KEYS = ["all", "p:iOS", "p:Android", ...COUNTRIES.map((c) => "c:" + c)];
+  const mon = (d) => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" });
+  const funnel = (id) => {
+    const rows = load(id).csvResponse?.data;
+    if (!rows) fail(`${id}: no csvResponse`);
+    const h = rows.findIndex((r) => r && r[1] === "Date");
+    if (h < 0) fail(`${id}: no header`);
+    const groups = [];
+    for (const r of rows.slice(h + 1)) {
+      if (!r || r.length < 4) continue;
+      if (r[1] === "Total") groups.push({ label: String(r[0]), total: r, byDate: new Map() });
+      else if (groups.length) groups.at(-1).byDate.set(r[1], r);
+    }
+    return groups.map((g) => ({ label: g.label, total: g.total, at: (i) => g.byDate.get(mon(days[i])) }));
+  };
+  const col = (g, k) => days.map((_, i) => Math.round(Number(g.at(i)?.[k]) || 0));
+  const lesSeg = funnel("les_seg"), lesVer = funnel("les_ver"), t5Seg = funnel("t5_seg");
+  if (lesSeg.length !== SEG_KEYS.length) fail(`les_seg: ${lesSeg.length} segments, expected ${SEG_KEYS.length}`);
+  if (t5Seg.length !== SEG_KEYS.length + 1) fail(`t5_seg: ${t5Seg.length} segments, expected ${SEG_KEYS.length + 1}`);
+  const complete = days.map((_, i) => lesSeg[0].at(i)?.at(-1) === true);
+  const lastDone = complete.lastIndexOf(true);
+  if (lastDone < 28 || complete.slice(0, lastDone + 1).includes(false)) fail("les_seg: complete-cohort flags look wrong");
+  const steps = (g) => ({ n: col(g, 3), s: [6, 9, 12, 15, 18].map((k) => col(g, k)) });
+  const lseg = {};
+  SEG_KEYS.forEach((k, j) => { lseg[k] = steps(lesSeg[j]); });
+  // 5th-lesson timing: t5_seg is first node → lifetime 5th lesson (same entrants; ≈ the 6-step funnel's last step).
+  const t5 = {};
+  [...SEG_KEYS, "core5"].forEach((k, j) => { t5[k] = { n: col(t5Seg[j], 3), avg: col(t5Seg[j], 4), med: col(t5Seg[j], 5), k: col(t5Seg[j], 6) }; });
+  const sumTo = (a) => a.slice(0, lastDone + 1).reduce((s, v) => s + v, 0);
+  for (const k of SEG_KEYS) {
+    if (sumTo(t5[k].n) !== sumTo(lseg[k].n)) fail(`${k}: t5_seg entrants differ from les_seg`);
+    const a = sumTo(t5[k].k), b = sumTo(lseg[k].s[4]);
+    if (b >= 100 && Math.abs(a - b) / b > 0.05) fail(`${k}: 5th-lesson count ${a} vs funnel ${b}`);
+  }
+  // Start versions with enough completed cohorts to compare (newest first).
+  const lver = {};
+  for (const g of lesVer) {
+    const st = steps(g);
+    if (/^\d+\.\d+\.\d+$/.test(g.label) && sumTo(st.n) >= 150) lver[g.label] = st;
+  }
+  const lesVersions = Object.keys(lver).sort(cmp).slice(0, 8);
+  for (const v of Object.keys(lver)) if (!lesVersions.includes(v)) delete lver[v];
+  // Time to 5th lesson, hourly histogram over the 28 newest complete cohort days (all / iOS / Android).
+  const hj = load("t5_hist").jsonResponse;
+  const hser = hj?.processedData?.highchartsConfig?.series;
+  if (!Array.isArray(hser) || hser.length !== 3 || hser.some((s) => s.data.length !== 168)) fail("t5_hist: expected 3 × 168 hourly bins");
+  const hist = {};
+  ["all", "p:iOS", "p:Android"].forEach((k, j) => {
+    const d = hj.data[j];
+    hist[k] = { bins: hser[j].data.map((b) => Math.round(Number(b.value) || 0)), n: d.convertedCounts["0"], k: d.convertedCounts["1"], med: Math.round(d.medianTransTimes[0] / 1000), avg: Math.round(d.avgTransTimes[0] / 1000) };
+  });
+  const hFrom = lastDone - 27;
+  const hk = t5.all.k.slice(hFrom, lastDone + 1).reduce((s, v) => s + v, 0);
+  if (Math.abs(hist.all.k - hk) / hk > 0.05) fail(`t5_hist: ${hist.all.k} converters vs ${hk} in t5_seg for ${days[hFrom]}…${days[lastDone]}`);
+  return { complete, seg: lseg, ver: lver, versions: lesVersions, t5, hist: { from: days[hFrom], to: days[lastDone], ...hist } };
+})();
+
 if (days.length < 28) fail("need at least 28 days");
-const payload = { v: 2, generatedAt: new Date().toISOString(), days, countries: COUNTRIES, versions, m: paid, rc: rcWeeks };
+const payload = { v: 2, generatedAt: new Date().toISOString(), days, countries: COUNTRIES, versions, m: paid, rc: rcWeeks, ...(les ? { les } : {}) };
 
 const { subtle } = globalThis.crypto;
 const keys = JSON.parse(readFileSync(join(root, "keys.json"), "utf8"));
@@ -135,3 +200,7 @@ writeFileSync(join(root, "dashboard.enc.json"), JSON.stringify({ v: 1, sealedAt:
 if (process.env.DASHBOARD_PLAIN) writeFileSync(process.env.DASHBOARD_PLAIN, JSON.stringify(payload));
 const dau = paid.dau.all;
 console.log(`dashboard.enc.json written: ${days[0]}…${last}, aktif abone (DAU) ${dau[dau.length - 1]}, versions ${versions.join(" ")}`);
+if (les) {
+  const i = les.complete.lastIndexOf(true), w7 = (a) => a.slice(i - 6, i + 1).reduce((s, v) => s + v, 0), a = les.seg.all;
+  console.log(`dersler: son kapanan kohort ${days[i]}, 7 günde ${w7(a.n)} yeni abone, ilk hafta 5 ders %${(100 * w7(a.s[4]) / w7(a.n)).toFixed(1)}, 5. derse medyan ${(les.hist.all.med / 3600).toFixed(1)} sa`);
+}
