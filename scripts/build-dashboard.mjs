@@ -177,8 +177,61 @@ else les = (() => {
   return { complete, seg: lseg, ver: lver, versions: lesVersions };
 })();
 
+// New paid activation (Aktivasyon tab): weekly cohorts by first payment. A user enters on their first-ever
+// rc_subscription_event (store) or first-ever rc_non_subscription_purchase_event (web promo; users with a subscription
+// before 28 Sep are left out, i.e. the bulk move of existing web subscribers). Each pa_* query runs once per entry
+// event, 13 segments (all, iOS, Android, 10 countries), daily cohorts over 17 weeks; store + web are added up.
+//   pa_s_*: started a lesson via the lesson start buttons within 7 days
+//   pa_c_*: 1st…10th anm_c_lesson_completed within 7 days      pa_f_*: 1st…3rd within 24 hours
+const PA_FILES = ["pa_s_sub", "pa_s_web", "pa_c_sub", "pa_c_web", "pa_f_sub", "pa_f_web"];
+const paMissing = PA_FILES.filter((id) => !existsSync(join(dir, id + ".json")));
+let pa = null;
+if (paMissing.length) console.warn(`aktivasyon atlandı (eksik: ${paMissing.join(", ")})`);
+else pa = (() => {
+  const mon = (d) => new Date(d + "T00:00:00Z").toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" });
+  const read = (id) => {
+    const rows = load(id).csvResponse?.data;
+    if (!rows) fail(`${id}: no csvResponse`);
+    const h = rows.findIndex((r) => r && r[1] === "Date");
+    if (h < 0) fail(`${id}: no header`);
+    const segs = [];
+    for (const r of rows.slice(h + 1)) {
+      if (!r || r.length < 4) continue;
+      if (r[1] === "Total") segs.push([]);
+      else if (segs.length) segs.at(-1).push(r);
+    }
+    if (segs.length !== 13) fail(`${id}: ${segs.length} segments, expected 13`);
+    return segs;
+  };
+  const raw = Object.fromEntries(PA_FILES.map((id) => [id, read(id)]));
+  // Day axis: the queries end yesterday like the rest of the page; rows carry "Jun 29"-style dates without a year.
+  const nDays = raw.pa_c_sub[0].length, last = Date.parse(days.at(-1) + "T00:00:00Z");
+  const pdays = Array.from({ length: nDays }, (_, i) => new Date(last - (nDays - 1 - i) * 864e5).toISOString().slice(0, 10));
+  for (const id of PA_FILES) for (const seg of raw[id]) {
+    if (seg.length !== nDays || seg.some((r, i) => r[1] !== mon(pdays[i]))) fail(`${id}: day axis differs`);
+  }
+  // Monday weeks that are fully inside the range; "closed" = every payment day's window (7 d / 24 h) ended by yesterday.
+  const weekOf = (d) => { const t = Date.parse(d + "T00:00:00Z"); return new Date(t - ((new Date(t).getUTCDay() + 6) % 7) * 864e5).toISOString().slice(0, 10); };
+  const weeks = [...new Set(pdays.map(weekOf))].filter((w) => pdays.filter((d) => weekOf(d) === w).length === 7);
+  const idx = weeks.map((w) => pdays.map((d, i) => (weekOf(d) === w ? i : -1)).filter((i) => i >= 0));
+  const isDone = (win) => weeks.map((_, k) => idx[k].every((i) => i + win <= nDays - 1));
+  const KEYS = ["all", "p:iOS", "p:Android", ...COUNTRIES.map((c) => "c:" + c)];
+  const counts = (id, j, col) => weeks.map((_, k) => idx[k].reduce((t, i) => t + (Number(raw[id][j][i][col]) || 0), 0));
+  const both = (kind, j, col) => { const a = counts(`pa_${kind}_sub`, j, col), b = counts(`pa_${kind}_web`, j, col); return a.map((v, k) => v + b[k]); };
+  const slices = {};
+  KEYS.forEach((key, j) => {
+    const n = both("c", j, 3);
+    if (both("s", j, 3).join() !== n.join() || both("f", j, 3).join() !== n.join()) fail(`aktivasyon ${key}: entrants differ between queries`);
+    const c = [6, 9, 12, 15, 18, 21, 24, 27, 30, 33].map((col) => both("c", j, col));
+    const f = [6, 9, 12].map((col) => both("f", j, col));
+    for (const steps of [c, f]) steps.forEach((a, k) => { if (k && a.some((v, w) => v > steps[k - 1][w])) fail(`aktivasyon ${key}: step counts not decreasing`); });
+    slices[key] = { n, s: both("s", j, 6), c: c[0], d3: c[2], d5: c[4], d10: c[9], f1: f[0], f2: f[1], f3: f[2] };
+  });
+  return { weeks, closed: isDone(7), closed1: isDone(1), slices };
+})();
+
 if (days.length < 28) fail("need at least 28 days");
-const payload = { v: 2, generatedAt: new Date().toISOString(), days, countries: COUNTRIES, versions, m: paid, rc: rcWeeks, ...(les ? { les } : {}) };
+const payload = { v: 2, generatedAt: new Date().toISOString(), days, countries: COUNTRIES, versions, m: paid, rc: rcWeeks, ...(les ? { les } : {}), ...(pa ? { pa } : {}) };
 
 const { subtle } = globalThis.crypto;
 const keys = JSON.parse(readFileSync(join(root, "keys.json"), "utf8"));
@@ -195,4 +248,8 @@ console.log(`dashboard.enc.json written: ${days[0]}…${last}, aktif abone (DAU)
 if (les) {
   const i = les.complete.lastIndexOf(true), w7 = (a) => a.slice(i - 6, i + 1).reduce((s, v) => s + v, 0), a = les.seg.all;
   console.log(`dersler: son kapanan kohort ${days[i]}, 7 günde ${w7(a.n)} yeni abone, ilk hafta 5 ders %${(100 * w7(a.s[4]) / w7(a.n)).toFixed(1)}`);
+}
+if (pa) {
+  const k = pa.closed.lastIndexOf(true), a = pa.slices.all, pct = (x) => (100 * x[k] / a.n[k]).toFixed(1);
+  console.log(`aktivasyon: ${pa.weeks[0]}…${pa.weeks.at(-1)} (${pa.weeks.length} hafta), son kapanan hafta ${pa.weeks[k]}: ${a.n[k]} yeni paid, başlatma %${pct(a.s)}, tamamlama %${pct(a.c)}, 7 günde 3+ %${pct(a.d3)}`);
 }

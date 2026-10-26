@@ -12,7 +12,8 @@ gösteren, şifreyle açılan statik sayfa. GitHub Pages'te yayında.
 - `dashboard.html` — üçüncü sayfa (Product Dashboard), yalnız aboneler. Overview sekmesi: aktif abone (node başlatan)
   DAU/WAU/MAU, konuşma süresi, node'lar, uygulamada geçen süre, mağaza abonelikleri. Dersler sekmesi (`#dersler`):
   yeni abonelerin ilk 7 günde 1.–5. dersi tamamlama oranı (ders adımları) ve başlangıç versiyonu
-  karşılaştırması. Her kartın kendi tarih ve kırılım seçimi var.
+  karşılaştırması. Aktivasyon sekmesi (`#aktivasyon`): yeni paid kullanıcıların ilk ödeme haftasına göre 7 günde
+  node başlatma/tamamlama, ilk 24 saatte 1+/2+/3+ ve ilk 7 günde 3+/5+/10+ node oranı. Her kartın kendi tarih ve kırılım seçimi var.
 - `dashboard/queries.json` — Product Dashboard'un Amplitude sorguları (90 gün, her filtre kırılımı tek sorguda) ve RevenueCat talimatı. Rakam içermez.
 - `dashboard.enc.json` — Product Dashboard verisi, aynı şekilde şifreli.
 - `keys.json` — açık anahtar + şifreyle (PBKDF2-SHA256) kilitlenmiş özel anahtar. Şifrenin kendisi hiçbir yerde saklanmaz.
@@ -40,7 +41,8 @@ Product Dashboard geçmiş saklamaz: rutin her sabah `dashboard/queries.json`'da
     node scripts/build-dashboard.mjs <ham-yanıtların-klasörü>
 
 ile `dashboard.enc.json`'u üretir. Ders sorguları (`les_*`) 7 günlük pencere kullanır; penceresi kapanmamış kohortlar
-(son 8 gün) sayfada gösterilmez.
+(son 8 gün) sayfada gösterilmez. Aktivasyon sorguları (`pa_*`) 17 haftayı kapsar (`<WSTART>` = dünün haftasının Pazartesi'si − 16 hafta);
+biri eksikse yalnız Aktivasyon sekmesi düşer.
 `dashboard/queries.json` → `versionGroups` arka arkaya çıkan sürümleri Dersler'de tek versiyon sayar (şu an 2.8.7–2.8.8).
 
 ## Şifreyi değiştirmek
