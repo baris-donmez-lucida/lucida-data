@@ -136,7 +136,7 @@
   .chart .pt-faded { fill: var(--c); opacity: 0.28; }
   .chart .pt-hollow { fill: var(--surface); stroke: var(--c); stroke-width: 1.4; }
   .chart .chg { stroke: var(--s6); stroke-width: 1; stroke-dasharray: 2 3; }
-  .chart .chg-dot { fill: var(--s6); }
+  .chart text.chg-lbl { fill: var(--s6); font-size: 10.5px; font-weight: 600; }
   .chart .thr { stroke: var(--s2); stroke-width: 1; stroke-dasharray: 5 4; }
   .chart .bar { fill: var(--c); }
   .chart .hover-line { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
@@ -374,6 +374,17 @@ function alertText(c, s) {
   return msgs.length ? msgs.join(" ") : null;
 }
 
+// ---------- known data gaps (shown above the section when the range covers them) ----------
+const DATA_NOTES = [
+  { from: "2026-07-28", to: "2026-07-31", text: "<b>call_ok</b> 2.8.1 ile eklendi (ilk görülme 28 Temmuz); 1 Ağustos'a kadar eksik. Bu günlerde Aktif ve Aktif'e bölünen oranlar (North Star / Aktif, konuşma oranı, dk / aktif …) güvenilmez." },
+  { from: "2026-08-28", to: "2026-08-31", text: "<b>28–31 Ağustos kesintisi:</b> call_ok neredeyse hiç atılmadı (29 Ağustos'ta günlük değerin onda biri) ve konuşmaların çoğunda speech_duration = 0. Büyük ihtimalle bağlantı ya da izleme sorunu; bu günlerde Aktif ve konuşma dakikası düşük görünür." },
+];
+function dataNotes() {
+  const [i0, i1] = win(), a = D.d.days[i0], b = D.d.days[i1];
+  const hit = DATA_NOTES.filter((n) => n.to >= a && n.from <= b);
+  return hit.length ? `<div class="notebox"><b>Veri notu:</b> ${hit.map((n) => n.text).join(" ")}</div>` : "";
+}
+
 // ---------- change arrows ----------
 function deltaSpan(c, cur, prev, label) {
   if (cur == null || prev == null) return "";
@@ -401,22 +412,26 @@ function changesIn(x) {
 // Line chart over x (dates). series: [{ name, color, vals, ma?, prev?, faded?[i], hollow?[i], fmt, detail?(i) }]
 function lineChart(host, card, x, series, opts = {}) {
   const tip = card.querySelector(".tip");
-  const all = series.flatMap((s) => [...s.vals, ...(s.ma || []), ...(s.prev || [])]).filter((v) => v != null && Number.isFinite(v));
+  const ok = (v) => v != null && Number.isFinite(v);
+  const all = series.flatMap((s) => [...s.vals.filter((v, i) => !s.faded?.[i]), ...(s.ma || []), ...(s.prev || [])]).filter(ok);
   if (!all.length) { host.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; return; }
   const n = x.length, W = Math.max(300, Math.round(host.clientWidth || 600)), H = opts.H || 200;
-  const padL = 50, padR = 12, padT = 12, padB = 24;
+  const padL = 50, padR = 12, padT = opts.xTip ? 12 : 20, padB = 24;
   let maxV = Math.max(...all, opts.threshold ?? 0);
-  const step = niceStep(maxV || 1);
+  let step = niceStep(maxV || 1);
   let y1 = Math.max(Math.ceil((maxV * 1.06) / step) * step, step);
-  if (opts.pctMax && maxV <= 1) y1 = Math.min(y1, 1);
+  // percent of a subset: above 100 % only happens on data-gap days → keep the 0–100 % axis, clip those
+  if (opts.pctMax && y1 > 1) { const q = [...all].sort((p, r) => p - r)[Math.floor(all.length * 0.9)]; if (q <= 1) { y1 = 1; step = 0.25; } }
+  const inRange = (v) => ok(v) && v <= y1 * 1.02;
   const y = (v) => padT + (1 - v / y1) * (H - padT - padB);
   const X = (i) => padL + (n > 1 ? (i / (n - 1)) * (W - padL - padR) : (W - padL - padR) / 2);
   const ticks = []; for (let t = 0; t <= y1 + 1e-9; t += step) ticks.push(t);
   const every = Math.max(1, Math.ceil(n / Math.floor((W - padL - padR) / 58)));
   const xl = x.map((d, i) => ((n - 1 - i) % every === 0 ? `<text x="${X(i).toFixed(1)}" y="${H - 6}" text-anchor="${i === n - 1 ? "end" : i === 0 ? "start" : "middle"}">${opts.xFmt ? opts.xFmt(d, i) : dShort(d)}</text>` : "")).join("");
-  const path = (vals) => { let s = "", pen = false; vals.forEach((v, i) => { if (v == null || !Number.isFinite(v)) { pen = false; return; } s += `${pen ? "L" : "M"}${X(i).toFixed(1)} ${y(v).toFixed(1)} `; pen = true; }); return s; };
+  const path = (vals) => { let s = "", pen = false; vals.forEach((v, i) => { if (!inRange(v)) { pen = false; return; } s += `${pen ? "L" : "M"}${X(i).toFixed(1)} ${y(v).toFixed(1)} `; pen = true; }); return s; };
   const yf = opts.yFmt || ((t) => nf.format(t));
-  const chg = changesIn(x).map(([i, ch]) => `<line class="chg" x1="${X(i).toFixed(1)}" x2="${X(i).toFixed(1)}" y1="${padT}" y2="${H - padB}"><title>${esc(dShort(ch.d) + " · " + (ch.version ? ch.version + " · " : "") + ch.note)}</title></line><circle class="chg-dot" cx="${X(i).toFixed(1)}" cy="${padT - 2}" r="2.5"><title>${esc(dShort(ch.d) + " · " + ch.note)}</title></circle>`).join("");
+  // release markers: dashed line + version label at the top
+  const chg = opts.xTip ? "" : changesIn(x).map(([i, ch]) => `<line class="chg" x1="${X(i).toFixed(1)}" x2="${X(i).toFixed(1)}" y1="${padT - 4}" y2="${H - padB}"><title>${esc(dShort(ch.d) + " · " + ch.note)}</title></line><text class="chg-lbl" x="${X(i).toFixed(1)}" y="${padT - 7}" text-anchor="middle">${esc(ch.version || "◆")}</text>`).join("");
   const body = series.map((s) => {
     const st = `style="--c:${s.color}"`;
     let out = "";
@@ -424,7 +439,7 @@ function lineChart(host, card, x, series, opts = {}) {
     if (s.ma) out += `<path class="ln" ${st} d="${path(s.vals)}"/><path class="ma" ${st} d="${path(s.ma)}"/>`;
     else out += `<path class="ma only" ${st} d="${path(s.vals)}"/>`;
     s.vals.forEach((v, i) => {
-      if (v == null) return;
+      if (!inRange(v)) return;
       if (s.hollow?.[i]) out += `<circle class="pt-hollow" ${st} cx="${X(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.8"/>`;
       else if (s.faded?.[i]) out += `<circle class="pt-faded" ${st} cx="${X(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.6"/>`;
     });
@@ -440,8 +455,8 @@ function lineChart(host, card, x, series, opts = {}) {
   const svg = host.querySelector("svg"), hl = svg.querySelector(".hover-line"), dots = [...svg.querySelectorAll(".hover-dot")];
   const show = (i) => {
     hl.setAttribute("x1", X(i)); hl.setAttribute("x2", X(i)); hl.style.opacity = 1;
-    dots.forEach((dt, k) => { const v = series[k].ma?.[i] ?? series[k].vals[i]; if (v == null) { dt.style.opacity = 0; return; } dt.setAttribute("cx", X(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
-    const top = Math.min(...series.map((s) => (s.vals[i] == null ? H : y(s.vals[i]))));
+    dots.forEach((dt, k) => { const v = series[k].ma?.[i] ?? series[k].vals[i]; if (!inRange(v)) { dt.style.opacity = 0; return; } dt.setAttribute("cx", X(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
+    const top = Math.min(...series.map((s) => (inRange(s.vals[i]) ? y(s.vals[i]) : H)));
     const lines = series.map((s) => {
       const v = s.vals[i];
       const det = s.detail ? s.detail(i) : "";
@@ -449,7 +464,7 @@ function lineChart(host, card, x, series, opts = {}) {
       const pv = s.prev && s.prev[i] != null ? ` <small>önceki ${s.fmt(s.prev[i])}</small>` : "";
       return `<br><span class="sw" style="background:${s.color}"></span>${esc(s.name)}: <b>${v == null ? "—" : s.fmt(v)}</b>${det}${ma}${pv}`;
     }).join("");
-    const ch = opts.xTip ? "" : (D.d.changes || []).filter((c) => (opts.week ? c.d >= x[i] && c.d <= addDays(x[i], 6) : c.d === x[i])).map((c) => `<br><small>◆ ${esc(c.note)}</small>`).join("");
+    const ch = opts.xTip ? "" : (D.d.changes || []).filter((c) => (opts.week ? c.d >= x[i] && c.d <= addDays(x[i], 6) : c.d === x[i])).map((c) => `<br><small>▏ ${esc(c.note)}</small>`).join("");
     placeTip(tip, card, svg, W, H, X(i), top, (opts.xTip ? opts.xTip(i) : opts.week ? dShort(x[i]) + " haftası" : dLong(x[i])) + lines + ch);
   };
   const hide = () => { hl.style.opacity = 0; dots.forEach((d) => { d.style.opacity = 0; }); tip.style.display = "none"; };
@@ -1006,7 +1021,7 @@ SECTIONS.memnuniyet = () => {
 SECTIONS.degisiklik = () => {
   const rows = (D.d.changes || []).map((c) => ({ d: c.d, version: c.version || "—", flag: c.flag || "—", note: c.note }));
   const t = sortableTable([{ k: "d", label: "Tarih", fmt: (v) => dYear(v) }, { k: "version", label: "Sürüm" }, { k: "flag", label: "Flag" }, { k: "note", label: "Açıklama", wrap: true }], rows, { sort: 0, dir: -1 });
-  const tbl = customCard("Değişiklik günlüğü", t.html, () => t.bind(), { sub: "product/changes.json elle düzenlenir; her tarih tüm timeline'larda ◆ dikey çizgi olarak görünür." });
+  const tbl = customCard("Sürüm yayın tarihleri", t.html, () => t.bind(), { sub: "Sürüm yayın tarihleri (product/changes.json, elle düzenlenir); her tarih tüm timeline'larda sürüm etiketli dikey çizgi olarak görünür." });
   const vm = mixCard("Sürüm yayılımı (aktif abonelerin sürüm payı)", "version_mix", { wide: true, help: "act sorgusunun sürüm kırılımı (tekil call_ok). Abone tipi filtresi uygulanır." });
   return { html: `<div class="cards">${tbl.html}${vm.html}</div>`, draw: () => { tbl.draw(); vm.draw(); } };
 };
@@ -1078,7 +1093,7 @@ function renderSection() {
   const host = document.getElementById("sec");
   current = (SECTIONS[S.tab] || SECTIONS.genel)();
   const warn = S.sub !== "paid" && S.tab !== "yeni" ? `<div class="notebox"><b>Abone tipi notu:</b> 28 Eylül 2026'ya kadar web (Stripe) aboneleri RevenueCat'te <code>active</code> durumundaydı ve <b>Mağaza</b>'da sayılıyor; o gün web_promo'ya (<code>promotional</code>) taşındılar. Mağaza / Web karşılaştırması 28 Eylül'den itibaren anlamlı.</div>` : "";
-  host.innerHTML = `<section class="sec">${warn}${current.html}</section>`;
+  host.innerHTML = `<section class="sec">${warn}${dataNotes()}${current.html}</section>`;
   current.draw();
 }
 document.addEventListener("click", (ev) => {
