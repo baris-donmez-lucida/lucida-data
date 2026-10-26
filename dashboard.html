@@ -256,8 +256,6 @@
   .subtabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
   .card-note { font-size: 12px; color: var(--muted); margin: 0; }
   .card-note b { color: var(--ink-2); font-weight: 600; }
-  .marker { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
-  .marker-t { font-size: 10px; fill: var(--muted); }
 
   /* Lesson steps and version table (plain HTML bars) */
   .steps { display: grid; gap: 7px; padding: 6px 0 10px; }
@@ -265,7 +263,6 @@
   .step-bar { height: 16px; border-radius: 4px; background: var(--track); overflow: hidden; }
   .step-bar i { display: block; height: 100%; background: var(--s1); border-radius: 4px; }
   .step-bar i.hi { background: var(--s3); }
-  .step-bar i.lt { opacity: 0.45; }
   .step b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
   .step small { color: var(--muted); }
   .vtable { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; margin: 4px 0 10px; }
@@ -347,12 +344,7 @@
       <summary>Tanımlar</summary>
       <ul>
         <li><b>Yeni abone</b>: hayatında ilk kez node başlatan (<code>anm_conv_page_viewed</code>, 1. kez) ve o anda abone olan kullanıcı; başlangıç versiyonu 2.8 veya üstü. Abone tanımı Overview ile aynı. Kohort = ilk node günü (UTC).</li>
-        <li><b>İlk hafta 5 ders</b>: ilk node'dan sonraki 7 gün içinde 5 kez <code>anm_c_lesson_completed</code> atan yeni abonelerin oranı. Bir kohortun penceresi kapanmadan (ilk node'dan 8 gün geçmeden) oran gösterilmez; sayfadaki son kohort günü bu yüzden dünden 8 gün öncedir.</li>
-        <li><b>Ders adımları</b>: aynı kohortların 7 gün içinde 1., 2., … 5. dersi tamamlama oranı.</li>
-        <li><b>5. derse kadar süre</b>: ilk node'dan hayattaki 5. <code>anm_c_lesson_completed</code>'a kadar geçen süre, yalnız 7 gün içinde 5. derse ulaşanlar; seçili aralığın ortalaması.</li>
-        <li><b>A1 yolu</b>: A1-1'e (<code>live_lesson_en_a1_1</code>) ilk kez başlayan yeni abonelerin 7 gün içinde sırayla A1-1…A1-5'i başlatma (<code>anm_conv_page_viewed</code>) ve bitirme (<code>anm_c_lesson_completed</code>) oranı. Kohort = A1-1'e ilk başlama günü.</li>
-        <li><b>Başlangıç seviyesi</b>: yeni abonenin ilk node'unun <code>lesson_id</code>'si (live_lesson_en_<b>a1</b>_1 → A1). <code>lesson_id</code>'si olmayan ilk görüşmeler "ders dışı görüşme".</li>
-        <li><b>2.8.8</b> (grafikteki kesikli çizgi): ders dışı görüşmelerin payı node'ların ~%40'ından ~%12'ye indi; ders olarak başlayan görüşmelerin tamamlanma oranı ise versiyonlar arasında aynı (~%60–70). Eylül sonundaki artış bundan.</li>
+        <li><b>Ders adımları</b>: yeni abonelerin ilk node'dan sonraki 7 gün içinde 1., 2., … 5. kez <code>anm_c_lesson_completed</code> atma oranı. Penceresi kapanmamış kohortlar (son 8 gün) gösterilmez.</li>
         <li>Kırılımlar ilk node anındaki platform / ülke ve başlangıç versiyonu (<code>start_version</code>). Her kartın aralığı ve kırılımı yalnız o kartı etkiler.</li>
       </ul>
     </details>
@@ -454,10 +446,9 @@ function lineChart(host, card, lines, days, opts = {}) {
     const left = i === 0 ? padL : (x(i - 1) + x(i)) / 2, right = i === n - 1 ? W - padR : (x(i) + x(i + 1)) / 2;
     return `<rect class="hit" data-i="${i}" x="${left.toFixed(1)}" y="${padT}" width="${(right - left).toFixed(1)}" height="${(H - padT - padB).toFixed(1)}"/>`;
   }).join("");
-  const marks = (opts.markers || []).map((m) => `<line class="marker" x1="${x(m.i).toFixed(1)}" x2="${x(m.i).toFixed(1)}" y1="${padT}" y2="${H - padB}"/><text class="marker-t" x="${(x(m.i) + 4).toFixed(1)}" y="${padT + 9}">${esc(m.label)}</text>`).join("");
   host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria || "")}">
     ${ticks.map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">${nf.format(t)}</text>`).join("")}
-    ${marks}${paths}${xl}
+    ${paths}${xl}
     <line class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}"/>
     ${lines.map((l, k) => `<circle class="hover-dot" data-k="${k}" r="4" cx="0" cy="0" style="fill:${l.color}"/>`).join("")}
     ${hits}</svg>`;
@@ -552,8 +543,7 @@ const CARDS = [
 ];
 
 // ---------- Dersler (lessons): one cohort per first-node day; only cohorts whose 7-day window has closed ----------
-// les: { complete:[bool/day], seg|ver|lvl: { key: { n:[entered], s:[[1. ders]…[5. ders]] } }, versions,
-//        t5|t5v: { key: { n, avg, med, k } }, a1: { all|v:<ver>: { n:[A1-1 starters], st:[9 step arrays] } } }
+// les: { complete:[bool/day], seg|ver: { key: { n:[entered], s:[[1. ders]…[5. ders]] } }, versions }
 const zeros = () => new Array(D.data.days.length).fill(0);
 function lesSeries(slice) {
   const L = D.data.les;
@@ -568,75 +558,16 @@ function lesSeries(slice) {
   }
   return (slice.startsWith("v:") ? L.ver[slice.slice(2)] : L.seg[slice]) || { n: zeros(), s: [0, 1, 2, 3, 4].map(zeros) };
 }
-const MIN_N = 20; // fewer entrants than this → no point on the chart
-const rate = (num, den, i0, i1) => { const d = sumR(den, i0, i1); return d >= MIN_N ? sumR(num, i0, i1) / d : null; };
-const rolling = (num, den) => num.map((_, i) => (i < 6 ? null : rate(num, den, i - 6, i)));
-const ppHtml = (cur, prev, label) => {
-  if (cur == null || prev == null) return "";
-  const d = cur - prev, cls = Math.abs(d) < 0.0005 ? "" : d > 0 ? "up" : "down";
-  return `<span><span class="delta ${cls}">${d > 0 ? "▲" : d < 0 ? "▼" : ""} ${nf1.format(Math.abs(d) * 100)} puan</span> ${label}</span>`;
-};
-const fmtDur = (s) => (s < 3600 ? nf.format(Math.round(s / 60)) + " dk" : s < 172800 ? nf1.format(s / 3600) + " sa" : nf1.format(s / 86400) + " gün");
-// 2.8.8 changed how often a finished call counts as a completed lesson (see Tanımlar).
-const LES_MARKERS = [{ d: "2026-09-27", label: "2.8.8" }];
-const markersIn = (w) => LES_MARKERS.map((m) => ({ i: w.days.indexOf(m.d), label: m.label })).filter((m) => m.i > 0);
-const pctLine = (a) => a.map((v) => (v == null ? null : v * 100));
-const fPct = (v) => "%" + nf1.format(v);
+const MIN_N = 20; // fewer entrants than this → "not enough data"
 
 const LES_CARDS = [
-  { id: "l5", title: "İlk hafta 5 ders: yeni aboneler", wide: true, slices: "les", render: (c, s, w) => {
-      const x = lesSeries(s.slice), n = x.n, k5 = x.s[4], i1 = w.i1;
-      const cur = rate(k5, n, i1 - 6, i1), prev = rate(k5, n, i1 - 13, i1 - 7), rng = rate(k5, n, w.i0, i1);
-      c.body.innerHTML = (s.slice.startsWith("v:")
-        ? kpi(rng == null ? "—" : F.pct(rng), [sub("seçili aralıkta"), sub(`<b>${F.count(sumR(k5, w.i0, i1))}</b> / ${F.count(sumR(n, w.i0, i1))} yeni abone`)])
-        : kpi(cur == null ? "—" : F.pct(cur), [sub("son 7 kohort günü"), ppHtml(cur, prev, "önceki 7 güne göre"),
-          sub(`<b>${F.count(sumR(k5, i1 - 6, i1))}</b> / ${F.count(sumR(n, i1 - 6, i1))} yeni abone`), sub(`aralıkta ${rng == null ? "—" : F.pct(rng)}`)]))
-        + `<p class="card-note">7 günlük kayan ortalama · son kohort ${fmtDayShort(w.days.at(-1))}</p>`;
-      lineChart(c.chart, c.el, [{ name: "7 günlük", color: C1, vals: pctLine(w.cut(rolling(k5, n))), f: fPct }], w.days,
-        { aria: "İlk hafta 5 ders oranı", markers: markersIn(w), extra: (i) => `<br>${F.count(w.cut(k5)[i])} / ${F.count(w.cut(n)[i])} yeni abone` });
-    } },
-  { id: "lsteps", title: "Ders adımları (ilk 7 gün)", slices: "les", render: (c, s, w) => {
+  { id: "lsteps", title: "Ders adımları (ilk 7 gün)", wide: true, slices: "les", render: (c, s, w) => {
       const x = lesSeries(s.slice), N = sumR(x.n, w.i0, w.i1), S = x.s.map((a) => sumR(a, w.i0, w.i1));
       if (N < MIN_N) { c.body.innerHTML = ""; c.chart.innerHTML = `<div class="chart-empty">Bu kırılımda yeterli veri yok.</div>`; return; }
       const prevs = [N, ...S.slice(0, 4)], drops = S.map((v, k) => 1 - v / prevs[k]), worst = drops.indexOf(Math.max(...drops));
       c.body.innerHTML = kpi(F.pct(S[4] / N), [sub("5. derse ulaşan"), sub(`en büyük kayıp <b>${worst === 0 ? "ilk node → 1. ders" : `${worst}. → ${worst + 1}. ders`}</b> (%${nf.format(Math.round(drops[worst] * 100))} bırakıyor)`), sub(`${F.count(N)} yeni abone`)]);
       const row = (label, v, hi) => `<div class="step"><span>${label}</span><div class="step-bar"><i class="${hi ? "hi" : ""}" style="width:${(100 * v / N).toFixed(1)}%"></i></div><span><b>${F.pct(v / N)}</b> <small>${F.count(v)}</small></span></div>`;
       c.chart.innerHTML = `<div class="steps">${row("İlk node", N)}${S.map((v, k) => row(`${k + 1}. ders`, v, k === 4)).join("")}</div>`;
-    } },
-  { id: "ltime", title: "5. derse kadar süre: trend", slices: "lesTime", render: (c, s, w) => {
-      const L = D.data.les, t = (s.slice.startsWith("v:") ? L.t5v?.[s.slice.slice(2)] : L.t5[s.slice]) || L.t5.all, i1 = w.i1, secs = t.avg.map((a, i) => a * t.k[i]);
-      const mean = (i0, i1) => { const k = sumR(t.k, i0, i1); return k >= 5 ? sumR(secs, i0, i1) / k : null; };
-      const cur = mean(i1 - 6, i1), prev = mean(i1 - 13, i1 - 7), rng = mean(w.i0, i1);
-      // A start version lives only a few weeks, so its headline is the selected range rather than the last 7 days.
-      c.body.innerHTML = s.slice.startsWith("v:")
-        ? kpi(rng == null ? "—" : fmtDur(rng), [sub("ortalama, seçili aralıkta"), sub(`<b>${F.count(sumR(t.k, w.i0, i1))}</b> kişi 5. derse ulaştı`)])
-        : kpi(cur == null ? "—" : fmtDur(cur), [sub("ortalama, son 7 kohort günü"), deltaHtml(cur, prev, "önceki 7 güne göre"), sub(`aralıkta ${rng == null ? "—" : fmtDur(rng)}`)]);
-      const roll = t.k.map((_, i) => (i < 6 || sumR(t.k, i - 6, i) < 10 ? null : mean(i - 6, i) / 3600));
-      lineChart(c.chart, c.el, [{ name: "7 günlük ortalama", color: C1, vals: w.cut(roll), f: (v) => nf1.format(v) + " sa" }], w.days,
-        { aria: "5. derse kadar ortalama süre", markers: markersIn(w), extra: (i) => `<br>${F.count(w.cut(t.k)[i])} kişi o gün 5. derse ulaştı` });
-    } },
-  { id: "la1", title: "A1 yolu: ders ders (ilk 7 gün)", slices: "a1", render: (c, s, w) => {
-      const A = D.data.les.a1, x = A[s.slice] || A.all, N = sumR(x.n, w.i0, w.i1), S = x.st.map((a) => sumR(a, w.i0, w.i1));
-      if (N < MIN_N) { c.body.innerHTML = ""; c.chart.innerHTML = `<div class="chart-empty">Bu kırılımda yeterli veri yok.</div>`; return; }
-      // steps: start A1-1 (N), done A1-1, start A1-2, done A1-2, … done A1-5 — biggest loss between consecutive steps
-      const all = [N, ...S], drops = S.map((v, k) => 1 - v / all[k]), worst = drops.indexOf(Math.max(...drops));
-      const lesson = (k) => `A1-${Math.floor(k / 2) + 1}`, gap = (k) => (k % 2 === 0 ? `${lesson(k)} bitirme` : `${lesson(k)} → ${lesson(k + 1)} geçişi`);
-      const finish = [0, 2, 4, 6, 8].map((k) => S[k] / all[k]);
-      c.body.innerHTML = kpi(F.pct(S[8] / N), [sub("A1-5'i bitiren"), sub(`başlanan dersin bitirilme oranı <b>%${nf.format(Math.round(100 * Math.min(...finish)))}–${nf.format(Math.round(100 * Math.max(...finish)))}</b>`), sub(`en büyük kayıp <b>${gap(worst)}</b> (%${nf.format(Math.round(drops[worst] * 100))})`), sub(`${F.count(N)} kişi A1-1'e başladı`)]);
-      const row = (label, v, light) => `<div class="step"><span>${label}</span><div class="step-bar"><i class="${light ? "lt" : ""}" style="width:${(100 * v / N).toFixed(1)}%"></i></div><span><b>${F.pct(v / N)}</b> <small>${F.count(v)}</small></span></div>`;
-      c.chart.innerHTML = `<div class="steps">${all.map((v, k) => row(`${lesson(k)} ${k % 2 === 0 ? "başladı" : "bitti"}`, v, k % 2 === 0)).join("")}</div>`;
-    } },
-  { id: "llvl", title: "Başlangıç seviyesine göre", slices: null, render: (c, s, w) => {
-      const L = D.data.les.lvl, NAMES = { A1: "A1", A2: "A2", B1: "B1", B2: "B2", C1: "C1", C2: "C2", none: "Ders dışı görüşme", other: "Diğer dil" };
-      const total = Object.values(L).reduce((t, x) => t + sumR(x.n, w.i0, w.i1), 0) || 1;
-      const rows = Object.keys(NAMES).filter((k) => L[k] && sumR(L[k].n, w.i0, w.i1) >= MIN_N).map((k) => {
-        const x = L[k], N = sumR(x.n, w.i0, w.i1);
-        return { k, N, share: N / total, s1: sumR(x.s[0], w.i0, w.i1) / N, s5: sumR(x.s[4], w.i0, w.i1) / N };
-      });
-      const max = Math.max(...rows.map((r) => r.s5)) || 1;
-      c.body.innerHTML = "";
-      c.chart.innerHTML = `<div class="vwrap"><table class="vtable"><thead><tr><th>İlk ders</th><th>Pay</th><th>1. ders</th><th>İlk hafta 5 ders</th><th class="opt"></th></tr></thead><tbody>${rows.map((r) => `
-        <tr><td>${esc(NAMES[r.k])}</td><td>${F.pct(r.share)}</td><td>${F.pct(r.s1)}</td><td><b>${F.pct(r.s5)}</b></td><td class="bar opt"><span style="width:${(100 * r.s5 / max).toFixed(1)}%"></span></td></tr>`).join("")}</tbody></table></div>`;
     } },
   { id: "lver", title: "Başlangıç versiyonuna göre", wide: true, fixed: true, slices: null, render: (c) => {
       const L = D.data.les, days = D.data.days, i1 = L.complete.lastIndexOf(true);
@@ -649,12 +580,12 @@ const LES_CARDS = [
       c.chart.innerHTML = `<div class="vwrap"><table class="vtable"><thead><tr><th>Versiyon</th><th class="opt">Dönem</th><th>Yeni abone</th><th>1. ders</th><th>İlk hafta 5 ders</th><th class="opt"></th></tr></thead><tbody>${rows.map((r) => `
         <tr><td>${esc(r.v)}</td><td class="opt">${fmtDayShort(r.from)} – ${fmtDayShort(r.to)}</td><td>${F.count(r.N)}</td><td>${F.pct(r.s1)}</td><td><b>${F.pct(r.s5)}</b></td><td class="bar opt"><span style="width:${(100 * r.s5 / max).toFixed(1)}%"></span></td></tr>`).join("")}</tbody></table></div>`;
     } },
-].map((cd) => ({ ...cd, tab: "lessons", lesson: true, needs: { la1: "a1", llvl: "lvl" }[cd.id] }));
+].map((cd) => ({ ...cd, tab: "lessons", lesson: true }));
 
 // ---------- card shell: own range + breakdown per card ----------
 const RANGES = [["7", "7G"], ["14", "14G"], ["30", "30G"], ["90", "90G"]];
 const LES_RANGES = [["7", "7G"], ["30", "30G"], ["60", "60G"], ["90", "90G"]];
-const ALL_CARDS = () => [...CARDS.map((cd) => ({ ...cd, tab: "overview" })), ...(D.data.les ? LES_CARDS.filter((cd) => !cd.needs || D.data.les[cd.needs]) : [])];
+const ALL_CARDS = () => [...CARDS.map((cd) => ({ ...cd, tab: "overview" })), ...(D.data.les ? LES_CARDS : [])];
 let cards = [];
 const cardState = {};
 const STATE_KEY = "lucida-data:pd2";
@@ -666,15 +597,12 @@ function versionsFor(kind) {
   const L = D.data.les;
   if (kind === "full") return D.data.versions;
   if (kind === "les") return L.versions;
-  if (kind === "lesTime") return L.versions.filter((v) => L.t5v?.[v]);
-  if (kind === "a1") return L.versions.filter((v) => L.a1?.["v:" + v]);
   return [];
 }
 function sliceOptions(card) {
   const opt = (v, t) => `<option value="${esc(v)}">${esc(t)}</option>`;
   const kind = sliceKind(card), vers = versionsFor(kind);
   const verGroup = vers.length ? `<optgroup label="${kind === "full" ? "Versiyon" : "Başlangıç versiyonu"}">${vers.map((v) => opt("v:" + v, v)).join("")}</optgroup>` : "";
-  if (kind === "a1") return opt("all", "Tüm versiyonlar") + verGroup;
   if (kind === "plat") {
     return opt("all", vers.length ? "Tüm platform / versiyon" : "Tüm platformlar")
       + (vers.length ? `<optgroup label="Platform">${opt("p:iOS", "iOS")}${opt("p:Android", "Android")}</optgroup>` : opt("p:iOS", "iOS") + opt("p:Android", "Android")) + verGroup;
@@ -689,7 +617,7 @@ function validSlice(card, v) {
   if (kind === null) return v === "all";
   if (v === "all" || v === "p:iOS" || v === "p:Android") return true;
   if (v.startsWith("v:")) return versionsFor(kind).includes(v.slice(2));
-  if (kind === "plat" || kind === "a1") return false;
+  if (kind === "plat") return false;
   return v === "core5" || (v.startsWith("c:") && D.data.countries.includes(v.slice(2)));
 }
 
