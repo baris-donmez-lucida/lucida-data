@@ -701,15 +701,18 @@ const SECTIONS = {};
 const intro = (t) => `<p class="sec-intro">${t}</p>`;
 
 const TIERS_HELP = "Online = gün içinde dashboard_page_viewed. Aktif = ≥1 call_ok (Regular ve North Star dahil). Regular = tam 1 ders tamamlama. North Star = ≥2 ders tamamlama (anm_c_lesson_completed). Regular ile North Star kesişmez. Oranlar Online'a göre.";
-// User type card: one KPI with a type select (reset to North Star on every page load)
-const UT = { v: "northstar" };
-const UT_OPTS = [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]];
-function userTypeKpi() {
-  const [, , id, own] = UT_OPTS.find((o) => o[0] === UT.v);
-  const head = `<select class="ut-sel" aria-label="Kullanıcı tipi">${UT_OPTS.map(([v, l]) => `<option value="${v}"${v === UT.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
-  return kpiCard(id, null, null, { mode: "day", own, head });
+// KPI cards with a metric select in the header (state resets to the first option on every page load)
+// option = [value, label, metric id, own-count label, show denominator]
+const KSEL = {
+  ut: { v: "northstar", aria: "Kullanıcı tipi", opts: [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]] },
+  node: { v: "click", aria: "Node oranı", opts: [["click", "Node click rate", "node_click_rate", "session", true], ["start", "Node start rate", "node_start_rate", "dokunuş", true], ["complete", "Node complete rate", "completion_rate_s", "session", true]] },
+};
+function selectKpi(k) {
+  const st = KSEL[k], [, , id, own, withDen] = st.opts.find((o) => o[0] === st.v);
+  const head = `<select class="ut-sel" data-k="${k}" aria-label="${st.aria}">${st.opts.map(([v, l]) => `<option value="${v}"${v === st.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+  return kpiCard(id, null, null, { mode: "day", own, withDen, head });
 }
-document.addEventListener("change", (ev) => { if (ev.target.matches(".ut-sel")) { UT.v = ev.target.value; renderSection(); } });
+document.addEventListener("change", (ev) => { if (ev.target.matches(".ut-sel")) { KSEL[ev.target.dataset.k].v = ev.target.value; renderSection(); } });
 // User types over time: ratios to Online by default, user counts through the card's "Görünüm" select
 function tiersCard(key) {
   return customCard("Kullanıcı tipleri", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
@@ -723,19 +726,9 @@ function tiersCard(key) {
   }, { key, days: 90, views: [["rate", "Oran (Online'a göre)"], ["count", "Kullanıcı sayısı"]] });
 }
 SECTIONS.genel = () => {
-  const own = { noMA: true, wide: true };
-  const blocks = [
-    tiersCard("g-tiers"),
-    trendCard("Node etkileşimi (session bazlı)", ["node_click_rate"], ["node_start_rate", "chain_share"], { ...own, key: "g-node", help: "Node click rate = o gün node'a tıklanan (pre_lesson_viewed) session / o gün açılan session. Alttaki: node'dan başlama oranı (d_start_continue_lesson_bt / pre_lesson_viewed) ve Sıradaki ders zincirinin ders sayfalarındaki payı." }),
-    trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { ...own, key: "g-lesson", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
-    speechOnlineCard("g-speech"),
-  ];
+  const blocks = [tiersCard("g-tiers")];
   const tbl = dailyTable("g-daily");
-  const kpis = [["node_click_rate", null, null, { mode: "day", own: "session", withDen: true }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
-    ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
-    ["stickiness", null, null, { mode: "day" }],
-    ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]];
-  return { html: `<div class="kpis" style="--cols:4">${userTypeKpi()}${kpis.map((k) => kpiCard(...k)).join("")}</div>`
+  return { html: `<div class="kpis" style="--cols:4">${selectKpi("ut")}${selectKpi("node")}${kpiCard("online", null, null, { mode: "day", head: "Online abone" })}${kpiCard("talk_rate", null, null, { mode: "day", own: "aktif" })}</div>`
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
@@ -841,6 +834,8 @@ SECTIONS.konusma = () => {
     stackChart(card.querySelector(".ch-a"), card, x, cats, { fmt: (v) => nf.format(Math.round(v)) + " dk", yFmt: (t) => nf.format(t) + " dk", aria: "Konuşma dakikası" });
   });
   const b = [
+    speechOnlineCard("k-speech"),
+    trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
     ct,
     trendCard("Aktif abone başına dakika", ["min_per_active"], []),
     trendCard("Ders süresi ve ders ekranı süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
@@ -979,6 +974,7 @@ SECTIONS.node = () => {
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const b = [
     flow,
+    trendCard("Node etkileşimi (session bazlı)", ["node_click_rate"], ["node_start_rate", "chain_share"], { noMA: true, wide: true, key: "n-node", help: "Node click rate = o gün node'a tıklanan (pre_lesson_viewed) session / o gün açılan session. Alttaki: node'dan başlama oranı (d_start_continue_lesson_bt / pre_lesson_viewed) ve Sıradaki ders zincirinin ders sayfalarındaki payı." }),
     trendCard("Node click rate (session bazlı)", ["sessions", "s_node"], ["node_click_rate"], { help: "Node'a tıklanan (pre_lesson_viewed) session / o gün açılan session." }),
     trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
     trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
@@ -1189,8 +1185,11 @@ SECTIONS.diger = () => {
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
-  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }]]);
-  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
+    ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
+    ["stickiness", null, null, { mode: "day" }],
+    ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]]);
+  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
 SECTIONS.tanimlar = () => {
