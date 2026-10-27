@@ -670,9 +670,7 @@ SECTIONS.genel = () => {
     speechOnlineCard("g-speech"),
   ];
   const tbl = dailyTable("g-daily");
-  const last = D.d.days[N() - 1];
-  return { html: intro(`Kartlar son tam günün (<b>${dYear(last)}</b>) değeri; altındaki değişim önceki güne göre. 4–5★ son 7 gün. Grafiklerin tarih aralığı her kartın sağındaki seçiciden.`)
-      + kpiRow([["ns_online", "northstar", "online", { mode: "day" }], ["talk_rate", "active", "online", { mode: "day" }], ["node_click_rate", "sessions", "s_node", { mode: "day" }], ["completion_rate_s", "s_lesson_done", "sessions", { mode: "day" }],
+  return { html: kpiRow([["ns_online", "northstar", "online", { mode: "day" }], ["talk_rate", "active", "online", { mode: "day" }], ["node_click_rate", "sessions", "s_node", { mode: "day" }], ["completion_rate_s", "s_lesson_done", "sessions", { mode: "day" }],
         ["abandon_rate_s", "s_lesson_start", null, { mode: "day" }], ["speech_min", null, "min_per_active", { mode: "day" }], ["stickiness", null, null, { mode: "day" }], ["rating_high_rate", "ratings", "rating_low_rate", { mode: "week" }]])
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
