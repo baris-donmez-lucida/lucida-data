@@ -122,9 +122,19 @@
   .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; background: var(--c); margin-right: 6px; vertical-align: middle; }
   .legend i.sq { width: 10px; height: 10px; border-radius: 3px; }
   .legend i.dash { background: repeating-linear-gradient(90deg, var(--c) 0 4px, transparent 4px 7px); }
-  .dr-host { margin-left: auto; }
-  .dr { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
-  .dr input[type=date] { font: inherit; font-size: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px 6px; }
+  .cc-host { margin-left: auto; }
+  .cc { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; font-size: 12px; color: var(--muted); }
+  .cc input[type=date], .cc select, .ut-sel { font: inherit; font-size: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px 6px; }
+  .cc-f { position: relative; }
+  .cc-f summary { list-style: none; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--ink-2); border: 1px solid var(--border); border-radius: 8px; padding: 3px 9px; background: var(--surface); white-space: nowrap; }
+  .cc-f summary::-webkit-details-marker { display: none; }
+  .cc-f summary::before { content: "⚲ "; }
+  .cc-f summary.on { color: var(--ink); border-color: var(--ink-2); font-weight: 600; }
+  .cc-pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 8; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; display: grid; gap: 8px; min-width: 210px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25); }
+  .cc-pop label { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .cc-pop select { width: 100%; max-width: none; }
+  .cc-clear { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 0; text-decoration: underline; cursor: pointer; justify-self: start; padding: 0; }
+  .ut-sel { font-weight: 600; color: var(--ink); }
   .placeholder { font-size: 13px; color: var(--muted); border: 1px dashed var(--border); border-radius: 10px; padding: 18px; }
 
   /* Charts (SVG, same approach as dashboard.html) */
@@ -273,7 +283,8 @@ const S = { tab: "genel", range: 28, cmp: false, dim: null, val: "", sub: "paid"
 const N = () => D.d.days.length;
 const win = () => { const n = N(); return [Math.max(0, n - S.range), n - 1]; };
 const prevWin = () => { const [i0] = win(); return i0 - S.range >= 0 ? [i0 - S.range, i0 - 1] : null; };
-const sliceKey = () => (S.dim ? { platform: "p:", country: "c:", version: "v:" }[S.dim] + S.val : "all");
+const sliceOf = (f) => (f.dim ? { platform: "p:", country: "c:", version: "v:" }[f.dim] + f.val : "all");
+const sliceKey = () => sliceOf(S);
 
 // ---------- formatting ----------
 function fmt(unit, v, opts = {}) {
@@ -316,7 +327,7 @@ function series(id, f = S) {
   if (!c) return { vals: null };
   const bd = c.breakdowns || [];
   const dimOk = !f.dim || bd.includes(f.dim), subOk = f.sub === "paid" || bd.includes("subType");
-  const slice = dimOk ? (f === S ? sliceKey() : f.slice || "all") : "all", sub = subOk ? f.sub : "paid";
+  const slice = dimOk ? f.slice ?? sliceOf(f) : "all", sub = subOk ? f.sub : "paid";
   let o;
   if (c.rate) o = { vals: D.d.r[c.rate]?.[slice] || null };
   else if (c.num) o = ratioVals(c, sub, slice);
@@ -559,37 +570,58 @@ function kpiCard(id, countId, extraId, opts = {}) {
   const deltas = [];
   if (pw && pw[0] >= 0) deltas.push(opts.mode ? deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), "", { title: cmpLabel }) : deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
   if (!opts.mode && n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
-  return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
+  return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${opts.head || esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
     <div class="kpi-v">${fmt(c.unit, cur, { days: false })}</div><div class="kpi-s">${subs.join("")}</div><div class="kpi-d">${deltas.join("")}</div>${spark(s.vals.slice(-30))}</div>`;
 }
 // drop a trailing "(event_name)" only; keep qualifiers such as "(/ bağlanan)"
 const shortLabel = (c) => c.label.replace(/\s*\([^()]*_[^()]*\)\s*$/, "");
 
-// Own date range of a card (opts.key): presets 7 / 30 / 90 days or two date fields; default the last 30 days.
-// Both charts of a card follow it. Ranges are kept per card key while the page is open.
-const CR = {}, REDRAW = {};
-function cardWin(key, def = 30) {
-  const n = N(), days = D.d.days, r = CR[key];
+// ---------- chart control: one component for every chart with its own settings ----------
+// Date range (7 / 30 / 90 days or two date fields) and one "Filtre" button holding platform / ülke / sürüm
+// (one at a time, like the global filters) and abone tipi; optionally a "Görünüm" select. State per card key,
+// kept while the page is open: CS[key] = { range: [from, to] | null, dim, val, sub, view }.
+const CS = {}, DEF = {}, REDRAW = {};
+const ccState = (key) => (CS[key] ??= { range: null, dim: null, val: "", sub: "paid", view: null });
+const cardFilter = (key) => { const st = ccState(key); return { dim: st.dim, val: st.val, sub: st.sub }; };
+function cardWin(key) {
+  const n = N(), days = D.d.days, r = ccState(key).range, def = DEF[key]?.days ?? 30;
   if (!r) return [Math.max(0, n - def), n - 1];
   let a = days.indexOf(r[0]), b = days.indexOf(r[1]);
   if (a < 0) a = r[0] < days[0] ? 0 : n - 1;
   if (b < 0) b = r[1] > days[n - 1] ? n - 1 : 0;
   return a <= b ? [a, b] : [b, a];
 }
-function rangeCtl(key) {
-  const [a, b] = cardWin(key), d = D.d.days, n = N();
-  return `<div class="dr" data-k="${key}"><div class="seg-ctl">${[7, 30, 90].map((k) => `<button type="button" data-n="${k}" aria-pressed="${b === n - 1 && b - a + 1 === Math.min(k, n)}">${k}G</button>`).join("")}</div><input type="date" class="dr-a" aria-label="Başlangıç" min="${d[0]}" max="${d[n - 1]}" value="${d[a]}"><span>–</span><input type="date" class="dr-b" aria-label="Bitiş" min="${d[0]}" max="${d[n - 1]}" value="${d[b]}"></div>`;
+function chartCtl(key) {
+  const st = ccState(key), [a, b] = cardWin(key), d = D.d.days, n = N(), views = DEF[key]?.views;
+  const opt = (v, l, sel) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(l)}</option>`;
+  const dimSel = (dim, label, vals) => `<label>${label} <select data-dim="${dim}">${opt("", "Tümü", st.dim !== dim)}${vals.map(([v, l]) => opt(v, l, st.dim === dim && st.val === v)).join("")}</select></label>`;
+  const active = [st.dim && (st.dim === "country" ? TR_COUNTRY[st.val] || st.val : st.val), st.sub !== "paid" && SUB_LABEL[st.sub]].filter(Boolean);
+  return `<div class="cc" data-k="${key}">${views ? `<select class="cc-view" aria-label="Görünüm">${views.map(([v, l]) => opt(v, l, (st.view ?? views[0][0]) === v)).join("")}</select>` : ""}
+    <div class="seg-ctl">${[7, 30, 90].map((k) => `<button type="button" data-n="${k}" aria-pressed="${b === n - 1 && b - a + 1 === Math.min(k, n)}">${k}G</button>`).join("")}</div>
+    <input type="date" class="cc-a" aria-label="Başlangıç" min="${d[0]}" max="${d[n - 1]}" value="${d[a]}"><span>–</span><input type="date" class="cc-b" aria-label="Bitiş" min="${d[0]}" max="${d[n - 1]}" value="${d[b]}">
+    <details class="cc-f"><summary${active.length ? ' class="on"' : ""}>Filtre${active.length ? " · " + esc(active.join(" · ")) : ""}</summary><div class="cc-pop">
+      ${dimSel("platform", "Platform", [["iOS", "iOS"], ["Android", "Android"]])}${dimSel("country", "Ülke", D.d.countries.map((c) => [c, TR_COUNTRY[c] || c]))}${dimSel("version", "Sürüm", D.d.versions.map((v) => [v, v]))}
+      <label>Abone <select data-sub>${[["paid", "Tümü"], ["store", "Mağaza"], ["web", "Web"]].map(([v, l]) => opt(v, l, st.sub === v)).join("")}</select></label>
+      <button type="button" class="cc-clear">Temizle</button></div></details></div>`;
 }
+function registerCard(key, opts, draw) { DEF[key] = { days: opts.days || 30, views: opts.views || null }; REDRAW[key] = draw; }
 document.addEventListener("change", (ev) => {
-  const box = ev.target.closest(".dr"); if (!box) return;
-  CR[box.dataset.k] = [box.querySelector(".dr-a").value, box.querySelector(".dr-b").value];
-  REDRAW[box.dataset.k]?.();
+  const box = ev.target.closest(".cc"); if (!box) return;
+  const k = box.dataset.k, st = ccState(k), t = ev.target;
+  if (t.matches(".cc-a, .cc-b")) st.range = [box.querySelector(".cc-a").value, box.querySelector(".cc-b").value];
+  else if (t.matches(".cc-view")) st.view = t.value;
+  else if (t.dataset.dim) { st.dim = t.value ? t.dataset.dim : null; st.val = t.value; }
+  else if (t.hasAttribute("data-sub")) st.sub = t.value;
+  const keepOpen = !!t.closest(".cc-f");
+  REDRAW[k]?.();
+  if (keepOpen) document.querySelector(`.cc[data-k="${k}"] .cc-f`)?.setAttribute("open", "");
 });
 document.addEventListener("click", (ev) => {
-  const b = ev.target.closest(".dr button"); if (!b) return;
-  const k = b.closest(".dr").dataset.k, n = N(), m = Number(b.dataset.n);
-  CR[k] = [D.d.days[Math.max(0, n - m)], D.d.days[n - 1]];
-  REDRAW[k]?.();
+  document.querySelectorAll(".cc-f[open]").forEach((d) => { if (!d.contains(ev.target)) d.removeAttribute("open"); });
+  const b = ev.target.closest(".cc .seg-ctl button");
+  if (b) { const k = b.closest(".cc").dataset.k, n = N(); ccState(k).range = [D.d.days[Math.max(0, n - Number(b.dataset.n))], D.d.days[n - 1]]; REDRAW[k]?.(); return; }
+  const c = ev.target.closest(".cc-clear");
+  if (c) { const k = c.closest(".cc").dataset.k; Object.assign(ccState(k), { dim: null, val: "", sub: "paid" }); REDRAW[k]?.(); }
 });
 
 // Timeline card: counts (top chart) and rates (chart below). Default: daily + 7-day average over the global range;
@@ -597,18 +629,18 @@ document.addEventListener("click", (ev) => {
 function trendCard(title, counts, rates = [], opts = {}) {
   const id = "c" + Math.random().toString(36).slice(2, 8);
   const draw = () => drawTrend(document.getElementById(id), counts, rates, opts);
-  if (opts.key) REDRAW[opts.key] = draw;
-  return { html: `<div class="card${opts.wide ? " wide" : ""}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2><span class="tags"></span>${opts.key ? `<div class="dr-host"></div>` : ""}</div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}<div class="legend"></div><div class="chart ch-a"></div>${rates.length && counts.length ? `<div class="legend lg-b"></div><div class="chart ch-b"></div>` : ""}<div class="tip"></div></div>`,
+  if (opts.key) registerCard(opts.key, opts, draw);
+  return { html: `<div class="card${opts.wide ? " wide" : ""}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2><span class="tags"></span>${opts.key ? `<div class="cc-host"></div>` : ""}</div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}<div class="legend"></div><div class="chart ch-a"></div>${rates.length && counts.length ? `<div class="legend lg-b"></div><div class="chart ch-b"></div>` : ""}<div class="tip"></div></div>`,
     draw };
 }
-function seriesFor(ids, k0, [i0, i1], pw, noMA) {
+function seriesFor(ids, k0, [i0, i1], pw, noMA, f = S) {
   return ids.map((mid, k) => {
-    const c = D.cat[mid], s = series(mid);
+    const c = D.cat[mid], s = series(mid, f);
     if (!c || !s.vals) return null;
     const ma = noMA ? null : movingAvg(s);
-    const f = (v) => fmt(c.unit, v);
+    const fv = (v) => fmt(c.unit, v);
     const o = {
-      id: mid, name: shortLabel(c), color: COL[(k0 + k) % COL.length], fmt: f, tag: s.tag,
+      id: mid, name: shortLabel(c), color: COL[(k0 + k) % COL.length], fmt: fv, tag: s.tag,
       vals: s.vals.slice(i0, i1 + 1), ma: ma ? ma.slice(i0, i1 + 1) : null,
       prev: S.cmp && pw && ma ? ma.slice(pw[0], pw[1] + 1) : null,
       faded: s.den ? s.den.slice(i0, i1 + 1).map((d) => d != null && d < MIN_DEN) : null,
@@ -624,8 +656,9 @@ function legendHtml(ser) {
 function drawTrend(card, counts, rates, opts) {
   if (!card) return;
   const w = opts.key ? cardWin(opts.key) : win(), pw = opts.key ? null : prevWin(), x = D.d.days.slice(w[0], w[1] + 1);
-  if (opts.key) card.querySelector(".dr-host").innerHTML = rangeCtl(opts.key);
-  const A = seriesFor(counts.length ? counts : rates, 0, w, pw, opts.noMA), B = counts.length ? seriesFor(rates, counts.length, w, pw, opts.noMA) : [];
+  if (opts.key) card.querySelector(".cc-host").innerHTML = chartCtl(opts.key);
+  const f = opts.key ? cardFilter(opts.key) : S;
+  const A = seriesFor(counts.length ? counts : rates, 0, w, pw, opts.noMA, f), B = counts.length ? seriesFor(rates, counts.length, w, pw, opts.noMA, f) : [];
   const tags = [...A, ...B].some((s) => s.tag);
   card.querySelector(".tags").innerHTML = tagHtml(tags) + (opts.help ? helpBtn(opts.help) : "");
   const unitA = D.cat[(counts.length ? counts : rates)[0]]?.unit;
@@ -641,9 +674,9 @@ const yFmtFor = (unit) => (unit === "pct" ? (t) => "%" + nf.format(Math.round(t 
 // Generic card with custom draw(cardEl)
 function customCard(title, inner, draw, opts = {}) {
   const id = "c" + Math.random().toString(36).slice(2, 8);
-  const run = () => { const el = document.getElementById(id); if (!el) return; if (opts.key) el.querySelector(".dr-host").innerHTML = rangeCtl(opts.key); draw(el); };
-  if (opts.key) REDRAW[opts.key] = run;
-  return { html: `<div class="card${opts.wide === false ? "" : " wide"}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2>${opts.ctl || ""}<span class="tags">${opts.help ? helpBtn(opts.help) : ""}</span>${opts.key ? `<div class="dr-host"></div>` : ""}</div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}${inner}<div class="tip"></div></div>`,
+  const run = () => { const el = document.getElementById(id); if (!el) return; if (opts.key) el.querySelector(".cc-host").innerHTML = chartCtl(opts.key); draw(el); };
+  if (opts.key) registerCard(opts.key, opts, run);
+  return { html: `<div class="card${opts.wide === false ? "" : " wide"}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2>${opts.ctl || ""}<span class="tags">${opts.help ? helpBtn(opts.help) : ""}</span>${opts.key ? `<div class="cc-host"></div>` : ""}</div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}${inner}<div class="tip"></div></div>`,
     draw: run };
 }
 function sortableTable(cols, rows, opts = {}) {
@@ -667,21 +700,38 @@ function sortableTable(cols, rows, opts = {}) {
 const SECTIONS = {};
 const intro = (t) => `<p class="sec-intro">${t}</p>`;
 
+const TIERS_HELP = "Online = gün içinde dashboard_page_viewed. Aktif = ≥1 call_ok (Regular ve North Star dahil). Regular = tam 1 ders tamamlama. North Star = ≥2 ders tamamlama (anm_c_lesson_completed). Regular ile North Star kesişmez. Oranlar Online'a göre.";
+// User type card: one KPI with a type select (reset to North Star on every page load)
+const UT = { v: "northstar" };
+const UT_OPTS = [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]];
+function userTypeKpi() {
+  const [, , id, own] = UT_OPTS.find((o) => o[0] === UT.v);
+  const head = `<select class="ut-sel" aria-label="Kullanıcı tipi">${UT_OPTS.map(([v, l]) => `<option value="${v}"${v === UT.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+  return kpiCard(id, null, null, { mode: "day", own, head });
+}
+document.addEventListener("change", (ev) => { if (ev.target.matches(".ut-sel")) { UT.v = ev.target.value; renderSection(); } });
+// User types over time: ratios to Online by default, user counts through the card's "Görünüm" select
+function tiersCard(key) {
+  return customCard("Kullanıcı tipleri", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const view = ccState(key).view || "rate", w = cardWin(key), f = cardFilter(key);
+    const ids = view === "count" ? ["online", "active", "regular", "northstar"] : ["ns_online", "regular_online"];
+    const ser = seriesFor(ids, view === "count" ? 0 : 3, w, null, true, f);
+    card.querySelector(".tags").innerHTML = tagHtml(ser.some((x) => x.tag)) + helpBtn(TIERS_HELP);
+    card.querySelector(".legend").innerHTML = legendHtml(ser);
+    const unit = D.cat[ids[0]].unit;
+    lineChart(card.querySelector(".ch-a"), card, D.d.days.slice(w[0], w[1] + 1), ser, { yFmt: yFmtFor(unit), pctMax: unit === "pct", H: 240, aria: "Kullanıcı tipleri" });
+  }, { key, days: 90, views: [["rate", "Oran (Online'a göre)"], ["count", "Kullanıcı sayısı"]] });
+}
 SECTIONS.genel = () => {
   const own = { noMA: true, wide: true };
   const blocks = [
-    trendCard("Aktif → Regular → North Star", ["active", "regular", "northstar"], ["ns_online", "regular_online"], { ...own, key: "g-tiers", help: "Online = gün içinde dashboard_page_viewed. Aktif = ≥1 call_ok (Regular ve North Star dahil). Regular = tam 1 ders tamamlama. North Star = ≥2 ders tamamlama (anm_c_lesson_completed). Regular ile North Star kesişmez. Alttaki oranlar Online'a göre." }),
+    tiersCard("g-tiers"),
     trendCard("Node etkileşimi (session bazlı)", ["node_click_rate"], ["node_start_rate", "chain_share"], { ...own, key: "g-node", help: "Node click rate = o gün node'a tıklanan (pre_lesson_viewed) session / o gün açılan session. Alttaki: node'dan başlama oranı (d_start_continue_lesson_bt / pre_lesson_viewed) ve Sıradaki ders zincirinin ders sayfalarındaki payı." }),
     trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { ...own, key: "g-lesson", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
-    trendCard("Yarım bırakma (session bazlı)", ["abandon_rate_s"], [], { ...own, key: "g-aband", help: "Ders başlatılıp tamamlanmayan session / ders başlatılan session (başlatılan − tamamlanan session; yaklaşık)." }),
     speechOnlineCard("g-speech"),
   ];
   const tbl = dailyTable("g-daily");
-  return { html: kpiRow([["ns_online", null, null, { mode: "day", own: "north star" }], ["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }],
-        ["node_click_rate", null, null, { mode: "day", own: "session", withDen: true }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
-        ["speech_min", null, null, { mode: "day", sub: (i0, i1) => { const c = D.cat.min_per_active; return `<span><b>${fmt("min", periodValue(c, series("min_per_active"), i0, i1))}</b> / aktif</span>`; } }],
-        ["stickiness", null, null, { mode: "day" }],
-        ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => { const c = D.cat.rating_low_rate; return `<span>1–2★ <b>${fmt("pct", periodValue(c, series("rating_low_rate"), i0, i1))}</b></span>`; } }]])
+  return { html: `<div class="kpis" style="--cols:4">${userTypeKpi()}${kpiCard("node_click_rate", null, null, { mode: "day", own: "session", withDen: true })}</div>`
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
@@ -689,7 +739,7 @@ SECTIONS.genel = () => {
 function speechOnlineCard(key) {
   return customCard("Günlük konuşma dakikası ve online abone", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const [i0, i1] = cardWin(key), x = D.d.days.slice(i0, i1 + 1);
-    const sm = series("speech_min"), on = series("online");
+    const f = cardFilter(key), sm = series("speech_min", f), on = series("online", f);
     card.querySelector(".tags").innerHTML = tagHtml(sm.tag || on.tag) + helpBtn("Toplam konuşma dakikası = Σ speech_duration (> 0) / 60, o günün toplamı. Online = gün içinde dashboard_page_viewed gören tekil abone (sağ eksen).");
     const L = { name: "Toplam konuşma dakikası", color: COL[0], vals: (sm.vals || []).slice(i0, i1 + 1), fmt: (v) => fmt("min", v) };
     const Rr = { name: "Online abone", color: COL[1], vals: (on.vals || []).slice(i0, i1 + 1), fmt: (v) => fmt("count", v) };
@@ -737,8 +787,8 @@ const kpiRow = (specs) => `<div class="kpis" style="--cols:${kpiCols(specs.lengt
 function dailyTable(key) {
   const COLS = [["online", "Online"], ["active", "Aktif"], ["northstar", "NS"], ["ns_online", "NS / Online"], ["talk_rate", "Aktif / Online"], ["sessions", "Session"], ["node_click_rate", "Node click"], ["lesson_start_rate_s", "Ders başlatılan s."], ["completion_rate_s", "Tamamlanan s."], ["abandon_rate_s", "Bırakma (s.)"], ["speech_min", "Konuşma dk"], ["rating_high_rate", "4–5★"]];
   return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
-    const [i0, i1] = key ? cardWin(key) : win();
-    const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id)]));
+    const [i0, i1] = key ? cardWin(key) : win(), f = key ? cardFilter(key) : S;
+    const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id, f)]));
     const cell = (id, i) => { const c = D.cat[id], s = ser[id]; const v = s.vals?.[i]; const faded = s.den && s.den[i] != null && s.den[i] < MIN_DEN; return `<td class="${faded ? "faded" : ""}">${fmt(c.unit, v)}</td>`; };
     const rows = [];
     for (let i = i1; i >= i0; i--) {
@@ -753,16 +803,16 @@ function dailyTable(key) {
       tb.querySelectorAll("tr.detail").forEach((r) => r.remove()); tb.querySelectorAll("tr.open").forEach((r) => r.classList.remove("open"));
       if (open) return;
       tr.classList.add("open");
-      tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="${COLS.length + 2}">${dayBreakdown(Number(tr.dataset.i))}</td></tr>`);
+      tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="${COLS.length + 2}">${dayBreakdown(Number(tr.dataset.i), f.sub)}</td></tr>`);
     });
   }, { key });
 }
-function dayBreakdown(i) {
+function dayBreakdown(i, sub = S.sub) {
   const keys = [["p:iOS", "iOS"], ["p:Android", "Android"], ...D.d.countries.map((c) => ["c:" + c, TR_COUNTRY[c] || c])];
   const ids = ["online", "active", "ns_online", "node_click_rate", "completion_rate_s"];
-  const f = { dim: null, sub: S.sub };
+  const f = { dim: null, sub };
   const rows = keys.map(([k, l]) => `<tr><td>${esc(l)}</td>${ids.map((id) => { const s = series(id, { ...f, dim: k[0] === "p" ? "platform" : "country", slice: k }); return `<td>${fmt(D.cat[id].unit, s.vals?.[i])}</td>`; }).join("")}</tr>`).join("");
-  return `<div class="det"><div><h4>${dLong(D.d.days[i])} · ${SUB_LABEL[S.sub]}</h4><table><tr><td></td>${ids.map((id) => `<td><b>${esc(shortLabel(D.cat[id]))}</b></td>`).join("")}</tr>${rows}</table></div></div>`;
+  return `<div class="det"><div><h4>${dLong(D.d.days[i])} · ${SUB_LABEL[sub]}</h4><table><tr><td></td>${ids.map((id) => `<td><b>${esc(shortLabel(D.cat[id]))}</b></td>`).join("")}</tr>${rows}</table></div></div>`;
 }
 
 SECTIONS.aktif = () => {
@@ -802,13 +852,14 @@ SECTIONS.dersler = () => {
     trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
     trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
     abandonCard(),
+    trendCard("Yarım bırakma (session bazlı)", ["abandon_rate_s"], [], { help: "Ders başlatılıp tamamlanmayan session / ders başlatılan session (başlatılan − tamamlanan session; yaklaşık)." }),
     trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], []),
     trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
     reasons,
     trendCard("Başlatma kaynağı: Sıradaki ders zinciri", ["chain_start"], ["chain_share"]),
     lessonTable(),
   ];
-  return { html: kpiRow([["lesson_start"], ["connect_rate", "lesson_connected"], ["completion_rate", "lesson_completed"], ["completion_rate_connected"], ["abandon_rate"], ["abandon_after_1min"], ["lesson_duration"], ["lessons_per_active"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  return { html: kpiRow([["lesson_start"], ["connect_rate", "lesson_connected"], ["completion_rate", "lesson_completed"], ["completion_rate_connected"], ["abandon_rate"], ["abandon_rate_s", null, null, { own: "session" }], ["abandon_after_1min"], ["lesson_duration"], ["lessons_per_active"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 function abandonCard() {
   return customCard("Yarım bırakma", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
@@ -1134,7 +1185,11 @@ SECTIONS.diger = () => {
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
-  return { html: intro("Genel bakıştan kaldırılan grafikler: adet bazlı akışlar ve ders sayfası bazlı oranlar. Tarih aralığı üstteki seçiciden.") + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }], ["completion_rate_s", null, null, { mode: "day", own: "session" }],
+    ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
+    ["stickiness", null, null, { mode: "day" }],
+    ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]]);
+  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
 SECTIONS.tanimlar = () => {
@@ -1170,7 +1225,7 @@ function buildControls() {
 function syncControls() {
   document.querySelectorAll("#range button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.r) === S.range)));
   const ownRanges = S.tab === "genel";
-  document.getElementById("range").hidden = ownRanges; document.getElementById("cmp-wrap").hidden = ownRanges;
+  document.querySelector(".ctl-row").hidden = ownRanges;
   const cmp = document.getElementById("cmp"), off = S.range === 90;
   cmp.checked = S.cmp && !off; cmp.disabled = off;
   document.getElementById("cmp-wrap").classList.toggle("off", off);
@@ -1205,7 +1260,7 @@ function renderSection() {
   syncControls();
   const host = document.getElementById("sec");
   current = (SECTIONS[S.tab] || SECTIONS.genel)();
-  const warn = S.sub !== "paid" && S.tab !== "yeni" ? `<div class="notebox"><b>Abone tipi notu:</b> 28 Eylül 2026'ya kadar web (Stripe) aboneleri RevenueCat'te <code>active</code> durumundaydı ve <b>Mağaza</b>'da sayılıyor; o gün web_promo'ya (<code>promotional</code>) taşındılar. Mağaza / Web karşılaştırması 28 Eylül'den itibaren anlamlı.</div>` : "";
+  const warn = S.sub !== "paid" && S.tab !== "yeni" && S.tab !== "genel" ? `<div class="notebox"><b>Abone tipi notu:</b> 28 Eylül 2026'ya kadar web (Stripe) aboneleri RevenueCat'te <code>active</code> durumundaydı ve <b>Mağaza</b>'da sayılıyor; o gün web_promo'ya (<code>promotional</code>) taşındılar. Mağaza / Web karşılaştırması 28 Eylül'den itibaren anlamlı.</div>` : "";
   host.innerHTML = `<section class="sec">${warn}${dataNotes()}${current.html}</section>`;
   current.draw();
 }
