@@ -1979,6 +1979,169 @@
    }
   },
   {
+   "id": "sess_start",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "node_start"
+   ],
+   "parse": "Sliced (1 base × 4 slice), segmentIndex = abone tipi. Değer = o gün d_start_continue_lesson_bt'nin görüldüğü tekil session_id sayısı (property_count): node'dan ders başlatılan session.",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Node'dan başlatılan session (tekil session_id)",
+    "events": [
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "property_count"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
    "id": "flow_node",
    "chart": {
     "kind": "segmentation",

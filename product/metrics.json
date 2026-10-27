@@ -1510,6 +1510,47 @@
    "period": "ratio_of_sums"
   },
   {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "İçinde d_start_continue_lesson_bt (node'dan ders başlatma) olan session.",
+   "id": "s_node_start",
+   "label": "Node'dan başlatılan session",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "sess_start",
+    "base": 0,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "sum"
+  },
+  {
+   "kind": "ratio",
+   "unit": "pct",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Node'dan ders başlatılan session / o gün açılan session.",
+   "id": "node_start_rate_s",
+   "label": "Node start rate",
+   "num": "s_node_start",
+   "den": "sessions",
+   "tabs": [
+    "genel",
+    "node"
+   ],
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
    "kind": "ratio",
    "unit": "pct",
    "chart": "line",
@@ -1530,7 +1571,7 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "Ders tamamlanan session / o gün açılan session.",
+   "note": "Ders tamamlanan session / o gün açılan session (genel bakışta Node complete rate).",
    "id": "completion_rate_s",
    "label": "Tamamlama oranı (session)",
    "num": "s_lesson_done",

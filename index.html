@@ -705,7 +705,7 @@ const TIERS_HELP = "Online = gün içinde dashboard_page_viewed. Aktif = ≥1 ca
 // option = [value, label, metric id, own-count label, show denominator]
 const KSEL = {
   ut: { v: "northstar", aria: "Kullanıcı tipi", opts: [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]] },
-  node: { v: "click", aria: "Node oranı", opts: [["click", "Node click rate", "node_click_rate", "session", true], ["start", "Node start rate", "node_start_rate", "dokunuş", true], ["complete", "Node complete rate", "completion_rate_s", "session", true]] },
+  node: { v: "click", aria: "Node oranı", opts: [["click", "Node click rate", "node_click_rate", "session", true], ["start", "Node start rate", "node_start_rate_s", "session", true], ["complete", "Node complete rate", "completion_rate_s", "session", true]] },
 };
 function selectKpi(k) {
   const st = KSEL[k], [, , id, own, withDen] = st.opts.find((o) => o[0] === st.v);
@@ -782,7 +782,7 @@ const kpiRow = (specs) => `<div class="kpis" style="--cols:${kpiCols(specs.lengt
 
 // Daily table (the reference site's transaction list): newest day first, click a row for its breakdown
 function dailyTable(key) {
-  const COLS = [["online", "Online"], ["active", "Aktif"], ["northstar", "NS"], ["ns_online", "NS / Online"], ["talk_rate", "Aktif / Online"], ["sessions", "Session"], ["node_click_rate", "Node click"], ["lesson_start_rate_s", "Ders başlatılan s."], ["completion_rate_s", "Tamamlanan s."], ["abandon_rate_s", "Bırakma (s.)"], ["speech_min", "Konuşma dk"], ["rating_high_rate", "4–5★"]];
+  const COLS = [["online", "Online"], ["active", "Aktif"], ["northstar", "NS"], ["ns_online", "NS / Online"], ["talk_rate", "Aktif / Online"], ["sessions", "Session"], ["node_click_rate", "Node click"], ["node_start_rate_s", "Node start"], ["lesson_start_rate_s", "Ders başlatılan s."], ["completion_rate_s", "Tamamlanan s."], ["abandon_rate_s", "Bırakma (s.)"], ["speech_min", "Konuşma dk"], ["rating_high_rate", "4–5★"]];
   return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
     const [i0, i1] = key ? cardWin(key) : win(), f = key ? cardFilter(key) : S;
     const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id, f)]));
@@ -974,7 +974,7 @@ SECTIONS.node = () => {
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const b = [
     flow,
-    trendCard("Node etkileşimi (session bazlı)", ["node_click_rate"], ["node_start_rate", "chain_share"], { noMA: true, wide: true, key: "n-node", help: "Node click rate = o gün node'a tıklanan (pre_lesson_viewed) session / o gün açılan session. Alttaki: node'dan başlama oranı (d_start_continue_lesson_bt / pre_lesson_viewed) ve Sıradaki ders zincirinin ders sayfalarındaki payı." }),
+    trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
     trendCard("Node click rate (session bazlı)", ["sessions", "s_node"], ["node_click_rate"], { help: "Node'a tıklanan (pre_lesson_viewed) session / o gün açılan session." }),
     trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
     trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
@@ -985,7 +985,7 @@ SECTIONS.node = () => {
     pathCard(),
     a1LadderCard(),
   ];
-  return { html: kpiRow([["node_click_rate", "sessions", "s_node"], ["node_tap_rate", "node_tap_users"], ["node_start_rate", "node_start"], ["start_to_page", "lesson_start"], ["chain_share", "chain_start"], ["node_done_rate"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  return { html: kpiRow([["node_click_rate", "sessions", "s_node"], ["node_start_rate_s", "sessions", "s_node_start"], ["node_tap_rate", "node_tap_users"], ["node_start_rate", "node_start"], ["start_to_page", "lesson_start"], ["chain_share", "chain_start"], ["node_done_rate"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
 // ---------- new subscribers (cohorts by entry day) ----------
