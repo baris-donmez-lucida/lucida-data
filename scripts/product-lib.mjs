@@ -201,6 +201,16 @@ export function abandDay(data) {
   return { opened: Number(x.cumulativeRaw[0]) || 0, abandoned: Number(x.cumulativeRaw[1]) || 0, over60 };
 }
 
+// stick_day (one 7-day window ending on its last day, one segment per subscriber type, new users excluded):
+// { d, <sub>: { dau: last day's uniques, wau: uniques of the whole window } }
+export function stickDay(data, subs) {
+  const s = segSeries(data);
+  if (!s || !s.days.length) return null;
+  const n = s.days.length, o = { d: s.days[n - 1] };
+  subs.forEach((sub, seg) => { const k = `${seg}|0|`; if (s.series.has(k)) o[sub] = { dau: s.series.get(k)[n - 1], wau: s.overall.get(k) }; });
+  return o;
+}
+
 // lesson_id → { lang: "en", lvl: "A1", no: 3 } ("live_lesson_en_a1_3": target language, level, number);
 // null for ids without a level.
 export function lessonLevel(id) {

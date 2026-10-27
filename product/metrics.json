@@ -328,12 +328,12 @@
    ],
    "kind": "ratio",
    "unit": "ratio",
-   "num": "active",
-   "den": "wau",
+   "num": "active_nonnew",
+   "den": "wau_nonnew",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "Gösterim: oran ve 'haftada X gün' (= oran × 7).",
+   "note": "DAU / WAU, son 7 günde gelen yeni kullanıcılar (Amplitude ilk görülme) hariç; × 7 = haftada ortalama aktif gün. Günlük tek sorgu, geçmiş 26 Eylül'den itibaren.",
    "period": "ratio_of_sums"
   },
   {
@@ -1612,6 +1612,46 @@
    ],
    "breakdowns": "num ve den'in ortak kırılımları",
    "period": "ratio_of_sums"
+  },
+  {
+   "id": "active_nonnew",
+   "label": "Aktif abone (son 7 günde yeni olmayan)",
+   "tabs": [
+    "tanimlar"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "stick_day",
+    "history": "product-history koleksiyonu, doküman 'stickiness': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "subType"
+   ],
+   "period": "daily_mean",
+   "note": "Gün içinde call_ok yapan, o güne kadarki 7 günde ilk kez görülmemiş (Amplitude yeni kullanıcı değil) abone."
+  },
+  {
+   "id": "wau_nonnew",
+   "label": "WAU (son 7 günde yeni olmayan)",
+   "tabs": [
+    "tanimlar"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "stick_day",
+    "history": "product-history koleksiyonu, doküman 'stickiness': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "subType"
+   ],
+   "period": "last",
+   "note": "O güne kadarki 7 günde call_ok yapan, bu 7 günde yeni olmayan tekil abone."
   }
  ],
  "northstar_def": {

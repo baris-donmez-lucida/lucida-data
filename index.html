@@ -392,7 +392,7 @@ function dataNotes() {
 function deltaSpan(c, cur, prev, label) {
   if (cur == null || prev == null) return "";
   let txt, d;
-  if (c.unit === "pct") { d = cur - prev; txt = `${nf1.format(Math.abs(d) * 100)} puan`; }
+  if (c.unit === "pct") { d = cur - prev; txt = nf1.format(Math.abs(d) * 100); }
   else { if (!prev) return ""; d = (cur - prev) / Math.abs(prev); txt = "%" + nf1.format(Math.abs(d) * 100); }
   const flat = c.unit === "pct" ? Math.abs(d) < 0.0005 : Math.abs(d) < 0.005;
   const good = LOWER_BETTER.has(c.id) ? d < 0 : d > 0;
@@ -545,10 +545,16 @@ function kpiCard(id, countId, extraId, opts = {}) {
   const isStick = id === "stickiness";
   let subs = [];
   if (isStick) subs.push(`<span>haftada <b>${fmt("ratio", cur, { days: true })}</b></span>`);
+  if (opts.own && s.num) {
+    let a = 0, b = 0;
+    for (let i = i0; i <= i1; i++) { a += s.num[i] || 0; b += s.den[i] || 0; }
+    subs.push(`<span><b>${nf.format(Math.round(a))}</b>${opts.withDen ? ` / ${nf.format(Math.round(b))}` : ""} ${esc(opts.own)}</span>`);
+  }
+  if (opts.sub) subs.push(opts.sub(i0, i1));
   if (countId && D.cat[countId]) { const cc = D.cat[countId], cs = series(countId); subs.push(`<span><b>${fmt(cc.unit, periodValue(cc, cs, i0, i1))}</b> ${esc(shortLabel(cc))}</span>`); }
   if (extraId && D.cat[extraId]) { const ec = D.cat[extraId], es = series(extraId); subs.push(`<span>${esc(shortLabel(ec))} <b>${fmt(ec.unit, periodValue(ec, es, i0, i1))}</b></span>`); }
   if (!opts.mode) subs.push(`<span>${PERIOD_LABEL[c.period] || ""}</span>`);
-  else if (opts.mode === "week") subs.push(`<span>son 7 gün</span>`);
+  else if (opts.mode === "week" && !opts.own) subs.push(`<span>son 7 gün</span>`);
   const deltas = [];
   if (pw && pw[0] >= 0) deltas.push(deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
   if (!opts.mode && n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
@@ -670,8 +676,11 @@ SECTIONS.genel = () => {
     speechOnlineCard("g-speech"),
   ];
   const tbl = dailyTable("g-daily");
-  return { html: kpiRow([["ns_online", "northstar", "online", { mode: "day" }], ["talk_rate", "active", "online", { mode: "day" }], ["node_click_rate", "sessions", "s_node", { mode: "day" }], ["completion_rate_s", "s_lesson_done", "sessions", { mode: "day" }],
-        ["abandon_rate_s", "s_lesson_start", null, { mode: "day" }], ["speech_min", null, "min_per_active", { mode: "day" }], ["stickiness", null, null, { mode: "day" }], ["rating_high_rate", "ratings", "rating_low_rate", { mode: "week" }]])
+  return { html: kpiRow([["ns_online", null, null, { mode: "day", own: "north star" }], ["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }],
+        ["node_click_rate", null, null, { mode: "day", own: "session", withDen: true }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
+        ["speech_min", null, null, { mode: "day", sub: (i0, i1) => { const c = D.cat.min_per_active; return `<span><b>${fmt("min", periodValue(c, series("min_per_active"), i0, i1))}</b> / aktif</span>`; } }],
+        ["stickiness", null, null, { mode: "day" }],
+        ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => { const c = D.cat.rating_low_rate; return `<span>1–2★ <b>${fmt("pct", periodValue(c, series("rating_low_rate"), i0, i1))}</b></span>`; } }]])
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };

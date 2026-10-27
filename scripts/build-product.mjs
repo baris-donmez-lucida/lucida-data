@@ -114,13 +114,20 @@ const readHist = (id) => {
   const o = JSON.parse(readFileSync(p, "utf8"));
   return Array.isArray(o.points) ? o.points.filter((p) => p && p.d).sort((a, b) => (a.d < b.d ? -1 : 1)) : null;
 };
-const hist = { base: readHist("base") || [], aband: readHist("abandon_after_1min") || [] };
+const hist = { base: readHist("base") || [], aband: readHist("abandon_after_1min") || [], stick: readHist("stickiness") || [] };
 // yesterday's aband_day result wins over a history point for the same day
 { const p = L.abandDay(load("aband_day")); if (p) { hist.aband = hist.aband.filter((x) => x.d !== dataDate); hist.aband.push({ d: dataDate, ...p }); } }
+{ const p = L.stickDay(load("stick_day"), SUBS); if (p && p.d === dataDate) { hist.stick = hist.stick.filter((x) => x.d !== dataDate); hist.stick.push(p); } }
 if (!hist.base.length) missing.push("history:base");
+if (!hist.stick.length) missing.push("history:stickiness");
 const byDay = (pts, f) => { const at = new Map(pts.map((p) => [p.d, p])); return days.map((d) => (at.has(d) ? f(at.get(d)) : null)); };
 if (hist.base.length) put("base", "paid", "all", byDay(hist.base, (p) => p.v));
 if (hist.aband.length) for (const f of ["opened", "abandoned", "over60"]) put(`aband_day.${f}`, "paid", "all", byDay(hist.aband, (p) => p[f]));
+// stickiness without the last 7 days' new users (history points, one per day)
+if (hist.stick.length) for (const sub of SUBS) {
+  put("active_nonnew", sub, "all", byDay(hist.stick, (p) => p[sub]?.dau ?? null));
+  put("wau_nonnew", sub, "all", byDay(hist.stick, (p) => p[sub]?.wau ?? null));
+}
 
 // ---------- funnel rates and durations (paid; platform and country segments) ----------
 const r = {};

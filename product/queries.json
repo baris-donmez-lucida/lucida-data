@@ -5554,6 +5554,119 @@
    "parse": "HER SABAH yalnızca dün için çalışır (<DAY_START>/<DAY_END>). jsonResponse.data[0]: opened = cumulativeRaw[0], abandoned = cumulativeRaw[1], stepTransTimeDistribution.step_bins[1].bins -> start >= 60000 olan bin'lerin totals toplamı = over60. Nokta {d, opened, abandoned, over60} geçmişe eklenir; ilk kurulumda son 30 gün için tek tek doldurulur."
   },
   {
+   "id": "stick_day",
+   "groupByLimit": 10,
+   "sliced": false,
+   "series": [
+    "call_ok"
+   ],
+   "parse": "HER SABAH yalnızca dünün haftası için çalışır (<WEEK_START> = dün − 6 gün 00:00, <DAY_END> = dün 23:59:59). Segmentler paid / store / web, her biri o 7 günde yeni (Amplitude _new, ilk görülme) olmayan aboneler. dau = timeSeries'in son noktası (dün), wau = overallSeries (7 günün tekili). Nokta {d: dün, paid: {dau, wau}, store: {...}, web: {...}} product-history 'stickiness' dokümanına eklenir.",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Stickiness, son 7 günün yeni kullanıcıları hariç (tek gün)",
+    "events": [
+     {
+      "event": "call_ok",
+      "where": [],
+      "group_by": []
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_new",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         "<WEEK_START>",
+         "<DAY_END>"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_new",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         "<WEEK_START>",
+         "<DAY_END>"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_new",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         "<WEEK_START>",
+         "<DAY_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
    "id": "ret",
    "chart": {
     "kind": "retention",

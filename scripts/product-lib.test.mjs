@@ -63,6 +63,13 @@ test("parseDay: year inferred from the range, including Dec → Jan", () => {
   assert.equal(L.parseDay("Total", "2030-12-01", "2031-01-10"), null);
 });
 
+test("stickDay: last day's uniques and the window's uniques per subscriber type", () => {
+  const days = ["2030-01-01", "2030-01-02", "2030-01-03"];
+  const d = seg([{ segmentIndex: 0, eventIndex: 0 }, { segmentIndex: 2, eventIndex: 0 }], [[5, 6, 7], [1, 2, 3]], days);
+  d.jsonResponse.overallSeries = [[{ value: 11 }], [{ value: 4 }]];
+  assert.deepEqual(L.stickDay(d, ["paid", "store", "web"]), { d: "2030-01-03", paid: { dau: 7, wau: 11 }, web: { dau: 3, wau: 4 } });
+});
+
 test("lessonLevel", () => {
   assert.deepEqual(L.lessonLevel("live_lesson_en_a1_3"), { lang: "en", lvl: "A1", no: 3 });
   assert.deepEqual(L.lessonLevel("live_lesson_es_c1_12"), { lang: "es", lvl: "C1", no: 12 });
