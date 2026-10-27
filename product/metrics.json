@@ -117,7 +117,7 @@
   },
   {
    "id": "regular",
-   "label": "Regular (günde ≥1 ders tamamlama)",
+   "label": "Regular (günde tam 1 ders tamamlama)",
    "tabs": [
     "genel",
     "aktif"
@@ -137,8 +137,32 @@
     "version",
     "subType"
    ],
-   "note": "Gün içinde en az bir anm_c_lesson_completed atan abone.",
+   "note": "Gün içinde tam olarak bir anm_c_lesson_completed atan abone: (≥1 tamamlayan) − (≥2 tamamlayan). North Star ile kesişmez.",
    "period": "daily_mean"
+  },
+  {
+   "id": "regular_ge1",
+   "label": "Ders tamamlayan abone (günde ≥1)",
+   "tabs": [
+    "tanimlar"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "tiers",
+    "base": 0,
+    "segments": "tiers:regular"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "daily_mean",
+   "note": "Gün içinde en az bir ders tamamlayan abone (Regular + North Star)."
   },
   {
    "id": "northstar",
@@ -270,7 +294,7 @@
   },
   {
    "id": "ns_of_regular",
-   "label": "North Star / Regular",
+   "label": "North Star / ders tamamlayan",
    "tabs": [
     "aktif",
     "diger"
@@ -278,11 +302,11 @@
    "kind": "ratio",
    "unit": "pct",
    "num": "northstar",
-   "den": "regular",
+   "den": "regular_ge1",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "",
+   "note": "Gün içinde ders tamamlayanların (≥1) ne kadarı ≥2 tamamladı.",
    "period": "ratio_of_sums"
   },
   {
@@ -1657,7 +1681,7 @@
  "northstar_def": {
   "default": "tiers_done",
   "options": {
-   "tiers_done": "Günde ≥ 2 ders tamamlayan abone (anm_c_lesson_completed); Regular = günde ≥ 1.",
+   "tiers_done": "Günde ≥ 2 ders tamamlayan abone (anm_c_lesson_completed); Regular = günde tam 1.",
    "tiers": "Günde ≥ 2 ders sayfası açan abone (anm_conv_page_viewed, conv_type = lessonTalk). 'Sıradaki ders' zincirini de sayar.",
    "tiers_strict": "Günde ≥ 2 kez node'dan 'Başla' diyen abone (pre_lesson_lets_start). Zinciri saymaz."
   },

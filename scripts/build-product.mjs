@@ -58,7 +58,7 @@ for (const met of M.metrics) {
   const src = met.source;
   if (!src?.query || src.base == null || met.kind === "mix") continue;
   let qid = src.query;
-  if (qid === "tiers" && ["regular", "northstar"].includes(met.id)) qid = nsQuery;
+  if (qid === "tiers" && ["regular", "northstar", "regular_ge1"].includes(met.id)) qid = nsQuery;
   const s = slicedOf(qid);
   if (!s) continue;
   const tier = String(src.segments || "").startsWith("tiers:") ? src.segments.split(":")[1] : null;
@@ -72,6 +72,16 @@ for (const met of M.metrics) {
 {
   const s = slicedOf("tiers_strict");
   s?.out[0]?.forEach((bySlice, seg) => { const [sub, t] = SLICED_SEGS.tiers(seg); if (t === "regular") for (const [k, v] of Object.entries(bySlice || {})) put("regular_strict", sub, k, align(s.days, v)); });
+}
+
+// Regular = exactly one: (≥1) − (≥2), so Regular and North Star do not overlap
+if (m.regular_ge1 && m.northstar) {
+  m.regular = {};
+  for (const [sub, bySlice] of Object.entries(m.regular_ge1)) for (const [k, v] of Object.entries(bySlice)) {
+    const ns = m.northstar[sub]?.[k];
+    m.regular[sub] ??= {};
+    m.regular[sub][k] = v.map((x, i) => Math.max(0, x - (ns?.[i] || 0)));
+  }
 }
 
 // ---------- speech (property sum, seconds → minutes) ----------
