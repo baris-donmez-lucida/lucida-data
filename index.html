@@ -389,14 +389,15 @@ function dataNotes() {
 }
 
 // ---------- change arrows ----------
-function deltaSpan(c, cur, prev, label) {
+function deltaSpan(c, cur, prev, label, opts = {}) {
   if (cur == null || prev == null) return "";
   let txt, d;
   if (c.unit === "pct") { d = cur - prev; txt = nf1.format(Math.abs(d) * 100); }
   else { if (!prev) return ""; d = (cur - prev) / Math.abs(prev); txt = "%" + nf1.format(Math.abs(d) * 100); }
   const flat = c.unit === "pct" ? Math.abs(d) < 0.0005 : Math.abs(d) < 0.005;
   const good = LOWER_BETTER.has(c.id) ? d < 0 : d > 0;
-  return `<span><span class="delta ${flat ? "" : good ? "good" : "bad"}">${flat ? "=" : d > 0 ? "▲" : "▼"} ${txt}</span> ${label}</span>`;
+  // label "" = arrow and number only (overview); the comparison is kept in the tooltip
+  return `<span${label ? "" : ` title="${esc(opts.title || "")}"`}><span class="delta ${flat ? "" : good ? "good" : "bad"}">${flat ? "=" : d > 0 ? "▲" : "▼"} ${txt}</span>${label ? " " + label : ""}</span>`;
 }
 
 // ---------- chart primitives ----------
@@ -556,7 +557,7 @@ function kpiCard(id, countId, extraId, opts = {}) {
   if (!opts.mode) subs.push(`<span>${PERIOD_LABEL[c.period] || ""}</span>`);
   else if (opts.mode === "week" && !opts.own) subs.push(`<span>son 7 gün</span>`);
   const deltas = [];
-  if (pw && pw[0] >= 0) deltas.push(deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
+  if (pw && pw[0] >= 0) deltas.push(opts.mode ? deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), "", { title: cmpLabel }) : deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
   if (!opts.mode && n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
   return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
     <div class="kpi-v">${fmt(c.unit, cur, { days: false })}</div><div class="kpi-s">${subs.join("")}</div><div class="kpi-d">${deltas.join("")}</div>${spark(s.vals.slice(-30))}</div>`;
