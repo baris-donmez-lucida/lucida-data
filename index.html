@@ -723,12 +723,12 @@ function tiersCard(key) {
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     const unit = D.cat[ids[0]].unit;
     lineChart(card.querySelector(".ch-a"), card, D.d.days.slice(w[0], w[1] + 1), ser, { yFmt: yFmtFor(unit), pctMax: unit === "pct", H: 240, aria: "Kullanıcı tipleri" });
-  }, { key, days: 90, views: [["rate", "Oran (Online'a göre)"], ["count", "Kullanıcı sayısı"]] });
+  }, { key, days: 90, views: [["rate", "Rate Based"], ["count", "User Based"]] });
 }
 SECTIONS.genel = () => {
   const blocks = [tiersCard("g-tiers")];
   const tbl = dailyTable("g-daily");
-  return { html: `<div class="kpis" style="--cols:4">${selectKpi("ut")}${selectKpi("node")}${kpiCard("online", null, null, { mode: "day", head: "Online abone" })}${kpiCard("talk_rate", null, null, { mode: "day", own: "aktif" })}</div>`
+  return { html: `<div class="kpis" style="--cols:4">${selectKpi("ut")}${selectKpi("node")}${kpiCard("online", null, null, { mode: "day", head: "Online abone" })}${kpiCard("active", null, null, { mode: "day", head: "Aktif abone" })}</div>`
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
@@ -1185,7 +1185,7 @@ SECTIONS.diger = () => {
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
-  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
+  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
     ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
     ["stickiness", null, null, { mode: "day" }],
     ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]]);
