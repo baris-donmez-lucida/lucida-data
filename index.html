@@ -731,7 +731,11 @@ SECTIONS.genel = () => {
     speechOnlineCard("g-speech"),
   ];
   const tbl = dailyTable("g-daily");
-  return { html: `<div class="kpis" style="--cols:4">${userTypeKpi()}${kpiCard("node_click_rate", null, null, { mode: "day", own: "session", withDen: true })}</div>`
+  const kpis = [["node_click_rate", null, null, { mode: "day", own: "session", withDen: true }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
+    ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
+    ["stickiness", null, null, { mode: "day" }],
+    ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]];
+  return { html: `<div class="kpis" style="--cols:4">${userTypeKpi()}${kpis.map((k) => kpiCard(...k)).join("")}</div>`
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
@@ -1185,11 +1189,8 @@ SECTIONS.diger = () => {
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
-  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }], ["completion_rate_s", null, null, { mode: "day", own: "session" }],
-    ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
-    ["stickiness", null, null, { mode: "day" }],
-    ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]]);
-  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }]]);
+  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
 SECTIONS.tanimlar = () => {
