@@ -1216,7 +1216,9 @@ SECTIONS.retention = () => {
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-curve"), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to);
-    const Ns = Array.from({ length: 31 }, (_, k) => k);
+    // x axis fits the selected cohorts: up to the furthest DN any of them has filled (Amplitude returns at most D30)
+    const maxN = Math.max(1, ...rows.map((r) => r.cells.reduce((m, v, k) => (v != null ? k : m), 0)));
+    const Ns = Array.from({ length: Math.min(30, maxN) + 1 }, (_, k) => k);
     const pts = Ns.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { v: a / b, n: b } : null; });
     const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
     card.querySelector(".legend").innerHTML = legendHtml(ser);
