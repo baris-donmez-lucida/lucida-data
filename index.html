@@ -1212,7 +1212,7 @@ function retTable(key) {
     const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
     card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün call_ok yapan abone. DN: aynı kohorttan tam N. gün tekrar call_ok yapan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi retention oranına göre koyulaşır; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
     if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
-    const pct = (ccState(key).view || "count") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
+    const pct = (ccState(key).view || "pct") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? -1 : 1));
     const tot = RET_DAYS.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { a, b } : null; });
     const users = rows.reduce((t, r) => t + (r.users || 0), 0);
@@ -1225,7 +1225,7 @@ function retTable(key) {
     card.querySelector("thead").innerHTML = `<tr><th>Kohort</th><th>Kullanıcı</th>${RET_DAYS.map((k) => `<th>D${k}</th>`).join("")}</tr>`;
     tb.innerHTML = `<tr class="tot"><td>Toplam</td><td class="n">${nf.format(users)}</td>${tot.map((t) => cell(t?.a, t?.b)).join("")}</tr>`
       + rows.map((r) => `<tr><td>${dShort(r.d)}</td><td class="n">${nf.format(r.users)}</td>${RET_DAYS.map((k) => cell(r.cells[k], r.users)).join("")}</tr>`).join("");
-  }, { key, views: [["count", "Kullanıcı"], ["pct", "Oran"]] });
+  }, { key, views: [["pct", "Oran"], ["count", "Dönen kullanıcı"]] });
 }
 
 SECTIONS.memnuniyet = () => {
