@@ -636,11 +636,11 @@ function cardWin(key) {
   return a <= b ? [a, b] : [b, a];
 }
 function chartCtl(key) {
-  const st = ccState(key), [a, b] = cardWin(key), d = D.d.days, n = N(), views = DEF[key]?.views;
+  const st = ccState(key), [a, b] = cardWin(key), d = D.d.days, n = N(), views = DEF[key]?.views, kinds = DEF[key]?.kinds;
   const opt = (v, l, sel) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(l)}</option>`;
   const dimSel = (dim, label, vals) => `<label>${label} <select data-dim="${dim}">${opt("", "Tümü", st.dim !== dim)}${vals.map(([v, l]) => opt(v, l, st.dim === dim && st.val === v)).join("")}</select></label>`;
   const active = [st.dim && (st.dim === "country" ? TR_COUNTRY[st.val] || st.val : st.val), st.sub !== "paid" && SUB_LABEL[st.sub]].filter(Boolean);
-  return `<div class="cc" data-k="${key}">${views ? `<select class="cc-view" aria-label="Görünüm">${views.map(([v, l]) => opt(v, l, (st.view ?? views[0][0]) === v)).join("")}</select>` : ""}
+  return `<div class="cc" data-k="${key}">${kinds ? `<select class="cc-kind" aria-label="Tablo">${kinds.map(([v, l]) => opt(v, l, (st.kind ?? kinds[0][0]) === v)).join("")}</select>` : ""}${views ? `<select class="cc-view" aria-label="Görünüm">${views.map(([v, l]) => opt(v, l, (st.view ?? views[0][0]) === v)).join("")}</select>` : ""}
     <div class="seg-ctl">${[7, 30, 90].map((k) => `<button type="button" data-n="${k}" aria-pressed="${b === n - 1 && b - a + 1 === Math.min(k, n)}">${k}G</button>`).join("")}</div>
     <input type="date" class="cc-a" aria-label="Başlangıç" min="${d[0]}" max="${d[n - 1]}" value="${d[a]}"><span>–</span><input type="date" class="cc-b" aria-label="Bitiş" min="${d[0]}" max="${d[n - 1]}" value="${d[b]}">
     <details class="cc-f"><summary${active.length ? ' class="on"' : ""}>Filtre${active.length ? " · " + esc(active.join(" · ")) : ""}</summary><div class="cc-pop">
@@ -648,12 +648,13 @@ function chartCtl(key) {
       <label>Abone <select data-sub>${[["paid", "Tümü"], ["store", "Mağaza"], ["web", "Web"]].map(([v, l]) => opt(v, l, st.sub === v)).join("")}</select></label>
       <button type="button" class="cc-clear">Temizle</button></div></details></div>`;
 }
-function registerCard(key, opts, draw) { DEF[key] = { days: opts.days || 30, views: opts.views || null }; REDRAW[key] = draw; }
+function registerCard(key, opts, draw) { DEF[key] = { days: opts.days || 30, views: opts.views || null, kinds: opts.kinds || null }; REDRAW[key] = draw; }
 document.addEventListener("change", (ev) => {
   const box = ev.target.closest(".cc"); if (!box) return;
   const k = box.dataset.k, st = ccState(k), t = ev.target;
   if (t.matches(".cc-a, .cc-b")) st.range = [box.querySelector(".cc-a").value, box.querySelector(".cc-b").value];
   else if (t.matches(".cc-view")) st.view = t.value;
+  else if (t.matches(".cc-kind")) st.kind = t.value;
   else if (t.dataset.dim) { st.dim = t.value ? t.dataset.dim : null; st.val = t.value; }
   else if (t.hasAttribute("data-sub")) st.sub = t.value;
   const keepOpen = !!t.closest(".cc-f");
@@ -1234,8 +1235,13 @@ function retFor(f = S, R = D.d.ret) {
 const RET_DAYS = [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 21];
 function retTable(key) {
   return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
-    const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. takvim gününde (UTC) tekrar online olan (Return On, strict calendar dates). Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtre: platform, ülke veya abone tipi (birini seç; sürüm kırılımı yok).");
+    const isNew = (ccState(key).kind || "new") === "new";
+    const R = retFor(cardFilter(key), isNew ? D.d.nret : D.d.ret), tb = card.querySelector("tbody");
+    card.querySelector("h2").textContent = isNew ? "New-User Retention" : "Active-User Return Rate";
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn((isNew
+      ? "New-User Retention — kohort: dashboard'u o gün İLK KEZ gören abone (d0 = ilk dashboard_page_viewed; yeni kullanıcı). DN: aynı kohorttan tam N. takvim gününde (UTC) tekrar dashboard'u gören."
+      : "Active-User Return Rate — kohort: o gün online olan TÜM aboneler (yeni + eski; dashboard_page_viewed). DN: aynı kohorttan tam N. takvim gününde (UTC) tekrar online olan. Alışkanlık / geri gelme oranı; klasik (yeni kullanıcı) retention değildir.")
+      + " Return On, strict calendar dates. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtre: platform, ülke veya abone tipi (birini seç; sürüm kırılımı yok).");
     if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
     const pct = (ccState(key).view || "pct") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? 1 : -1)); // newest cohort first
@@ -1256,7 +1262,7 @@ function retTable(key) {
     card.querySelector("thead").innerHTML = `<tr><th>Kohort</th><th>Kullanıcı</th>${RET_DAYS.map((k) => `<th>D${k}</th>`).join("")}</tr>`;
     tb.innerHTML = `<tr class="tot"><td>Toplam</td><td class="n">${nf.format(users)}</td>${tot.map((t) => cell(t?.a, t?.b, null)).join("")}</tr>`
       + rows.map((r) => `<tr><td${[0, 6].includes(utc(r.d).getUTCDay()) ? ' class="we" title="Hafta sonu"' : ""}>${dShort(r.d)}</td><td class="n">${nf.format(r.users)}</td>${RET_DAYS.map((k, j) => cell(r.cells[k], r.users, j)).join("")}</tr>`).join("");
-  }, { key, views: [["pct", "Oran"], ["count", "Dönen kullanıcı"]] });
+  }, { key, kinds: [["new", "New-User Retention"], ["active", "Active-User Return Rate"]], views: [["pct", "Oran"], ["count", "Dönen kullanıcı"]] });
 }
 
 SECTIONS.memnuniyet = () => {
