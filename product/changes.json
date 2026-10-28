@@ -2,6 +2,7 @@
  "v": 1,
  "about": "Sürüm yayın tarihleri. Elle düzenlenir; tüm timeline'larda dikey çizgi ve sürüm etiketi olarak gösterilir. En yeni üstte. 2.8.8'in tarihi veriden (aktif abonelerde ilk görüldüğü gün), diğerleri ekipten.",
  "changes": [
+  {"d": "2026-10-26", "version": "2.9.2", "flag": "", "note": "2.9.2 yayınlandı"},
   {"d": "2026-10-16", "version": "2.9.1", "flag": "", "note": "2.9.1 yayınlandı"},
   {"d": "2026-10-09", "version": "2.9.0", "flag": "", "note": "2.9.0 yayınlandı"},
   {"d": "2026-09-30", "version": "2.8.9", "flag": "", "note": "2.8.9 yayınlandı"},
