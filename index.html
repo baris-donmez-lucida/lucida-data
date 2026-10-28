@@ -101,6 +101,9 @@
   .kpi-s, .kpi-d { font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 8px; }
   .kpi-s b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
   .kpi svg.spark { width: 100%; height: 28px; display: block; margin-top: 2px; }
+  .spark-w { position: relative; cursor: crosshair; }
+  .sp-dot { position: absolute; display: none; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--s1); box-shadow: 0 0 0 2px var(--surface); pointer-events: none; }
+  .spark-w.on .sp-dot { display: block; }
   /* Overview: fewer, larger cards */
   .kpis.big { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; }
   @media (min-width: 1100px) { .kpis.big { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -110,7 +113,9 @@
   .kpis.big .ut-sel { font-size: 14px; padding: 4px 8px; }
   .kpis.big .kpi-v { font-size: clamp(32px, 4vw, 42px); margin-top: 4px; }
   .kpis.big .kpi-s, .kpis.big .kpi-d { font-size: 13.5px; }
-  .kpis.big svg.spark { height: 56px; margin-top: 8px; }
+  .kpis.big svg.spark { height: 56px; }
+  .kpis.big .spark-w { margin-top: 8px; }
+  .kpis.big + .cards { margin-top: 28px; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
   .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta.good { color: var(--s3); }
@@ -533,14 +538,29 @@ function stackChart(host, card, x, cats, opts = {}) {
   });
   svg.addEventListener("pointerleave", () => { tip.style.display = "none"; });
 }
-function spark(vals) {
+// Sparkline; tips[i] = hover text for point i (shown by the document-level handler below)
+function spark(vals, tips) {
   const v = vals.map((x) => (x == null ? null : x)), b = nn(v);
   if (b.length < 2) return "";
   const W = 200, H = 28, lo = Math.min(...b), hi = Math.max(...b), sp = hi - lo || 1;
   let d = "", pen = false;
   v.forEach((x, i) => { if (x == null) { pen = false; return; } d += `${pen ? "L" : "M"}${((i / (v.length - 1)) * W).toFixed(1)} ${(H - 2 - ((x - lo) / sp) * (H - 4)).toFixed(1)} `; pen = true; });
-  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
+  const pts = v.map((x) => (x == null ? null : +(1 - (2 + ((x - lo) / sp) * (H - 4)) / H).toFixed(3)));
+  return `<div class="spark-w"${tips ? ` data-tips="${esc(JSON.stringify(tips))}" data-pts="${esc(JSON.stringify(pts))}"` : ""}><svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg><i class="sp-dot"></i><div class="tip"></div></div>`;
 }
+document.addEventListener("pointermove", (ev) => {
+  const w = ev.target.closest?.(".spark-w[data-tips]");
+  document.querySelectorAll(".spark-w.on").forEach((o) => { if (o !== w) { o.classList.remove("on"); o.querySelector(".tip").style.display = "none"; } });
+  if (!w) return;
+  const tips = JSON.parse(w.dataset.tips), pts = JSON.parse(w.dataset.pts), r = w.getBoundingClientRect(), n = tips.length;
+  const i = Math.max(0, Math.min(n - 1, Math.round(((ev.clientX - r.left) / r.width) * (n - 1))));
+  if (pts[i] == null) return;
+  const x = (i / (n - 1)) * r.width, y = pts[i] * r.height, tip = w.querySelector(".tip"), dot = w.querySelector(".sp-dot");
+  w.classList.add("on");
+  dot.style.left = x + "px"; dot.style.top = y + "px";
+  tip.innerHTML = tips[i]; tip.style.display = "block"; tip.style.top = y + "px";
+  tip.style.left = Math.max(70, Math.min(r.width - 70, x)) + "px";
+});
 
 // ---------- building blocks ----------
 const helpBtn = (txt) => (txt ? `<button type="button" class="help" title="${esc(txt)}" data-help="${esc(txt)}">?</button>` : "");
@@ -581,7 +601,7 @@ function kpiCard(id, countId, extraId, opts = {}) {
   if (pw && pw[0] >= 0) deltas.push(opts.mode ? deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), "", { title: cmpLabel }) : deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
   if (!opts.mode && n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
   return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${opts.head || esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
-    <div class="kpi-v">${fmt(c.unit, cur, { days: false })}</div><div class="kpi-s">${subs.join("")}</div><div class="kpi-d">${deltas.join("")}</div>${spark(s.vals.slice(-30))}</div>`;
+    <div class="kpi-v">${fmt(c.unit, cur, { days: false })}</div><div class="kpi-s">${subs.join("")}</div><div class="kpi-d">${deltas.join("")}</div>${spark(s.vals.slice(-30), D.d.days.slice(-30).map((d, k) => { const v = s.vals[s.vals.length - 30 + k]; return `${dLong(d)}<br><b>${v == null ? "—" : fmt(c.unit, v)}</b>`; }))}</div>`;
 }
 // drop a trailing "(event_name)" only; keep qualifiers such as "(/ bağlanan)"
 const shortLabel = (c) => c.label.replace(/\s*\([^()]*_[^()]*\)\s*$/, "");
@@ -733,7 +753,7 @@ function tiersCard(key) {
     card.querySelector(".tags").innerHTML = tagHtml(ser.some((x) => x.tag)) + helpBtn(TIERS_HELP);
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     const unit = D.cat[ids[0]].unit;
-    lineChart(card.querySelector(".ch-a"), card, D.d.days.slice(w[0], w[1] + 1), ser, { yFmt: yFmtFor(unit), pctMax: unit === "pct", H: 240, aria: "Kullanıcı tipleri" });
+    lineChart(card.querySelector(".ch-a"), card, D.d.days.slice(w[0], w[1] + 1), ser, { yFmt: yFmtFor(unit), pctMax: unit === "pct", H: 400, aria: "Kullanıcı tipleri" });
   }, { key, days: 90, views: [["rate", "Rate Based"], ["count", "User Based"]] });
 }
 SECTIONS.genel = () => {
