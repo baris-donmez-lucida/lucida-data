@@ -1183,8 +1183,10 @@ SECTIONS.yerlesik = () => {
 SECTIONS.retention = () => {
   // every card has its own date range and filter (the page-level controls are hidden on this tab)
   const tl = customCard("Kohort gününe göre retention", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
-    const R = retFor(cardFilter("r-tl")), ch = card.querySelector(".ch-a");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Her nokta o günün kohortu: o gün online olan abone (dashboard_page_viewed); DN = tam N. takvim gününde (UTC) tekrar online olan / kohort (strict calendar dates). Pooled 3-Day: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. 3-Day Median: aynı üç günün DN oranlarının medyanı. Daily: o günün kohortu. Penceresi dolmamış son günler çizilmez.");
+    const isNew = (ccState("r-tl").kind || "new") === "new";
+    const R = retFor(cardFilter("r-tl"), isNew ? D.d.nret : D.d.ret), ch = card.querySelector(".ch-a");
+    card.querySelector("h2").textContent = isNew ? "Kohort gününe göre retention · New-User" : "Kohort gününe göre retention · Active-User";
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn((isNew ? "New-User: her nokta o gün dashboard'u ilk kez gören abone kohortu (d0)." : "Active-User: her nokta o gün online olan tüm abonelerin kohortu (dashboard_page_viewed).") + " DN = tam N. takvim gününde (UTC) tekrar online olan / kohort (strict calendar dates). Pooled 3-Day: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. 3-Day Median: aynı üç günün DN oranlarının medyanı. Daily: o günün kohortu. Penceresi dolmamış son günler çizilmez.");
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-tl"), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
     // pooled: cohorts of the day before, the day and the day after — Σ returned on DN / Σ cohort users.
@@ -1205,7 +1207,7 @@ SECTIONS.retention = () => {
     });
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     lineChart(ch, card, x, ser, { yFmt: yFmtFor("pct"), H: 340, aria: "Kohort gününe göre retention" });
-  }, { key: "r-tl", days: 90, views: [["pooled", "Pooled 3-Day"], ["median", "3-Day Median"], ["daily", "Daily"]] });
+  }, { key: "r-tl", days: 90, kinds: [["new", "New-User Retention"], ["active", "Active-User Return Rate"]], views: [["pooled", "Pooled 3-Day"], ["median", "3-Day Median"], ["daily", "Daily"]] });
   const tbl = retTable("r-table");
   const curve = customCard("Unbounded retention (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const R = retFor(cardFilter("r-curve"), D.d.retu), ch = card.querySelector(".ch-a");
