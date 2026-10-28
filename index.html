@@ -1202,18 +1202,21 @@ SECTIONS.retention = () => {
   const tbl = retTable("r-table");
   return { html: `<div class="cards">${tbl.html}${curve.html}${tl.html}</div>`, draw: () => { tbl.draw(); curve.draw(); tl.draw(); } };
 };
+// Retention slices: platform, country or subscriber type (one at a time; no version slice)
 function retFor(f = S) {
   const R = D.d.ret; if (!R) return null;
-  const k = f.dim === "platform" ? "p:" + f.val : "all";
-  return { rows: R[k] || R.all, label: f.dim === "platform" ? f.val : "Tüm aboneler", tag: (f.dim && f.dim !== "platform") || f.sub !== "paid" };
+  const dk = f.dim === "platform" ? "p:" + f.val : f.dim === "country" ? "c:" + f.val : null, sk = f.sub && f.sub !== "paid" ? "s:" + f.sub : null;
+  const k = dk || sk || "all", rows = R[k];
+  const label = dk ? (f.dim === "country" ? TR_COUNTRY[f.val] || f.val : f.val) : sk ? SUB_LABEL[f.sub] : "Tüm aboneler";
+  return { rows: rows || R.all, label: rows ? label : "Tüm aboneler", tag: !rows || f.dim === "version" || (dk && sk) };
 }
 // Cohort table: one row per cohort day, DN = users of that cohort who came back on exactly day N.
 // Cell colour: vs the column's average (Toplam row) — green above, red below, none within ±2%; the further away, the stronger.
-const RET_DAYS = [1, 3, 6, 7, 8, 13, 14, 15];
+const RET_DAYS = [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 21];
 function retTable(key) {
   return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
     const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. gün tekrar online olan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. gün tekrar online olan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtre: platform, ülke veya abone tipi (birini seç; sürüm kırılımı yok).");
     if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
     const pct = (ccState(key).view || "pct") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? 1 : -1)); // newest cohort first

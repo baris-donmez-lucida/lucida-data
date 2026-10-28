@@ -101,13 +101,13 @@ export function labelKey(label, countries) {
   if (countries.includes(l)) return "c:" + l;
   return null;
 }
-function blocks(rows, countries, blockLabels) {
+function blocks(rows, countries, blockLabels, keyOf = labelKey) {
   // rows of one segment are contiguous; number the blocks in order of appearance
   const out = [];
   let prev = null, b = -1;
   for (const r of rows) {
     if (r[0] !== prev) { b++; prev = r[0]; }
-    const k = labelKey(r[0], countries) ?? (blockLabels ? labelKey(blockLabels[b], countries) : null);
+    const k = keyOf(r[0], countries) ?? (blockLabels ? keyOf(blockLabels[b], countries) : null);
     if (k) out.push([k, r]);
   }
   return out;
@@ -149,12 +149,12 @@ export function parseDay(s, from, to) {
 
 // Retention CSV → out[sliceKey] = [{ d, users, cells:[D0, D1, …] }], newest first as in the CSV.
 // Cells whose day (cohort + N) is after lastDay are incomplete and become null. "Overall" rows skipped.
-export function retention(data, lastDay, { countries, blockLabels }) {
+export function retention(data, lastDay, { countries, blockLabels, keyOf }) {
   const c = csv(data);
   if (!c) return null;
   const n0 = c.header.indexOf("Day 0");
   const out = {};
-  for (const [k, r] of blocks(c.rows, countries, blockLabels)) {
+  for (const [k, r] of blocks(c.rows, countries, blockLabels, keyOf)) {
     if (r[1] === "Overall") continue;
     const d = parseDay(r[1], "1970-01-01", "2999-12-31");
     if (!d) continue;

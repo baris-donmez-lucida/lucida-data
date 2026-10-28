@@ -173,7 +173,13 @@ if (m.active) {
 }
 
 // ---------- retention ----------
-const retRaw = L.retention(load("ret"), dataDate, { countries: COUNTRIES, blockLabels: segLabels("ret") });
+// ret: paid (all / iOS / Android) + subscriber type ("s:store", "s:web"); ret_country: one segment per country
+const retKey = (l, c) => (l === "store" || l === "web" ? "s:" + l : L.labelKey(l, c));
+const retRaw = (() => {
+  const a = L.retention(load("ret"), dataDate, { countries: COUNTRIES, blockLabels: segLabels("ret"), keyOf: retKey });
+  const b = L.retention(load("ret_country"), dataDate, { countries: COUNTRIES, blockLabels: segLabels("ret_country"), keyOf: retKey });
+  return a || b ? { ...(b || {}), ...(a || {}) } : null;
+})();
 const ret = retRaw ? Object.fromEntries(Object.entries(retRaw).map(([k, rows]) => [k, rows.filter((x) => x.d >= days[0])])) : null;
 
 // ---------- new subscribers (raw funnels, entry-day cohorts) ----------
