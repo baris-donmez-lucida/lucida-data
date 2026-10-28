@@ -1341,6 +1341,30 @@
    "period": "daily_mean"
   },
   {
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "note": "Aktivasyon aşamasındaki abone: dashboard_page_viewed'ı ilk kez gördüğü gün d0; d0–d8 arasındaki (o gün dahil son 9 günde ilk kez gören) tekil kullanıcı. d8'i tamamlayan aktivasyondan çıkar. Yalnızca aboneler (ücretli + promo): dönem içinde abone durumundayken en az bir event'i olanlar; free kullanıcılar sayılmaz.",
+   "id": "activation",
+   "label": "Aktivasyon aşamasındaki abone",
+   "tabs": [
+    "genel"
+   ],
+   "source": {
+    "query": "activation",
+    "base": 0,
+    "segments": "sub"
+   },
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "period": "daily_mean"
+  },
+  {
    "kind": "ratio",
    "unit": "pct",
    "chart": "line",

@@ -1415,6 +1415,240 @@
    }
   },
   {
+   "id": "activation",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "activation"
+   ],
+   "parse": "online ile aynı biçim (sliced, segmentIndex = abone tipi). Değer = o gün ve önceki 8 günde (d0–d8, rolling 9 gün) dashboard_page_viewed'ı ilk kez (nth_time_performed = 1, 730 gün geriye) gören tekil kullanıcı; abone filtresi davranışsal: <START>–<END> arasında abone durumundayken (paid / store / web) en az bir event'i olan. Özellik segmenti kullanılmaz: o zaman 'ilk kez' koşulu yalnız abone event'leri içinde sayılıyor ve RC durumu ilk görüntülemeden sonra geldiği için d0 kayıyor.",
+   "definition": {
+    "app": "773708",
+    "type": "eventsSegmentation",
+    "name": "Product v2 · Aktivasyon aşamasındaki abone v2 (ilk dashboard_page_viewed, d0–d8)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC",
+     "interval": 1,
+     "metric": "uniques",
+     "countGroup": "User",
+     "groupBy": [],
+     "rollingWindow": 9,
+     "nthTimeLookbackWindow": 730,
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "group_type": "User",
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "group_type": "User",
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack"
+        },
+        {
+         "group_type": "User",
+         "subprop_key": "platform",
+         "subprop_op": "is",
+         "subprop_value": [
+          "iOS",
+          "Android"
+         ],
+         "subprop_type": "user"
+        }
+       ],
+       "group_by": [
+        {
+         "type": "user",
+         "value": "platform",
+         "group_type": "User"
+        }
+       ]
+      },
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "group_type": "User",
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack"
+        },
+        {
+         "group_type": "User",
+         "subprop_key": "country",
+         "subprop_op": "is",
+         "subprop_value": [
+          "United States",
+          "South Korea",
+          "Japan",
+          "Poland",
+          "Czech Republic",
+          "Hungary",
+          "United Kingdom",
+          "Philippines",
+          "Brazil",
+          "Turkey"
+         ],
+         "subprop_type": "user"
+        }
+       ],
+       "group_by": [
+        {
+         "type": "user",
+         "value": "country",
+         "group_type": "User"
+        }
+       ]
+      },
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "group_type": "User",
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack"
+        },
+        {
+         "group_type": "User",
+         "subprop_key": "version",
+         "subprop_op": "has prefix",
+         "subprop_value": [
+          "2.8",
+          "2.9",
+          "3."
+         ],
+         "subprop_type": "user"
+        }
+       ],
+       "group_by": [
+        {
+         "type": "user",
+         "value": "version",
+         "group_type": "User"
+        }
+       ]
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period",
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      },
+      {
+       "label": "store",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      },
+      {
+       "label": "web",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
    "id": "sess",
    "groupByLimit": 500,
    "sliced": true,

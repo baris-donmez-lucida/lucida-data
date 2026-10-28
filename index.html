@@ -705,6 +705,7 @@ const TIERS_HELP = "Online = gün içinde dashboard_page_viewed. Aktif = ≥1 ca
 // option = [value, label, metric id, own-count label, show denominator]
 const KSEL = {
   ut: { v: "northstar", aria: "Kullanıcı tipi", opts: [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]] },
+  users: { v: "active", aria: "Abone sayısı", opts: [["active", "Aktif abone", "active", null], ["online", "Online abone", "online", null]] },
   node: { v: "click", aria: "Node oranı", opts: [["click", "Node click rate", "node_click_rate", "session", true], ["start", "Node start rate", "node_start_rate_s", "session", true], ["complete", "Node complete rate", "completion_rate_s", "session", true]] },
 };
 function selectKpi(k) {
@@ -728,7 +729,7 @@ function tiersCard(key) {
 SECTIONS.genel = () => {
   const blocks = [tiersCard("g-tiers")];
   const tbl = dailyTable("g-daily");
-  return { html: `<div class="kpis" style="--cols:4">${selectKpi("ut")}${selectKpi("node")}${kpiCard("online", null, null, { mode: "day", head: "Online abone" })}${kpiCard("active", null, null, { mode: "day", head: "Aktif abone" })}</div>`
+  return { html: `<div class="kpis" style="--cols:4">${selectKpi("ut")}${selectKpi("node")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Aktivasyon aşamasındaki abone" })}</div>`
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
