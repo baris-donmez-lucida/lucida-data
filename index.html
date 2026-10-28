@@ -1179,28 +1179,34 @@ SECTIONS.yerlesik = () => {
 };
 
 SECTIONS.retention = () => {
-  const curve = customCard("Abone retention eğrisi (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
-    const R = retFor(); if (!R) { card.querySelector(".ch-a").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
-    const [i0] = win(), from = D.d.days[i0];
-    const rows = R.rows.filter((r) => r.d >= from);
-    const Ns = Array.from({ length: 31 }, (_, k) => k);
-    const pts = Ns.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { v: a / b, n: b } : null; });
-    const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
-    card.querySelector(".legend").innerHTML = legendHtml(ser);
-    lineChart(card.querySelector(".ch-a"), card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), aria: "Retention eğrisi", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
-  }, { wide: false, sub: "Kohort: o gün online olan abone (dashboard_page_viewed); N. gün tekrar online (tam N. gün). Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort.", help: "Amplitude retention, dashboard_page_viewed → dashboard_page_viewed (Online), N-day. Bugünü içeren ve dolmamış hücreler kullanılmaz." });
-  const tl = customCard("Kohort gününe göre D1 ve D7", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
-    const R = retFor(); if (!R) { card.querySelector(".ch-a").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
-    const [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
-    const ser = [1, 7, 14].map((k, j) => ({ name: "D" + k, color: COL[j], fmt: (v) => fmt("pct", v), ma: null,
+  // every card has its own date range and filter (the page-level controls are hidden on this tab)
+  const tl = customCard("Kohort gününe göre retention", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const R = retFor(cardFilter("r-tl")), ch = card.querySelector(".ch-a");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Her nokta o günün kohortu: o gün online olan abone (dashboard_page_viewed); DN = tam N. gün tekrar online olan / kohort. Penceresi dolmamış son günler çizilmez.");
+    if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const [i0, i1] = cardWin("r-tl"), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
+    const ser = [1, 3, 6, 15, 21].map((k, j) => ({ name: "D" + k, color: COL[j], fmt: (v) => fmt("pct", v), ma: null,
       vals: x.map((d) => { const r = at.get(d); return r && r.cells[k] != null && r.users ? r.cells[k] / r.users : null; }),
       faded: x.map((d) => (at.get(d)?.users || 0) < MIN_DEN),
       detail: (i) => { const r = at.get(x[i]); return r && r.cells[k] != null ? ` <small>${nf.format(r.cells[k])} / ${nf.format(r.users)}</small>` : ""; } }));
     card.querySelector(".legend").innerHTML = legendHtml(ser);
-    lineChart(card.querySelector(".ch-a"), card, x, ser, { yFmt: yFmtFor("pct"), aria: "D1 D7" });
-  }, { wide: false, sub: "Son günlerde D7 / D14 henüz dolmadığı için çizilmez." });
+    lineChart(ch, card, x, ser, { yFmt: yFmtFor("pct"), H: 340, aria: "Kohort gününe göre retention" });
+  }, { key: "r-tl", days: 90 });
   const tbl = retTable("r-table");
-  return { html: `<div class="cards">${tbl.html}${curve.html}${tl.html}</div>`, draw: () => { tbl.draw(); curve.draw(); tl.draw(); } };
+  const curve = customCard("Abone retention eğrisi (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const R = retFor(cardFilter("r-curve")), ch = card.querySelector(".ch-a");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort. Amplitude retention, dashboard_page_viewed → dashboard_page_viewed (Online), N-day.");
+    if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
+    const [i0, i1] = cardWin("r-curve"), from = D.d.days[i0], to = D.d.days[i1];
+    const rows = R.rows.filter((r) => r.d >= from && r.d <= to);
+    const Ns = Array.from({ length: 31 }, (_, k) => k);
+    const pts = Ns.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { v: a / b, n: b } : null; });
+    const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
+    card.querySelector(".legend").innerHTML = legendHtml(ser);
+    lineChart(ch, card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), aria: "Retention eğrisi", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
+  }, { key: "r-curve" });
+  const b = [tl, tbl, curve];
+  return { html: `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 // Retention slices: platform, country or subscriber type (one at a time; no version slice)
 function retFor(f = S) {
@@ -1306,7 +1312,7 @@ function buildControls() {
 }
 function syncControls() {
   document.querySelectorAll("#range button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.r) === S.range)));
-  const ownRanges = S.tab === "genel";
+  const ownRanges = S.tab === "genel" || S.tab === "retention";
   document.querySelector(".ctl-row").hidden = ownRanges;
   const cmp = document.getElementById("cmp"), off = S.range === 90;
   cmp.checked = S.cmp && !off; cmp.disabled = off;
