@@ -175,12 +175,14 @@ if (m.active) {
 // ---------- retention ----------
 // ret: paid (all / iOS / Android) + subscriber type ("s:store", "s:web"); ret_country: one segment per country
 const retKey = (l, c) => (l === "store" || l === "web" ? "s:" + l : L.labelKey(l, c));
-const retRaw = (() => {
-  const a = L.retention(load("ret"), dataDate, { countries: COUNTRIES, blockLabels: segLabels("ret"), keyOf: retKey });
-  const b = L.retention(load("ret_country"), dataDate, { countries: COUNTRIES, blockLabels: segLabels("ret_country"), keyOf: retKey });
-  return a || b ? { ...(b || {}), ...(a || {}) } : null;
-})();
-const ret = retRaw ? Object.fromEntries(Object.entries(retRaw).map(([k, rows]) => [k, rows.filter((x) => x.d >= days[0])])) : null;
+// ret / ret_country: Return On (N-day); retu / retu_country: Return On or After (unbounded). Both strict calendar dates.
+const retLoad = (main, byCountry) => {
+  const a = L.retention(load(main), dataDate, { countries: COUNTRIES, blockLabels: segLabels(main), keyOf: retKey });
+  const b = L.retention(load(byCountry), dataDate, { countries: COUNTRIES, blockLabels: segLabels(byCountry), keyOf: retKey });
+  const all = a || b ? { ...(b || {}), ...(a || {}) } : null;
+  return all ? Object.fromEntries(Object.entries(all).map(([k, rows]) => [k, rows.filter((x) => x.d >= days[0])])) : null;
+};
+const ret = retLoad("ret", "ret_country"), retu = retLoad("retu", "retu_country");
 
 // ---------- new subscribers (raw funnels, entry-day cohorts) ----------
 const ep =(s) => new Date(s * 1000).toISOString().slice(0, 10);
@@ -253,7 +255,7 @@ for (const c of catalog) if (!Array.isArray(c.breakdowns)) c.breakdowns = c.num 
 
 const payload = {
   v: 1, page: "product", generatedAt: new Date().toISOString(), dataDate, days, countries: COUNTRIES, versions,
-  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, co, les, hist,
+  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, co, les, hist,
   changes: CH.changes, meta, missing: [...new Set(missing)],
 };
 

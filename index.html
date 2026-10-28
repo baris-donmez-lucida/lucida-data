@@ -1182,7 +1182,7 @@ SECTIONS.retention = () => {
   // every card has its own date range and filter (the page-level controls are hidden on this tab)
   const tl = customCard("Kohort gününe göre retention", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const R = retFor(cardFilter("r-tl")), ch = card.querySelector(".ch-a");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Her nokta o günün kohortu: o gün online olan abone (dashboard_page_viewed); DN = tam N. gün tekrar online olan / kohort. Pooled 3-Day: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. 3-Day Median: aynı üç günün DN oranlarının medyanı. Daily: o günün kohortu. Penceresi dolmamış son günler çizilmez.");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Her nokta o günün kohortu: o gün online olan abone (dashboard_page_viewed); DN = tam N. takvim gününde (UTC) tekrar online olan / kohort (strict calendar dates). Pooled 3-Day: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. 3-Day Median: aynı üç günün DN oranlarının medyanı. Daily: o günün kohortu. Penceresi dolmamış son günler çizilmez.");
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-tl"), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
     // pooled: cohorts of the day before, the day and the day after — Σ returned on DN / Σ cohort users.
@@ -1205,9 +1205,9 @@ SECTIONS.retention = () => {
     lineChart(ch, card, x, ser, { yFmt: yFmtFor("pct"), H: 340, aria: "Kohort gününe göre retention" });
   }, { key: "r-tl", days: 90, views: [["pooled", "Pooled 3-Day"], ["median", "3-Day Median"], ["daily", "Daily"]] });
   const tbl = retTable("r-table");
-  const curve = customCard("Abone retention eğrisi (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
-    const R = retFor(cardFilter("r-curve")), ch = card.querySelector(".ch-a");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort. Amplitude retention, dashboard_page_viewed → dashboard_page_viewed (Online), N-day.");
+  const curve = customCard("Unbounded retention (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const R = retFor(cardFilter("r-curve"), D.d.retu), ch = card.querySelector(".ch-a");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Return On or After: kohorttan N. gün veya sonrasında herhangi bir gün tekrar online olan / kohort. Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort. Strict calendar dates (UTC).");
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-curve"), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to);
@@ -1215,14 +1215,14 @@ SECTIONS.retention = () => {
     const pts = Ns.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { v: a / b, n: b } : null; });
     const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
     card.querySelector(".legend").innerHTML = legendHtml(ser);
-    lineChart(ch, card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), aria: "Retention eğrisi", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
+    lineChart(ch, card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), pctMax: true, aria: "Unbounded retention", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
   }, { key: "r-curve" });
   const b = [tl, tbl, curve];
   return { html: `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 // Retention slices: platform, country or subscriber type (one at a time; no version slice)
-function retFor(f = S) {
-  const R = D.d.ret; if (!R) return null;
+function retFor(f = S, R = D.d.ret) {
+  if (!R) return null;
   const dk = f.dim === "platform" ? "p:" + f.val : f.dim === "country" ? "c:" + f.val : null, sk = f.sub && f.sub !== "paid" ? "s:" + f.sub : null;
   const k = dk || sk || "all", rows = R[k];
   const label = dk ? (f.dim === "country" ? TR_COUNTRY[f.val] || f.val : f.val) : sk ? SUB_LABEL[f.sub] : "Tüm aboneler";
@@ -1234,7 +1234,7 @@ const RET_DAYS = [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 21];
 function retTable(key) {
   return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
     const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. gün tekrar online olan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtre: platform, ülke veya abone tipi (birini seç; sürüm kırılımı yok).");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. takvim gününde (UTC) tekrar online olan (Return On, strict calendar dates). Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtre: platform, ülke veya abone tipi (birini seç; sürüm kırılımı yok).");
     if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
     const pct = (ccState(key).view || "pct") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? 1 : -1)); // newest cohort first

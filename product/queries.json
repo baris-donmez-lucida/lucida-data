@@ -6065,403 +6065,951 @@
   },
   {
    "id": "ret",
-   "chart": {
-    "kind": "retention",
-    "name": "Product v2 · Abone retention (online: dashboard_page_viewed -> dashboard_page_viewed)",
-    "start_event": {
-     "event": "dashboard_page_viewed"
-    },
-    "return_events": [
-     {
-      "event": "dashboard_page_viewed"
-     }
-    ],
-    "retention_method": "nday",
-    "segments": [
-     {
-      "label": "paid",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · iOS",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "platform",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "iOS"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Android",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "platform",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Android"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "store",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "web",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "promotional"
-        ]
-       }
-      ]
-     }
-    ],
-    "date_range": {
-     "start": "<START>",
-     "end": "<END>",
-     "timezone": "UTC"
-    },
-    "interval": "day"
-   },
    "groupByLimit": 40,
    "timeSeriesLimit": 1000,
-   "parse": "Segmentler: paid, paid · iOS, paid · Android, store, web (ülkeler ret_country'de). Her başlangıç günü satırı = o günün kohortu (Overall satırı atlanır). Kohort ve dönüş: dashboard_page_viewed (Online)."
+   "parse": "Segmentler: paid, paid · iOS, paid · Android, store, web (ülkeler ret_country'de). Her başlangıç günü satırı = o günün kohortu (Overall satırı atlanır). Kohort ve dönüş: dashboard_page_viewed (Online). Strict calendar dates (alignment = calendar), Return On.",
+   "definition": {
+    "app": "773708",
+    "type": "retention",
+    "name": "Product v2 · Abone retention (takvim günü) (online: dashboard_page_viewed -> dashboard_page_viewed)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC",
+     "alignment": "calendar",
+     "interval": 1,
+     "metric": "retention",
+     "retentionMethod": "nday",
+     "nthTimeLookbackWindow": 365,
+     "countGroup": "User",
+     "groupBy": [],
+     "startEvent": {
+      "event_type": "dashboard_page_viewed",
+      "filters": [],
+      "group_by": []
+     },
+     "retentionEvents": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · iOS",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Android",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "store",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "web",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "retu",
+   "groupByLimit": 40,
+   "timeSeriesLimit": 1000,
+   "parse": "Segmentler: paid, paid · iOS, paid · Android, store, web (ülkeler ret_country'de). Her başlangıç günü satırı = o günün kohortu (Overall satırı atlanır). Kohort ve dönüş: dashboard_page_viewed (Online). Strict calendar dates (alignment = calendar), Return On or After (unbounded): N. gün veya sonrasında dönen.",
+   "definition": {
+    "app": "773708",
+    "type": "retention",
+    "name": "Product v2 · Abone retention unbounded (takvim günü, on or after) (online: dashboard_page_viewed -> dashboard_page_viewed)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC",
+     "alignment": "calendar",
+     "interval": 1,
+     "metric": "retention",
+     "retentionMethod": "rolling",
+     "nthTimeLookbackWindow": 365,
+     "countGroup": "User",
+     "groupBy": [],
+     "startEvent": {
+      "event_type": "dashboard_page_viewed",
+      "filters": [],
+      "group_by": []
+     },
+     "retentionEvents": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · iOS",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Android",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "store",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "web",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
   },
   {
    "id": "ret_country",
-   "chart": {
-    "kind": "retention",
-    "name": "Product v2 · Abone retention, ülke (online: dashboard_page_viewed -> dashboard_page_viewed)",
-    "start_event": {
-     "event": "dashboard_page_viewed"
-    },
-    "return_events": [
-     {
-      "event": "dashboard_page_viewed"
-     }
-    ],
-    "retention_method": "nday",
-    "segments": [
-     {
-      "label": "paid · United States",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "United States"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · South Korea",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "South Korea"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Japan",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Japan"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Poland",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Poland"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Czech Republic",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Czech Republic"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Hungary",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Hungary"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · United Kingdom",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "United Kingdom"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Philippines",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Philippines"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Brazil",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Brazil"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "paid · Turkey",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       },
-       {
-        "property": "country",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "Turkey"
-        ]
-       }
-      ]
-     }
-    ],
-    "date_range": {
-     "start": "<START>",
-     "end": "<END>",
-     "timezone": "UTC"
-    },
-    "interval": "day"
-   },
    "groupByLimit": 40,
    "timeSeriesLimit": 1000,
-   "parse": "ret ile aynı biçim; segment başına bir ülke (paid · <ülke>)."
+   "parse": "ret ile aynı biçim; segment başına bir ülke (paid · <ülke>). Strict calendar dates (alignment = calendar), Return On.",
+   "definition": {
+    "app": "773708",
+    "type": "retention",
+    "name": "Product v2 · Abone retention (takvim günü), ülke (online: dashboard_page_viewed -> dashboard_page_viewed)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC",
+     "alignment": "calendar",
+     "interval": 1,
+     "metric": "retention",
+     "retentionMethod": "nday",
+     "nthTimeLookbackWindow": 365,
+     "countGroup": "User",
+     "groupBy": [],
+     "startEvent": {
+      "event_type": "dashboard_page_viewed",
+      "filters": [],
+      "group_by": []
+     },
+     "retentionEvents": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid · United States",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · South Korea",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Japan",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Poland",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Czech Republic",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Hungary",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · United Kingdom",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Philippines",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Brazil",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Turkey",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "retu_country",
+   "groupByLimit": 40,
+   "timeSeriesLimit": 1000,
+   "parse": "ret ile aynı biçim; segment başına bir ülke (paid · <ülke>). Strict calendar dates (alignment = calendar), Return On or After (unbounded): N. gün veya sonrasında dönen.",
+   "definition": {
+    "app": "773708",
+    "type": "retention",
+    "name": "Product v2 · Abone retention unbounded (takvim günü, on or after), ülke (online: dashboard_page_viewed -> dashboard_page_viewed)",
+    "params": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC",
+     "alignment": "calendar",
+     "interval": 1,
+     "metric": "retention",
+     "retentionMethod": "rolling",
+     "nthTimeLookbackWindow": 365,
+     "countGroup": "User",
+     "groupBy": [],
+     "startEvent": {
+      "event_type": "dashboard_page_viewed",
+      "filters": [],
+      "group_by": []
+     },
+     "retentionEvents": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid · United States",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · South Korea",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Japan",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Poland",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Czech Republic",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Hungary",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · United Kingdom",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Philippines",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Brazil",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "paid · Turkey",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
   },
   {
    "id": "new_act_sub",
