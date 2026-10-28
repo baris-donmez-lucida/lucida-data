@@ -1226,7 +1226,8 @@ SECTIONS.retention = () => {
   return { html: `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 // Retention slices: platform, country or subscriber type (one at a time; no version slice)
-function retFor(f = S, R = D.d.ret) {
+// R = the dataset to slice (ret / retu / nret / nretu); missing data returns null ("Veri yok"), never another dataset
+function retFor(f, R) {
   if (!R) return null;
   const dk = f.dim === "platform" ? "p:" + f.val : f.dim === "country" ? "c:" + f.val : null, sk = f.sub && f.sub !== "paid" ? "s:" + f.sub : null;
   const k = dk || sk || "all", rows = R[k];
