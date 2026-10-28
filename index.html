@@ -1193,7 +1193,7 @@ SECTIONS.retention = () => {
       for (const g of three ? [gi - 1, gi, gi + 1] : [gi]) { const r = at.get(days[g]); if (!r || r.cells[k] == null || !r.users) return null; out.push({ a: r.cells[k], b: r.users }); }
       return out;
     };
-    const ser = [1, 3, 6, 15, 21].map((k, j) => {
+    const ser = [1, 3, 6, 15, 22].map((k, j) => {
       const s = x.map((_, i) => cells(i0 + i, k));
       const val = (c) => { if (!c) return null; if (view === "median") return c.map((t) => t.a / t.b).sort((p, q) => p - q)[1]; return c.reduce((t, x) => t + x.a, 0) / c.reduce((t, x) => t + x.b, 0); };
       return { name: "D" + k, color: COL[j], fmt: (v) => fmt("pct", v), ma: null,
