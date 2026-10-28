@@ -124,6 +124,7 @@
   table.ret td { color: var(--ink); }
   table.ret td.n { color: var(--ink-2); }
   table.ret td.na { background: var(--bg); }
+  table.ret td.we { color: var(--s1); font-weight: 600; }
   table.ret { --pos: #22c55e; --neg: #ef4444; }
   table.ret tr.tot td { background: var(--surface-2, var(--surface)); }
   table.ret tr.tot td { font-weight: 700; border-bottom: 2px solid var(--border); }
@@ -1254,7 +1255,7 @@ function retTable(key) {
     };
     card.querySelector("thead").innerHTML = `<tr><th>Kohort</th><th>Kullanıcı</th>${RET_DAYS.map((k) => `<th>D${k}</th>`).join("")}</tr>`;
     tb.innerHTML = `<tr class="tot"><td>Toplam</td><td class="n">${nf.format(users)}</td>${tot.map((t) => cell(t?.a, t?.b, null)).join("")}</tr>`
-      + rows.map((r) => `<tr><td>${dShort(r.d)}</td><td class="n">${nf.format(r.users)}</td>${RET_DAYS.map((k, j) => cell(r.cells[k], r.users, j)).join("")}</tr>`).join("");
+      + rows.map((r) => `<tr><td${[0, 6].includes(utc(r.d).getUTCDay()) ? ' class="we" title="Hafta sonu"' : ""}>${dShort(r.d)}</td><td class="n">${nf.format(r.users)}</td>${RET_DAYS.map((k, j) => cell(r.cells[k], r.users, j)).join("")}</tr>`).join("");
   }, { key, views: [["pct", "Oran"], ["count", "Dönen kullanıcı"]] });
 }
 
