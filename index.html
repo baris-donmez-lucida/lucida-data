@@ -1208,12 +1208,12 @@ function retFor(f = S) {
   return { rows: R[k] || R.all, label: f.dim === "platform" ? f.val : "Tüm aboneler", tag: (f.dim && f.dim !== "platform") || f.sub !== "paid" };
 }
 // Cohort table: one row per cohort day, DN = users of that cohort who came back on exactly day N.
-// Cell colour: vs the column's average (Toplam row) — green above, red below; the further away, the stronger.
+// Cell colour: vs the column's average (Toplam row) — green above, red below, none within ±2%; the further away, the stronger.
 const RET_DAYS = [1, 3, 6, 7, 8, 13, 14, 15];
 function retTable(key) {
   return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
     const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. gün tekrar online olan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. gün tekrar online olan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: ±%2 içi renksiz, üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
     if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
     const pct = (ccState(key).view || "pct") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? 1 : -1)); // newest cohort first
@@ -1224,8 +1224,9 @@ function retTable(key) {
       const p = a / b, avg = j == null || !tot[j] ? null : tot[j].a / tot[j].b;
       let style = "", vs = "";
       if (avg) {
-        const dev = (p - avg) / avg, k = Math.min(1, Math.abs(dev) / 0.25);
-        style = ` style="background:color-mix(in srgb, var(${dev >= 0 ? "--pos" : "--neg"}) ${Math.round(8 + 62 * k)}%, var(--surface))"`;
+        // within ±2% of the average: no colour; beyond it the tint starts very faint and deepens up to ±25%
+        const dev = (p - avg) / avg, k = Math.min(1, Math.max(0, Math.abs(dev) - 0.02) / 0.23);
+        if (Math.abs(dev) > 0.02) style = ` style="background:color-mix(in srgb, var(${dev >= 0 ? "--pos" : "--neg"}) ${Math.round(3 + 67 * k ** 1.3)}%, var(--surface))"`;
         vs = ` · ortalamaya göre ${dev >= 0 ? "+" : "−"}%${nf1.format(Math.abs(dev) * 100)}`;
       }
       return `<td${style}${b < MIN_DEN ? ' class="faded"' : ""} title="${nf.format(a)} / ${nf.format(b)} · ${fmt("pct", p)}${vs}">${pct ? fmt("pct", p) : nf.format(a)}</td>`;
