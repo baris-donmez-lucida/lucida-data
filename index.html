@@ -1182,27 +1182,28 @@ SECTIONS.retention = () => {
   // every card has its own date range and filter (the page-level controls are hidden on this tab)
   const tl = customCard("Kohort gününe göre retention", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const R = retFor(cardFilter("r-tl")), ch = card.querySelector(".ch-a");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Her nokta o günün kohortu: o gün online olan abone (dashboard_page_viewed); DN = tam N. gün tekrar online olan / kohort. 3 günlük görünüm: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. Penceresi dolmamış son günler çizilmez.");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Her nokta o günün kohortu: o gün online olan abone (dashboard_page_viewed); DN = tam N. gün tekrar online olan / kohort. Pooled 3-Day: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. 3-Day Median: aynı üç günün DN oranlarının medyanı. Daily: o günün kohortu. Penceresi dolmamış son günler çizilmez.");
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-tl"), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
-    // "pool": cohorts of the day before, the day and the day after pooled — Σ returned on DN / Σ cohort users.
-    // A point is drawn only when all three cohorts have DN filled, so the line ends a day earlier.
-    const pool = (ccState("r-tl").view || "pool") === "pool", days = D.d.days;
-    const sums = (gi, k) => {
-      const span = pool ? [gi - 1, gi, gi + 1] : [gi]; let a = 0, b = 0;
-      for (const g of span) { const r = at.get(days[g]); if (!r || r.cells[k] == null || !r.users) return null; a += r.cells[k]; b += r.users; }
-      return { a, b };
+    // pooled: cohorts of the day before, the day and the day after — Σ returned on DN / Σ cohort users.
+    // median: median of those three days' DN rates. Both need all three cohorts filled, so their lines end a day earlier.
+    const view = ccState("r-tl").view || "pooled", days = D.d.days, three = view !== "daily";
+    const cells = (gi, k) => {
+      const out = [];
+      for (const g of three ? [gi - 1, gi, gi + 1] : [gi]) { const r = at.get(days[g]); if (!r || r.cells[k] == null || !r.users) return null; out.push({ a: r.cells[k], b: r.users }); }
+      return out;
     };
     const ser = [1, 3, 6, 15, 21].map((k, j) => {
-      const s = x.map((_, i) => sums(i0 + i, k));
+      const s = x.map((_, i) => cells(i0 + i, k));
+      const val = (c) => { if (!c) return null; if (view === "median") return c.map((t) => t.a / t.b).sort((p, q) => p - q)[1]; return c.reduce((t, x) => t + x.a, 0) / c.reduce((t, x) => t + x.b, 0); };
       return { name: "D" + k, color: COL[j], fmt: (v) => fmt("pct", v), ma: null,
-        vals: s.map((t) => (t ? t.a / t.b : null)),
-        faded: s.map((t) => (t ? t.b < MIN_DEN : false)),
-        detail: (i) => (s[i] ? ` <small>${nf.format(s[i].a)} / ${nf.format(s[i].b)}${pool ? " (3 gün)" : ""}</small>` : "") };
+        vals: s.map(val),
+        faded: s.map((c) => (c ? c.reduce((t, x) => t + x.b, 0) < MIN_DEN * c.length : false)),
+        detail: (i) => (s[i] ? ` <small>${view === "median" ? s[i].map((t) => fmt("pct", t.a / t.b)).join(" · ") : `${nf.format(s[i].reduce((t, x) => t + x.a, 0))} / ${nf.format(s[i].reduce((t, x) => t + x.b, 0))}`}</small>` : "") };
     });
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     lineChart(ch, card, x, ser, { yFmt: yFmtFor("pct"), H: 340, aria: "Kohort gününe göre retention" });
-  }, { key: "r-tl", days: 90, views: [["pool", "3 günlük toplam"], ["raw", "Günlük"]] });
+  }, { key: "r-tl", days: 90, views: [["pooled", "Pooled 3-Day"], ["median", "3-Day Median"], ["daily", "Daily"]] });
   const tbl = retTable("r-table");
   const curve = customCard("Abone retention eğrisi (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const R = retFor(cardFilter("r-curve")), ch = card.querySelector(".ch-a");
