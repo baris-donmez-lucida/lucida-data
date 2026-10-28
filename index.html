@@ -117,6 +117,14 @@
   .kpis.big .spark-w { margin-top: 8px; }
   .kpis.big + .cards { margin-top: 28px; }
   .cards.ov { row-gap: 28px; }
+  table.ret { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 13.5px; }
+  table.ret th, table.ret td { padding: 10px 14px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+  table.ret th { font-size: 12.5px; font-weight: 600; color: var(--ink-2); background: var(--surface); position: sticky; top: 0; }
+  table.ret th:first-child, table.ret td:first-child { text-align: left; }
+  table.ret td { color: var(--ink); }
+  table.ret td.n { color: var(--ink-2); }
+  table.ret td.na { background: var(--bg); }
+  table.ret tr.tot td { font-weight: 700; border-bottom: 2px solid var(--border); }
   table.daily td.up { color: var(--s3); font-weight: 600; }
   table.daily td.down { color: var(--s2); font-weight: 600; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
@@ -1189,18 +1197,35 @@ SECTIONS.retention = () => {
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     lineChart(card.querySelector(".ch-a"), card, x, ser, { yFmt: yFmtFor("pct"), aria: "D1 D7" });
   }, { wide: false, sub: "Son günlerde D7 / D14 henüz dolmadığı için çizilmez." });
-  const kp = () => {
-    const R = retFor(); if (!R) return "";
-    const [i0] = win(), rows = R.rows.filter((r) => r.d >= D.d.days[i0]);
-    const at = (k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? a / b : null; };
-    return `<div class="kpis" style="--cols:5">${[1, 3, 7, 14, 30].map((k) => `<div class="kpi"><div class="kpi-h"><span class="kpi-l">D${k} retention</span>${R.tag ? tagHtml(true) : ""}</div><div class="kpi-v">${fmt("pct", at(k))}</div><div class="kpi-s">${R.label} · dolmuş kohortlar</div></div>`).join("")}</div>`;
-  };
-  return { html: `<div class="kp-host"></div><div class="cards">${curve.html}${tl.html}</div>`, draw: () => { document.querySelector(".kp-host").innerHTML = kp(); curve.draw(); tl.draw(); } };
+  const tbl = retTable("r-table");
+  return { html: `<div class="cards">${tbl.html}${curve.html}${tl.html}</div>`, draw: () => { tbl.draw(); curve.draw(); tl.draw(); } };
 };
-function retFor() {
+function retFor(f = S) {
   const R = D.d.ret; if (!R) return null;
-  const k = S.dim === "platform" ? "p:" + S.val : "all";
-  return { rows: R[k] || R.all, label: S.dim === "platform" ? S.val : "Tüm aboneler", tag: (S.dim && S.dim !== "platform") || S.sub !== "paid" };
+  const k = f.dim === "platform" ? "p:" + f.val : "all";
+  return { rows: R[k] || R.all, label: f.dim === "platform" ? f.val : "Tüm aboneler", tag: (f.dim && f.dim !== "platform") || f.sub !== "paid" };
+}
+// Cohort table: one row per cohort day, DN = users of that cohort who came back on exactly day N. Cell colour = retention %.
+const RET_DAYS = [1, 3, 6, 7, 8, 13, 14, 15];
+function retTable(key) {
+  return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
+    const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün call_ok yapan abone. DN: aynı kohorttan tam N. gün tekrar call_ok yapan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi retention oranına göre koyulaşır; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
+    if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
+    const pct = (ccState(key).view || "count") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
+    const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? -1 : 1));
+    const tot = RET_DAYS.map((k) => { let a = 0, b = 0; for (const r of rows) if (r.cells[k] != null) { a += r.cells[k]; b += r.users; } return b ? { a, b } : null; });
+    const users = rows.reduce((t, r) => t + (r.users || 0), 0);
+    const pmax = Math.max(0.01, ...rows.flatMap((r) => RET_DAYS.map((k) => (r.cells[k] != null && r.users >= MIN_DEN ? r.cells[k] / r.users : 0))));
+    const cell = (a, b) => {
+      if (a == null || !b) return `<td class="na"></td>`;
+      const p = a / b, mix = Math.round(12 + 78 * Math.min(1, p / pmax));
+      return `<td style="background:color-mix(in srgb, var(--s1) ${mix}%, var(--surface))" title="${nf.format(a)} / ${nf.format(b)} · ${fmt("pct", p)}">${pct ? fmt("pct", p) : nf.format(a)}</td>`;
+    };
+    card.querySelector("thead").innerHTML = `<tr><th>Kohort</th><th>Kullanıcı</th>${RET_DAYS.map((k) => `<th>D${k}</th>`).join("")}</tr>`;
+    tb.innerHTML = `<tr class="tot"><td>Toplam</td><td class="n">${nf.format(users)}</td>${tot.map((t) => cell(t?.a, t?.b)).join("")}</tr>`
+      + rows.map((r) => `<tr><td>${dShort(r.d)}</td><td class="n">${nf.format(r.users)}</td>${RET_DAYS.map((k) => cell(r.cells[k], r.users)).join("")}</tr>`).join("");
+  }, { key, views: [["count", "Kullanıcı"], ["pct", "Oran"]] });
 }
 
 SECTIONS.memnuniyet = () => {

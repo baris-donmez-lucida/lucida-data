@@ -6,6 +6,10 @@
    "label": "Genel Bakış"
   },
   {
+   "id": "retention",
+   "label": "Retention"
+  },
+  {
    "id": "aktif",
    "label": "Aktif Kullanım"
   },
@@ -28,10 +32,6 @@
   {
    "id": "yerlesik",
    "label": "Yerleşik Aboneler"
-  },
-  {
-   "id": "retention",
-   "label": "Retention"
   },
   {
    "id": "memnuniyet",
