@@ -116,6 +116,9 @@
   .kpis.big svg.spark { height: 56px; }
   .kpis.big .spark-w { margin-top: 8px; }
   .kpis.big + .cards { margin-top: 28px; }
+  .cards.ov { row-gap: 28px; }
+  table.daily td.up { color: var(--s3); font-weight: 600; }
+  table.daily td.down { color: var(--s2); font-weight: 600; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
   .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta.good { color: var(--s3); }
@@ -291,7 +294,7 @@ const SUB_LABEL = { paid: "Tümü", store: "Mağaza", web: "Web" };
 const COL = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)", "var(--s7)"];
 const MIN_DEN = 50;
 // lower is better for these (colour of the change arrows)
-const LOWER_BETTER = new Set(["abandon_rate", "abandon_after_1min", "rating_low_rate", "tech_fail_rate", "speech_zero_rate"]);
+const LOWER_BETTER = new Set(["abandon_rate", "abandon_rate_s", "abandon_after_1min", "rating_low_rate", "tech_fail_rate", "speech_zero_rate"]);
 
 const D = { d: null, cat: {} };
 const S = { tab: "genel", range: 28, cmp: false, dim: null, val: "", sub: "paid" };
@@ -761,7 +764,7 @@ SECTIONS.genel = () => {
   const tbl = dailyTable("g-daily");
   return { html: `<div class="kpis big">${selectKpi("ut")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Aktivasyon aşamasındaki abone" })}`
       + `${selectKpi("node")}${kpiCard("lessons_per_online", null, null, { mode: "day", own: "ders" })}${kpiCard("min_per_online", null, null, { mode: "day", own: "dk" })}</div>`
-      + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
+      + `<div class="cards ov">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
 // Daily speech minutes (area) with online subscribers drawn in the lower part on their own scale
@@ -818,7 +821,14 @@ function dailyTable(key) {
   return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
     const [i0, i1] = key ? cardWin(key) : win(), f = key ? cardFilter(key) : S;
     const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id, f)]));
-    const cell = (id, i) => { const c = D.cat[id], s = ser[id]; const v = s.vals?.[i]; const faded = s.den && s.den[i] != null && s.den[i] < MIN_DEN; return `<td class="${faded ? "faded" : ""}">${fmt(c.unit, v)}</td>`; };
+    // change vs the previous day above ±3% (relative) colours the cell: green = better, red = worse
+    const cell = (id, i) => {
+      const c = D.cat[id], s = ser[id]; const v = s.vals?.[i], p = s.vals?.[i - 1];
+      const faded = s.den && s.den[i] != null && s.den[i] < MIN_DEN;
+      const ch = v != null && p ? (v - p) / Math.abs(p) : 0;
+      const tone = Math.abs(ch) > 0.03 ? ((LOWER_BETTER.has(id) ? ch < 0 : ch > 0) ? "up" : "down") : "";
+      return `<td class="${[faded ? "faded" : "", tone].join(" ").trim()}"${tone ? ` title="Önceki güne göre ${ch > 0 ? "+" : "−"}%${nf1.format(Math.abs(ch) * 100)}"` : ""}>${fmt(c.unit, v)}</td>`;
+    };
     const rows = [];
     for (let i = i1; i >= i0; i--) {
       const d = D.d.days[i], note = (D.d.changes || []).filter((c) => c.d === d).map((c) => c.note).join(" · ");
