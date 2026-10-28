@@ -184,7 +184,7 @@ const retLoad = (main, byCountry) => {
 };
 const ret = retLoad("ret", "ret_country"), retu = retLoad("retu", "retu_country");
 // nret / nret_country: new-user cohorts (day 0 = first-ever dashboard_page_viewed), Return On, calendar days
-const nret = retLoad("nret", "nret_country");
+const nret = retLoad("nret", "nret_country"), nretu = retLoad("nretu", "nretu_country");
 
 // ---------- new subscribers (raw funnels, entry-day cohorts) ----------
 const ep =(s) => new Date(s * 1000).toISOString().slice(0, 10);
@@ -257,7 +257,7 @@ for (const c of catalog) if (!Array.isArray(c.breakdowns)) c.breakdowns = c.num 
 
 const payload = {
   v: 1, page: "product", generatedAt: new Date().toISOString(), dataDate, days, countries: COUNTRIES, versions,
-  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, nret, co, les, hist,
+  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, nret, nretu, co, les, hist,
   changes: CH.changes, meta, missing: [...new Set(missing)],
 };
 

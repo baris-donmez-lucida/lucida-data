@@ -1182,10 +1182,10 @@ SECTIONS.yerlesik = () => {
 
 SECTIONS.retention = () => {
   // every card has its own date range and filter (the page-level controls are hidden on this tab)
-  const tl = customCard("Kohort gününe göre retention", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+  const tl = customCard("Product Retention Timeline", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const isNew = (ccState("r-tl").kind || "new") === "new";
     const R = retFor(cardFilter("r-tl"), isNew ? D.d.nret : D.d.ret), ch = card.querySelector(".ch-a");
-    card.querySelector("h2").textContent = isNew ? "Kohort gününe göre retention · New-User" : "Kohort gününe göre retention · Active-User";
+    card.querySelector("h2").textContent = "Product Retention Timeline";
     card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn((isNew ? "New-User: her nokta o gün dashboard'u ilk kez gören abone kohortu (d0)." : "Active-User: her nokta o gün online olan tüm abonelerin kohortu (dashboard_page_viewed).") + " DN = tam N. takvim gününde (UTC) tekrar online olan / kohort (strict calendar dates). Pooled 3-Day: önceki gün + o gün + sonraki günün kohortları toplanır; pay = üçünün N. gün dönen toplamı, payda = üçünün online abone toplamı. 3-Day Median: aynı üç günün DN oranlarının medyanı. Daily: o günün kohortu. Penceresi dolmamış son günler çizilmez.");
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-tl"), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
@@ -1209,9 +1209,10 @@ SECTIONS.retention = () => {
     lineChart(ch, card, x, ser, { yFmt: yFmtFor("pct"), H: 340, aria: "Kohort gününe göre retention" });
   }, { key: "r-tl", days: 90, kinds: [["new", "New-User Retention"], ["active", "Active-User Return Rate"]], views: [["pooled", "Pooled 3-Day"], ["median", "3-Day Median"], ["daily", "Daily"]] });
   const tbl = retTable("r-table");
-  const curve = customCard("Unbounded retention (D0…D30)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
-    const R = retFor(cardFilter("r-curve"), D.d.retu), ch = card.querySelector(".ch-a");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Return On or After: kohorttan N. gün veya sonrasında herhangi bir gün tekrar online olan / kohort. Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort. Strict calendar dates (UTC).");
+  const curve = customCard("Unbounded Retention Timeline", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+    const isNew = (ccState("r-curve").kind || "new") === "new";
+    const R = retFor(cardFilter("r-curve"), isNew ? D.d.nretu : D.d.retu), ch = card.querySelector(".ch-a");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn((isNew ? "New-User: kohort = dashboard'u o gün ilk kez gören abone (d0). " : "Active-User: kohort = o gün online olan tüm aboneler. ") + "Return On or After (D0…D30): kohorttan N. gün veya sonrasında herhangi bir gün tekrar online olan / kohort. Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort. Strict calendar dates (UTC).");
     if (!R) { ch.innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = cardWin("r-curve"), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to);
@@ -1220,7 +1221,7 @@ SECTIONS.retention = () => {
     const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     lineChart(ch, card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), pctMax: true, aria: "Unbounded retention", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
-  }, { key: "r-curve" });
+  }, { key: "r-curve", kinds: [["new", "New-User Retention"], ["active", "Active-User Return Rate"]] });
   const b = [tl, tbl, curve];
   return { html: `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
@@ -1236,10 +1237,10 @@ function retFor(f = S, R = D.d.ret) {
 // Cell colour: vs the column's average (Toplam row) — green above, red below, none within ±2%; the further away, the stronger.
 const RET_DAYS = [1, 2, 3, 4, 5, 6, 7, 8, 13, 14, 15, 21];
 function retTable(key) {
-  return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
+  return customCard("Product Retention Table", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
     const isNew = (ccState(key).kind || "new") === "new";
     const R = retFor(cardFilter(key), isNew ? D.d.nret : D.d.ret), tb = card.querySelector("tbody");
-    card.querySelector("h2").textContent = isNew ? "New-User Retention" : "Active-User Return Rate";
+    card.querySelector("h2").textContent = "Product Retention Table";
     card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn((isNew
       ? "New-User Retention — kohort: dashboard'u o gün İLK KEZ gören abone (d0 = ilk dashboard_page_viewed; yeni kullanıcı). DN: aynı kohorttan tam N. takvim gününde (UTC) tekrar dashboard'u gören."
       : "Active-User Return Rate — kohort: o gün online olan TÜM aboneler (yeni + eski; dashboard_page_viewed). DN: aynı kohorttan tam N. takvim gününde (UTC) tekrar online olan. Alışkanlık / geri gelme oranı; klasik (yeni kullanıcı) retention değildir.")
