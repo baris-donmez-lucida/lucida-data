@@ -101,6 +101,16 @@
   .kpi-s, .kpi-d { font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 8px; }
   .kpi-s b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
   .kpi svg.spark { width: 100%; height: 28px; display: block; margin-top: 2px; }
+  /* Overview: fewer, larger cards */
+  .kpis.big { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+  @media (min-width: 1100px) { .kpis.big { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .kpis.big .kpi { padding: 20px 22px 14px; gap: 6px; border-radius: 14px; }
+  .kpis.big .kpi-h { min-height: 28px; }
+  .kpis.big .kpi-l { font-size: 14px; }
+  .kpis.big .ut-sel { font-size: 14px; padding: 4px 8px; }
+  .kpis.big .kpi-v { font-size: clamp(32px, 4vw, 42px); margin-top: 4px; }
+  .kpis.big .kpi-s, .kpis.big .kpi-d { font-size: 13.5px; }
+  .kpis.big svg.spark { height: 56px; margin-top: 8px; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
   .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta.good { color: var(--s3); }
@@ -729,7 +739,8 @@ function tiersCard(key) {
 SECTIONS.genel = () => {
   const blocks = [tiersCard("g-tiers")];
   const tbl = dailyTable("g-daily");
-  return { html: `<div class="kpis" style="--cols:4">${selectKpi("ut")}${selectKpi("node")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Aktivasyon aşamasındaki abone" })}</div>`
+  return { html: `<div class="kpis big">${selectKpi("ut")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Aktivasyon aşamasındaki abone" })}`
+      + `${selectKpi("node")}${kpiCard("lessons_per_online", null, null, { mode: "day", own: "ders" })}${kpiCard("min_per_online", null, null, { mode: "day", own: "dk" })}</div>`
       + `<div class="cards">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };

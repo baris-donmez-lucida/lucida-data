@@ -801,6 +801,22 @@
    "period": "ratio_of_sums"
   },
   {
+   "id": "lessons_per_online",
+   "label": "Online başına tamamlanan ders",
+   "tabs": [
+    "genel"
+   ],
+   "kind": "ratio",
+   "unit": "ratio",
+   "num": "lesson_completed",
+   "den": "online",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "O gün tamamlanan ders (anm_c_lesson_completed adedi) / Online abone (dashboard_page_viewed tekil).",
+   "period": "ratio_of_sums"
+  },
+  {
    "id": "abandon_rate",
    "label": "Yarım bırakma oranı",
    "tabs": [
@@ -976,6 +992,22 @@
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
    "note": "",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "min_per_online",
+   "label": "Online başına konuşma dakikası",
+   "tabs": [
+    "genel"
+   ],
+   "kind": "ratio",
+   "unit": "min",
+   "num": "speech_min",
+   "den": "online",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "O günün toplam konuşma dakikası (Σ speech_duration / 60) / Online abone (dashboard_page_viewed tekil).",
    "period": "ratio_of_sums"
   },
   {
