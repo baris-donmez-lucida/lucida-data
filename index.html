@@ -1188,7 +1188,7 @@ SECTIONS.retention = () => {
     const ser = [{ name: `${R.label} · ${rows.length} kohort`, color: COL[0], fmt: (v) => fmt("pct", v), vals: pts.map((p) => (p ? p.v : null)), ma: null, detail: (i) => (pts[i] ? ` <small>${nf.format(pts[i].n)} kişilik kohortlar</small>` : "") }];
     card.querySelector(".legend").innerHTML = legendHtml(ser);
     lineChart(card.querySelector(".ch-a"), card, Ns.map(String), ser, { yFmt: yFmtFor("pct"), aria: "Retention eğrisi", xFmt: (d) => "D" + d, xTip: (i) => "D" + i });
-  }, { wide: false, sub: "Kohort: o gün call_ok yapan abone; N. gün tekrar call_ok (tam N. gün). Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort.", help: "Amplitude retention, call_ok → call_ok, N-day. Bugünü içeren ve dolmamış hücreler kullanılmaz." });
+  }, { wide: false, sub: "Kohort: o gün online olan abone (dashboard_page_viewed); N. gün tekrar online (tam N. gün). Seçili aralıktaki kohortların dolmuş hücreleri: Σ dönen / Σ kohort.", help: "Amplitude retention, dashboard_page_viewed → dashboard_page_viewed (Online), N-day. Bugünü içeren ve dolmamış hücreler kullanılmaz." });
   const tl = customCard("Kohort gününe göre D1 ve D7", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const R = retFor(); if (!R) { card.querySelector(".ch-a").innerHTML = `<div class="chart-empty">Veri yok.</div>`; return; }
     const [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1), at = new Map(R.rows.map((r) => [r.d, r]));
@@ -1213,7 +1213,7 @@ const RET_DAYS = [1, 3, 6, 7, 8, 13, 14, 15];
 function retTable(key) {
   return customCard("Retention tablosu", `<div class="tbl-wrap"><table class="ret"><thead></thead><tbody></tbody></table></div>`, (card) => {
     const R = retFor(cardFilter(key)), tb = card.querySelector("tbody");
-    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün call_ok yapan abone. DN: aynı kohorttan tam N. gün tekrar call_ok yapan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi retention oranına göre koyulaşır; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
+    card.querySelector(".tags").innerHTML = tagHtml(R?.tag) + helpBtn("Kohort: o gün online olan abone (dashboard_page_viewed). DN: aynı kohorttan tam N. gün tekrar online olan. Toplam satırı: dolmuş hücrelerin toplamı (oran = Σ dönen / Σ kohort). Hücre rengi sütun ortalamasına göre: üstü yeşil, altı kırmızı, fark büyüdükçe koyu; henüz dolmamış günler boş. Filtrede yalnızca platform kırılımı var.");
     if (!R) { tb.innerHTML = `<tr><td>Veri yok.</td></tr>`; return; }
     const pct = (ccState(key).view || "pct") === "pct", [i0, i1] = cardWin(key), from = D.d.days[i0], to = D.d.days[i1];
     const rows = R.rows.filter((r) => r.d >= from && r.d <= to).sort((a, b) => (a.d < b.d ? 1 : -1)); // newest cohort first

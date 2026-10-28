@@ -6067,13 +6067,13 @@
    "id": "ret",
    "chart": {
     "kind": "retention",
-    "name": "Product v2 · Abone retention (call_ok -> call_ok)",
+    "name": "Product v2 · Abone retention (online: dashboard_page_viewed -> dashboard_page_viewed)",
     "start_event": {
-     "event": "call_ok"
+     "event": "dashboard_page_viewed"
     },
     "return_events": [
      {
-      "event": "call_ok"
+      "event": "dashboard_page_viewed"
      }
     ],
     "retention_method": "nday",
@@ -6155,7 +6155,7 @@
    },
    "groupByLimit": 40,
    "timeSeriesLimit": 1000,
-   "parse": "Segment başına 'Overall' satırı = D0…D30 ortalaması; her başlangıç günü satırı = o günün kohortu. Timeline: kohort gününe göre D1 ve D7 (penceresi dolmamış günler boş)."
+   "parse": "Segment başına 'Overall' satırı = D0…D30 ortalaması; her başlangıç günü satırı = o günün kohortu. Timeline: kohort gününe göre D1 ve D7 (penceresi dolmamış günler boş). Kohort ve dönüş: dashboard_page_viewed (Online)."
   },
   {
    "id": "new_act_sub",
