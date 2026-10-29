@@ -1399,8 +1399,10 @@ function userListCard(id) {
 SECTIONS.detay = () => {
   const id = S.metric, c = D.cat[id], back = D.d.tabs.find((t) => t.id === S.from)?.label || "Genel Bakış";
   const simple = (x) => x && /^[a-z0-9_]+$/.test(x) && D.cat[x];
-  const b = [trendCard(c.label, [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
-  if (simple(c.num) && simple(c.den)) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
+  // Aktif abone (from the Aktif or abone-count select) is drawn together with Online; Aktif / Online then needs no num/den chart
+  const withOnline = id === "active" && (S.group === "act" || S.group === "users");
+  const b = [trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
+  if (simple(c.num) && simple(c.den) && id !== "talk_rate") b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
   const ul = userListCard(id);
   if (ul) b.push(ul);
