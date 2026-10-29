@@ -333,35 +333,19 @@
   },
   {
    "id": "stickiness",
-   "label": "Stickiness (aktivasyon dışı)",
+   "label": "Stickiness (aktivasyonu tamamlamış)",
    "tabs": [
     "genel",
     "kullanim"
    ],
    "kind": "ratio",
    "unit": "ratio",
-   "num": "active_nonact",
-   "den": "wau_nonact",
+   "num": "online_est",
+   "den": "wau_online_est",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "DAU / WAU, yalnızca o gün aktivasyon aşamasında OLMAYAN aboneler (dashboard'u d0–d8 penceresinden önce de görmüş). × 7 = haftada ortalama aktif gün.",
-   "period": "ratio_of_sums"
-  },
-  {
-   "id": "stickiness_inact",
-   "label": "Stickiness (aktivasyonda)",
-   "tabs": [
-    "kullanim"
-   ],
-   "kind": "ratio",
-   "unit": "ratio",
-   "num": "active-active_nonact",
-   "den": "wau-wau_nonact",
-   "chart": "line",
-   "timeline": "day",
-   "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "DAU / WAU, yalnızca o gün aktivasyon aşamasında (d0–d8; d0 = dashboard'u ilk gördüğü gün) olan aboneler: tüm aboneler eksi aktivasyon dışı. Bu gruptaki kişiler en fazla 9 günlük olduğundan WAU'ları kısa geçmişle oluşur.",
+   "note": "O gün online olan / son 7 günde (gün − 6 … gün) online olan; ikisinden de pencerenin herhangi bir gününde aktivasyon aşamasında olan aboneler (ilk dashboard ≥ gün − 14) çıkarılır. Online = dashboard_page_viewed. × 7 = haftada ortalama online gün.",
    "period": "ratio_of_sums"
   },
   {
@@ -372,12 +356,12 @@
    ],
    "kind": "ratio",
    "unit": "ratio",
-   "num": "active",
-   "den": "wau",
+   "num": "online_all_h",
+   "den": "wau_online",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "DAU / WAU, hiç kimse çıkarılmadan (aktif abone / 7 günlük tekil aktif abone). × 7 = haftada ortalama aktif gün.",
+   "note": "O gün online olan / son 7 günde (gün − 6 … gün) online olan tekil abone; kimse çıkarılmaz. Online = dashboard_page_viewed. × 7 = haftada ortalama online gün.",
    "period": "ratio_of_sums"
   },
   {
@@ -1890,16 +1874,16 @@
    "period": "ratio_of_sums"
   },
   {
-   "id": "active_nonact",
-   "label": "Aktif abone (aktivasyon aşaması hariç)",
+   "id": "online_est",
+   "label": "Online abone (aktivasyonu tamamlamış)",
    "tabs": [
     "tanimlar"
    ],
    "kind": "count",
    "unit": "count",
    "source": {
-    "query": "stick_act",
-    "history": "product-history koleksiyonu, doküman 'stickiness_act': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
+    "query": "stick_est",
+    "history": "product-history koleksiyonu, doküman 'stickiness_est': points [{d, paid_all:{dau,wau}, paid:{dau,wau}, store:{...}, web:{...}}]"
    },
    "chart": "line",
    "timeline": "day",
@@ -1907,19 +1891,19 @@
     "subType"
    ],
    "period": "daily_mean",
-   "note": "Gün içinde call_ok yapan, o gün aktivasyon aşamasında olmayan (d0–d8 dışında; dashboard'u d0–d8 penceresinden önce de görmüş) abone."
+   "note": "Gün içinde dashboard_page_viewed gören, aktivasyonunu 7 günlük pencereden önce tamamlamış abone (ilk dashboard ≤ gün − 15)."
   },
   {
-   "id": "wau_nonact",
-   "label": "WAU (aktivasyon aşaması hariç)",
+   "id": "wau_online_est",
+   "label": "Haftalık online abone (aktivasyonu tamamlamış)",
    "tabs": [
     "tanimlar"
    ],
    "kind": "count",
    "unit": "count",
    "source": {
-    "query": "stick_act",
-    "history": "product-history koleksiyonu, doküman 'stickiness_act': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
+    "query": "stick_est",
+    "history": "product-history koleksiyonu, doküman 'stickiness_est': points [{d, paid_all:{dau,wau}, paid:{dau,wau}, store:{...}, web:{...}}]"
    },
    "chart": "line",
    "timeline": "day",
@@ -1927,7 +1911,47 @@
     "subType"
    ],
    "period": "last",
-   "note": "O güne kadarki 7 günde call_ok yapan, o gün aktivasyon aşamasında olmayan tekil abone."
+   "note": "Gün − 6 … gün arasında dashboard_page_viewed gören, aktivasyonunu pencereden önce tamamlamış tekil abone."
+  },
+  {
+   "tabs": [
+    "tanimlar"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "subType"
+   ],
+   "source": {
+    "query": "stick_est",
+    "history": "product-history koleksiyonu, doküman 'stickiness_est': points [{d, paid_all:{dau,wau}, paid:{dau,wau}, store:{...}, web:{...}}]"
+   },
+   "id": "online_all_h",
+   "label": "Online abone (stickiness)",
+   "note": "stick_est paid_all dau; Online ile aynı tanım.",
+   "period": "daily_mean"
+  },
+  {
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "subType"
+   ],
+   "source": {
+    "query": "stick_est",
+    "history": "product-history koleksiyonu, doküman 'stickiness_est': points [{d, paid_all:{dau,wau}, paid:{dau,wau}, store:{...}, web:{...}}]"
+   },
+   "id": "wau_online",
+   "label": "Haftalık online abone",
+   "note": "Gün − 6 … gün arasında dashboard_page_viewed gören tekil abone.",
+   "period": "last"
   }
  ],
  "northstar_def": {

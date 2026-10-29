@@ -6352,14 +6352,14 @@
    "parse": "HER SABAH yalnızca dün için çalışır (<DAY_START>/<DAY_END>). jsonResponse.data[0]: opened = cumulativeRaw[0], abandoned = cumulativeRaw[1], stepTransTimeDistribution.step_bins[1].bins -> start >= 60000 olan bin'lerin totals toplamı = over60. Nokta {d, opened, abandoned, over60} geçmişe eklenir; ilk kurulumda son 30 gün için tek tek doldurulur."
   },
   {
-   "id": "stick_act",
+   "id": "stick_est",
    "groupByLimit": 10,
    "timeSeriesLimit": 10,
-   "parse": "HER SABAH yalnızca dün için (<WEEK_START> = dün − 6 gün 00:00, <DAY_END> = dün 23:59:59, <ACT_END> = dün − 9 gün 23:59:59). Segmentler paid / store / web; her biri o gün aktivasyon aşamasında OLMAYAN aboneler: dashboard_page_viewed'ı d0–d8 penceresinden (dün − 8 gün) önce de görmüş olan. dau = timeSeries'in son noktası (dün), wau = overallSeries (7 günün tekili). Nokta {d: dün, paid: {dau, wau}, store: {…}, web: {…}} → product-history/stickiness_act.",
+   "parse": "HER SABAH yalnızca dün için (<WEEK_START> = dün − 6 gün 00:00, <DAY_END> = dün 23:59:59, <EST_END> = dün − 15 gün 23:59:59). Online (dashboard_page_viewed) tekil abone. Segment 0 paid_all = tüm aboneler; 1–3 paid / store / web = aktivasyonu pencereden önce tamamlamış aboneler (dashboard'u <EST_END>'e kadar görmüş, yani d0 ≤ dün − 15; 7 günlük pencerenin hiçbir gününde d0–d8 aşamasında değil). dau = timeSeries'in son noktası, wau = overallSeries. Nokta {d, paid_all: {dau, wau}, paid: {…}, store: {…}, web: {…}} → product-history/stickiness_est.",
    "definition": {
     "app": "773708",
     "type": "eventsSegmentation",
-    "name": "Product v2 · Stickiness, aktivasyon aşamasındakiler hariç (tek gün)",
+    "name": "Product v2 · Online stickiness, aktivasyonu tamamlamış (tek gün)",
     "params": {
      "start": "<WEEK_START>",
      "end": "<DAY_END>",
@@ -6370,12 +6370,31 @@
      "groupBy": [],
      "events": [
       {
-       "event_type": "call_ok",
+       "event_type": "dashboard_page_viewed",
        "filters": [],
        "group_by": []
       }
      ],
      "segments": [
+      {
+       "label": "paid_all",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      },
       {
        "label": "paid",
        "conditions": [
@@ -6400,7 +6419,7 @@
          "time_type": "absolute",
          "time_value": [
           1704067200,
-          "<ACT_END>"
+          "<EST_END>"
          ],
          "op": ">=",
          "value": 1
@@ -6430,7 +6449,7 @@
          "time_type": "absolute",
          "time_value": [
           1704067200,
-          "<ACT_END>"
+          "<EST_END>"
          ],
          "op": ">=",
          "value": 1
@@ -6457,7 +6476,7 @@
          "time_type": "absolute",
          "time_value": [
           1704067200,
-          "<ACT_END>"
+          "<EST_END>"
          ],
          "op": ">=",
          "value": 1
