@@ -144,6 +144,8 @@
   table.ret tr.tot td { font-weight: 700; border-bottom: 2px solid var(--border); }
   table.daily { --pos: #22c55e; --neg: #ef4444; }
   table.daily td.dev { font-weight: 600; }
+  table.daily th .avg { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  table.daily th:first-child .avg { color: var(--muted); font-weight: 500; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
   .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta.good { color: var(--s3); }
@@ -877,7 +879,7 @@ function dailyTable(key) {
   // [metric, header]
   const COLS = [["online", "Online"], ["active", "Aktif"], ["northstar", "NS"], ["ns_online", "NS / Online"], ["regular_online", "Regular / Online"], ["sessions", "Session"], ["node_click_rate", "Node click"], ["node_start_rate_s", "Node start"],
     ["lesson_start_rate_s", "Ders başlatılan s."], ["completion_rate_s", "Tamamlanan s."], ["abandon_rate_u", "Yarım bırakma"], ["speech_min", "Konuşma dk"], ["rating_high_rate", "4–5★"]];
-  return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Renk: sütunun son 90 gün ortalamasından %2'den fazla sapma (yeşil iyi, kırmızı kötü; sapma büyüdükçe renk koyulaşır). Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
+  return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Renk: sütunun son 90 gün ortalamasından %2'den fazla sapma (yeşil iyi, kırmızı kötü; sapma büyüdükçe renk koyulaşır). Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih<small class="avg">90 gün ort.</small></th>${COLS.map(([id, l]) => `<th data-id="${id}">${esc(l)}<small class="avg"></small></th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
     const [i0, i1] = key ? cardWin(key) : win(), f = key ? cardFilter(key) : S;
     const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id, f)]));
     // each column's mean over the last 90 days (daily values; days below the minimum denominator left out)
@@ -886,6 +888,7 @@ function dailyTable(key) {
       for (let i = Math.max(0, n - 90); i < n; i++) if (s.vals?.[i] != null && !(s.den && s.den[i] != null && s.den[i] < MIN_DEN)) xs.push(s.vals[i]);
       return [id, xs.length ? sum(xs) / xs.length : null];
     }));
+    card.querySelectorAll("thead th[data-id] .avg").forEach((el) => { const id = el.parentElement.dataset.id; el.textContent = fmt(D.cat[id].unit, avg[id]); });
     // beyond ±2% of that mean the text turns green (better) or red (worse): faint just past 2%, full colour from ±25%
     const cell = (id, i) => {
       const c = D.cat[id], s = ser[id], v = s.vals?.[i], a = avg[id];
