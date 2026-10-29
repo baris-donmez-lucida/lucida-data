@@ -158,3 +158,16 @@ test("aband_day fixture: over60 = bins starting at ≥ 60 s, never above the aba
   const all = x.stepTransTimeDistribution.step_bins[1].bins.reduce((s, b) => s + b.bin_dist.totals, 0);
   assert.ok(p.over60 <= all && p.over60 <= p.abandoned);
 });
+
+test("userTable: rows keyed on Amplitude ID, day cell found anywhere, yesterday flags and 7-day totals", () => {
+  const csv = { csvResponse: { data: [["t"], [], [], ["[Amplitude] ID", "[Amplitude] User ID", "Time", "[Amplitude] Country", "[Amplitude] Platform", "[Amplitude] Version", "rc_subscription_status", "a--paid", "b--paid", "c--paid", "d--paid", "e--paid", "f--paid", "g--paid", "h--paid", "i--paid"],
+    ["Overall", "", "", "", "", "", "", "9", "9", "9", "9", "9", "9", "9", "9", "9"],
+    ["900", "(none)", "Japan", "iOS", "2.9.1", "active", "2026-10-26T00:00:00", "1", "1", "0", "1", "0", "0", "0", "0", "60"],
+    ["900", "11", "Japan", "iOS", "2.9.2", "active", "2026-10-27T00:00:00", "2", "1", "2", "2", "1", "1", "1", "1", "120"]] } };
+  const t = L.userTable([csv], {}, "2026-10-27");
+  assert.equal(t.rows.length, 1);
+  const u = Object.fromEntries(t.cols.map((c, i) => [c, t.rows[0][i]]));
+  assert.equal(u.id, "900"); assert.equal(u.uid, "11"); assert.equal(u.version, "2.9.2");
+  assert.equal(u.on7, 2); assert.equal(u.act7, 2); assert.equal(u.done7, 2); assert.equal(u.min7, 3);
+  assert.equal(u.done_y, 2); assert.equal(u.nstart_y, 1); assert.equal(u.min_y, 2); assert.equal(u.last, "2026-10-27");
+});

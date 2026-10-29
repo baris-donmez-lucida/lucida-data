@@ -14223,6 +14223,2004 @@
    },
    "groupByLimit": 40,
    "parse": "Ham funnel definition (dashboard/queries.json pa_c_* / pa_s_* kalıbı). Yanıt csvResponse (bkz. RESPONSE_SHAPES.md §5): satır = segment × giriş günü + segment başına 'Total'. Segment etiketi 'None' gelebilir: segmenti sütun 0'daki etikete değil, satır bloklarının sırasına göre eşle (sıra: all, iOS, Android, sonra 10 ülke, queries.json countries sırası). k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok): yılı <WSTART>..<END> aralığından çıkar. Is complete=false giriş günleri olgunlaşmamış. Giriş (web): ilk rc_non_subscription_purchase_event. Adımlar — giriş → node'dan başlatma (d_start_continue_lesson_bt), pencere 7 gün. <WSTART> = dünün haftasının Pazartesi'si − 16 hafta."
+  },
+  {
+   "id": "ugrp_est",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activated Users listesi: dün call_ok yapan (abone) ve dashboard'u <EST_END>'den (dün − 15 gün sonu) önce görmüş kullanıcılar. data_table, satır = Amplitude ID.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activated Users, dün aktif (v2)",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "dashboard_page_viewed",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<EST_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<DAY_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ugrp_act1",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users (d1–d8) listesi: dün call_ok yapan (abone), dashboard'u <ACT_START> … <PREV_END> arasında görmüş ve <ACT_START>'tan önce hiç görmemiş kullanıcılar.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d1–d8, dün aktif (v2)",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "dashboard_page_viewed",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<ACT_START>",
+         "<PREV_END>"
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<DAY_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_0",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [0-1]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [0-1]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[0-1]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_0",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [0-1]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [0-1]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[0-1]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_1",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [2-3]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [2-3]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[2-3]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_1",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [2-3]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [2-3]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[2-3]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_2",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [4-5]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [4-5]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[4-5]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_2",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [4-5]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [4-5]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[4-5]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_3",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [6-7]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [6-7]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[6-7]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_3",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [6-7]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [6-7]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[6-7]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_4",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [8-9]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [8-9]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[8-9]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_4",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [8-9]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [8-9]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[8-9]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_5",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [aAbB]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [aAbB]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[aAbB]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_5",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [aAbB]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [aAbB]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[aAbB]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_6",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [cCdD]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [cCdD]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[cCdD]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_6",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [cCdD]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [cCdD]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[cCdD]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "ulist_7",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Kullanıcı listesi parçası (device_id ilk karakteri [eEfF]*; her event tek parçaya düşer, kullanıcı birden çok cihazdaysa satırları Amplitude ID ile toplanır). data_table CSV: satır = Amplitude ID × user_id × gün × ülke × platform × sürüm × abonelik durumu; sütunlar call_ok, dashboard_page_viewed, anm_c_lesson_completed, anm_conv_page_viewed (lessonTalk), pre_lesson_viewed, d_start_continue_lesson_bt, pre_lesson_lets_start, lesson_next_launched adetleri ve speech_duration toplamı (sn). Pencere dün − 6 … dün.",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Kullanıcı listesi (7 gün) · cihaz [eEfF]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "user_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     },
+     {
+      "kind": "property",
+      "property": "country",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "platform",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "version",
+      "scope": "user"
+     },
+     {
+      "kind": "property",
+      "property": "gp:rc_subscription_status",
+      "scope": "user"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "call_ok"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_c_lesson_completed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "anm_conv_page_viewed",
+       "where": [
+        {
+         "property": "conv_type",
+         "scope": "event",
+         "op": "is",
+         "values": [
+          "lessonTalk"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_viewed"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "d_start_continue_lesson_bt"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "pre_lesson_lets_start"
+      }
+     },
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "lesson_next_launched"
+      }
+     },
+     {
+      "metric_type": "PROPSUM",
+      "event": {
+       "event": "anm_conv_session_ended"
+      },
+      "aggregation_property": "speech_duration",
+      "aggregation_scope": "event"
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       },
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[eEfF]*"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<WEEK_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "uact_7",
+   "groupByLimit": 1000,
+   "timeSeriesLimit": 0,
+   "parse": "Activation Users listesi (device_id ilk karakteri [eEfF]*): dashboard'u <ACT_START> (dün − 8) … dün arasında görüp öncesinde hiç görmemiş kullanıcılar; satır = Amplitude ID × gün, sütun dashboard_page_viewed adedi → ilk gün = d0. Abone filtresi davranışsal (activation metriğiyle aynı).",
+   "chart": {
+    "kind": "data_table",
+    "name": "Product v2 · Liste: Activation Users d0 · cihaz [eEfF]*",
+    "rows": [
+     {
+      "kind": "property",
+      "property": "amplitude_id",
+      "scope": "user"
+     },
+     {
+      "kind": "time",
+      "interval": "day"
+     }
+    ],
+    "columns": [
+     {
+      "metric_type": "TOTALS",
+      "event": {
+       "event": "dashboard_page_viewed"
+      }
+     }
+    ],
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "device_id",
+        "scope": "user",
+        "op": "glob match",
+        "values": [
+         "[eEfF]*"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "_active",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         "<START>",
+         "<DAY_END>"
+        ],
+        "where": [
+         {
+          "property": "gp:rc_subscription_status",
+          "scope": "user",
+          "op": "is",
+          "values": [
+           "active",
+           "intro",
+           "cancelled",
+           "grace_period",
+           "promotional"
+          ]
+         }
+        ]
+       },
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<ACT_START>",
+     "end": "<DAY_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
   }
  ],
  "baseCohortId": null

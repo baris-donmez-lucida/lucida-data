@@ -1346,6 +1346,53 @@ SECTIONS.diger = () => {
   return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
+// Users behind a metric on the last day (numerator group), from D.d.users (one row per user, last 7 days).
+function userGroup(id) {
+  const X = D.d.users?.asOf, inAct = (u, a, b) => u.d0 && u.d0 >= addDays(X, a) && u.d0 <= addDays(X, b);
+  const G = {
+    ns: [(u) => u.done_y >= 2, "Dün North Star olan aboneler (≥2 ders tamamlama)"],
+    reg: [(u) => u.done_y === 1, "Dün Regular olan aboneler (1 ders tamamlama)"],
+    act: [(u) => u.act_y > 0, "Dün aktif olan aboneler (call_ok)"],
+    on: [(u) => u.on_y > 0, "Dün online olan aboneler (dashboard_page_viewed)"],
+    activation: [(u) => inAct(u, -8, 0), "Activation Users (ilk dashboard son 9 günde, d0–d8)"],
+    stickAct: [(u) => u.a1_y > 0, "Activation Users (d1–d8), dün aktif"],
+    stickEst: [(u) => u.est_y > 0, "Activated Users, dün aktif"],
+    nclick: [(u) => u.nclick_y > 0, "Dün node'a tıklayan aboneler"],
+    nstart: [(u) => u.nstart_y > 0, "Dün node'dan ders başlatan aboneler"],
+    done: [(u) => u.done_y > 0, "Dün ders tamamlayan aboneler"],
+    speak: [(u) => u.min_y > 0, "Dün konuşan aboneler"],
+    chain: [(u) => u.chain_y > 0, "Dün Sıradaki ders zincirini kullanan aboneler"],
+    aband: [(u) => u.page_y > 0 && u.done_y === 0, "Dün ders açıp hiç tamamlamayan aboneler"],
+    wau: [(u) => u.act7 > 0, "Son 7 günde aktif olan aboneler"],
+  };
+  const M = { ns_online: "ns", northstar: "ns", ns_rate: "ns", regular_online: "reg", regular: "reg", talk_rate: "act", active: "act", stickiness_all: "act",
+    online: "on", activation: "activation", stick_activation: "stickAct", stickiness: "stickEst", node_click_rate: "nclick", node_tap_rate: "nclick",
+    node_start_rate_s: "nstart", node_start_rate_u: "nstart", completion_rate_s: "done", complete_rate_u: "done", lessons_per_online: "done",
+    min_per_online: "speak", chain_share_u: "chain", abandon_rate_u: "aband", wau: "wau" };
+  return G[M[id]] || null;
+}
+const STORE_ST = new Set(["active", "intro", "cancelled", "grace_period"]);
+function userListCard(id) {
+  const g = userGroup(id), U = D.d.users;
+  if (!g || !U) return null;
+  const all = U.rows.map((r) => Object.fromEntries(U.cols.map((c, i) => [c, r[i]])));
+  const n1 = (v) => (v == null ? "—" : nf.format(v)), dd = (v) => (v ? dShort(v) : "—");
+  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, { k: "id", label: "Amplitude ID" }, { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
+    { k: "status", label: "Abonelik" }, { k: "d0", label: "d0", fmt: dd }, { k: "last", label: "Son görülme", fmt: dd },
+    { k: "on7", label: "Online gün (7g)", num: true, fmt: n1 }, { k: "act7", label: "Aktif gün (7g)", num: true, fmt: n1 }, { k: "done7", label: "Tamamlanan ders (7g)", num: true, fmt: n1 },
+    { k: "page7", label: "Açılan ders (7g)", num: true, fmt: n1 }, { k: "min7", label: "Konuşma dk (7g)", num: true, fmt: (v) => (v ? nf1.format(v) : "—") },
+    { k: "done_y", label: "Dün ders", num: true, fmt: n1 }, { k: "min_y", label: "Dün dk", num: true, fmt: (v) => (v ? nf1.format(v) : "—") }];
+  let tbl = null;
+  const card = customCard(g[1], `<p class="card-sub ul-sum"></p><div class="ul-host"></div>`, (el) => {
+    const f = cardFilter("det-" + id);
+    const rows = all.filter(g[0]).filter((u) => (f.dim === "platform" ? u.platform === f.val : f.dim === "country" ? u.country === f.val : f.dim === "version" ? u.version === f.val : true)
+      && (f.sub === "store" ? STORE_ST.has(u.status) : f.sub === "web" ? u.status === "promotional" : true));
+    el.querySelector(".ul-sum").textContent = `${nf.format(rows.length)} abone · ${dLong(U.asOf)} · kullanım sütunları ${dShort(addDays(U.asOf, -6))}–${dShort(U.asOf)}`;
+    tbl = sortableTable(cols, rows, { sort: 10, dir: -1, max: 640 });
+    el.querySelector(".ul-host").innerHTML = tbl.html; tbl.bind();
+  }, { help: "Liste dünün (son tam gün) pay grubundaki aboneleri gösterir. Kullanıcı ID = uygulamadaki sayısal ID (giriş yapmadan kullananlarda yok); Amplitude ID her kullanıcıda var, Amplitude'da kullanıcı aramak için kullanılabilir. Sütunlar son 7 günün toplamı; Abonelik = son aktif gündeki RevenueCat durumu; d0 = ilk dashboard günü (aktivasyondakiler için). Üstteki grafiğin filtresi listeye de uygulanır." });
+  return card;
+}
 // Metric detail: opened by clicking a KPI card on Genel Bakış / Kullanım. Big timeline with its own date range and
 // filter, and for a ratio its numerator and denominator over time.
 SECTIONS.detay = () => {
@@ -1354,8 +1401,14 @@ SECTIONS.detay = () => {
   const b = [trendCard(c.label, [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c) })];
   if (simple(c.num) && simple(c.den)) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
+  const ul = userListCard(id);
+  if (ul) b.push(ul);
   return { html: head + `<div class="kpis big">${kpiCard(id, null, null, { mode: c.id.startsWith("rating") ? "week" : "day", own: simple(c.num) ? shortLabel(D.cat[c.num]).toLowerCase() : null, withDen: !!simple(c.den) })}</div><div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
-    draw: () => b.forEach((x) => x.draw()) };
+    draw: () => {
+      b.forEach((x) => x.draw());
+      // the main chart's filter also filters the user list
+      if (ul) { const k = "det-" + id, main = REDRAW[k]; REDRAW[k] = () => { main(); ul.draw(); }; }
+    } };
 };
 document.addEventListener("click", (ev) => {
   if (S.tab !== "genel" && S.tab !== "kullanim") return;

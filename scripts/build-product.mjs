@@ -189,6 +189,10 @@ const retLoad = (main, byCountry) => {
 const ret = retLoad("ret", "ret_country"), retu = retLoad("retu", "retu_country");
 // nret / nret_country: new-user cohorts (day 0 = first-ever dashboard_page_viewed), Return On, calendar days
 const nret = retLoad("nret", "nret_country"), nretu = retLoad("nretu", "nretu_country"), nretc = retLoad("nretc", "nretc_country");
+// per-user lists for the metric detail pages: ulist_0…7 (Amplitude ID × day counts, last 7 days); uact_0…7 (Activation Users, d0); 8 parts by the device_id's first character;
+// ugrp_est / ugrp_act1 (yesterday's active Activated / Activation users — same rules as the stickiness metrics)
+const users = L.userTable([...Array(8).keys()].map((d) => load("ulist_" + d)).filter(Boolean),
+  { act: [...Array(8).keys()].map((k) => load("uact_" + k)).filter(Boolean), est: load("ugrp_est"), act1: load("ugrp_act1") }, dataDate);
 // activation stickiness from the new-user cohorts (return event call_ok): on day X, users whose first dashboard view was
 // X−8 … X−1 (d1–d8) and who are active (call_ok) on X (cohort X−N, cell DN) / the size of those 8 cohorts.
 // Null until all 8 cohorts are in range.
@@ -277,7 +281,7 @@ for (const c of catalog) if (!Array.isArray(c.breakdowns)) c.breakdowns = c.num 
 
 const payload = {
   v: 1, page: "product", generatedAt: new Date().toISOString(), dataDate, days, countries: COUNTRIES, versions,
-  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, nret, nretu, co, les, hist,
+  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, nret, nretu, users, co, les, hist,
   changes: CH.changes, meta, missing: [...new Set(missing)],
 };
 

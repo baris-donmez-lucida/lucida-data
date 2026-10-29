@@ -217,3 +217,79 @@ export function lessonLevel(id) {
   const m = /(?:_([a-z]{2}))?_(a[0-2]|b[12]|c[12])_(\d+)$/i.exec(String(id));
   return m ? { lang: m[1] ? m[1].toLowerCase() : null, lvl: m[2].toUpperCase(), no: Number(m[3]) } : null;
 }
+
+// ---------- user lists ----------
+// data_table CSVs keyed on Amplitude ID (events sent before login have no user_id, so user_id cannot be the key).
+// ulist_* : one row per Amplitude ID × user_id × day × country × platform × version × subscription status with event
+//           counts in column order USER_COLS (last 7 days).
+// groups.act: uact_* (Amplitude ID × day dashboard views of Activation Users → d0 = first day with a view);
+// groups.est / groups.act1: Amplitude IDs of yesterday's active Activated Users / Activation Users (d1–d8).
+// Returns { asOf, cols, rows } with one row per user (USER_FIELDS order); null when no ulist part is present.
+export const USER_COLS = ["call", "dash", "done", "page", "nclick", "nstart", "nlets", "chain", "speech"];
+export const USER_FIELDS = ["id", "uid", "country", "platform", "version", "status", "d0", "last", "on7", "act7", "done7", "page7", "min7",
+  "on_y", "act_y", "done_y", "page_y", "nclick_y", "nstart_y", "chain_y", "min_y", "est_y", "a1_y"];
+const DIM = [[/amplitude\] id$/i, "id"], [/user id/i, "uid"], [/country/i, "country"], [/platform/i, "platform"], [/version/i, "version"], [/subscription_status/i, "status"]];
+// rows as { id, uid, …, d, vals } — the day cell is found by its shape because Amplitude moves it to the end of the dimensions
+function tableRows(data) {
+  const raw = data?.csvResponse?.data;
+  if (!Array.isArray(raw)) return null;
+  const clean = raw.map((r) => (Array.isArray(r) ? r.map(cell) : []));
+  const h = clean.findIndex((r) => /\] (user )?id$/i.test(String(r[0] ?? "")));
+  if (h < 0) return null;
+  const head = clean[h], m0 = head.findIndex((x) => /--/.test(String(x)));
+  const nDims = m0 < 0 ? head.length - 1 : m0, names = head.slice(0, nDims).filter((x) => !/^time$/i.test(x)).map((x) => (DIM.find(([re]) => re.test(x)) || [null, x])[1]);
+  const out = [];
+  for (const r of clean.slice(h + 1)) {
+    if (!r[0] || r[0] === "Overall" || r[0] === "(none)") continue;
+    const dims = r.slice(0, nDims), ti = dims.findIndex((x) => /^\d{4}-\d\d-\d\d/.test(String(x ?? "")));
+    const rest = ti < 0 ? dims : dims.filter((_, i) => i !== ti), o = { d: ti < 0 ? null : day(dims[ti]), vals: r.slice(nDims).map((x) => num(x) || 0) };
+    names.forEach((n, i) => { o[n] = rest[i] == null || rest[i] === "(none)" ? null : rest[i]; });
+    out.push(o);
+  }
+  return out;
+}
+export function userTable(parts, groups, lastDay) {
+  const users = new Map();
+  const get = (id) => users.get(id) ?? (users.set(id, { id, uid: null, days: new Map(), prof: null, profDay: "" }), users.get(id));
+  let any = false;
+  for (const data of parts) {
+    const rs = tableRows(data);
+    if (!rs) continue;
+    any = true;
+    for (const r of rs) {
+      if (!r.id || !r.d) continue;
+      const u = get(r.id), t = u.days.get(r.d) ?? USER_COLS.map(() => 0);
+      r.vals.forEach((x, i) => { t[i] += x; });
+      u.days.set(r.d, t);
+      if (r.uid) u.uid = r.uid;
+      // profile from the latest day with activity (country, platform, version, subscription status)
+      if (r.vals.some((x) => x > 0) && r.d >= u.profDay) { u.prof = [r.country, r.platform, r.version, r.status]; u.profDay = r.d; }
+    }
+  }
+  if (!any) return null;
+  const d0 = new Map();
+  for (const data of groups.act || []) for (const r of tableRows(data) || []) {
+    if (!r.id || !r.d || !(r.vals[r.vals.length - 1] > 0)) continue;
+    if (!d0.has(r.id) || r.d < d0.get(r.id)) d0.set(r.id, r.d);
+  }
+  const ids = (data) => new Set((tableRows(data) || []).filter((r) => r.id && r.vals[r.vals.length - 1] > 0).map((r) => r.id));
+  const est = ids(groups.est), act1 = ids(groups.act1);
+  for (const id of [...d0.keys(), ...est, ...act1]) get(id);
+  const C = Object.fromEntries(USER_COLS.map((c, i) => [c, i]));
+  const rows = [];
+  for (const u of users.values()) {
+    let on7 = 0, act7 = 0, done7 = 0, page7 = 0, sp7 = 0, last = "";
+    for (const [d, t] of u.days) {
+      if (t[C.dash] > 0) on7++;
+      if (t[C.call] > 0) act7++;
+      if ((t[C.dash] > 0 || t[C.call] > 0) && d > last) last = d;
+      done7 += t[C.done]; page7 += t[C.page]; sp7 += t[C.speech];
+    }
+    const y = u.days.get(lastDay) ?? USER_COLS.map(() => 0);
+    const p = u.prof ?? [null, null, null, null];
+    rows.push([u.id, u.uid, p[0], p[1], p[2], p[3], d0.get(u.id) ?? null, last || null, on7, act7, done7, page7, Math.round(sp7 / 6) / 10,
+      y[C.dash], y[C.call], y[C.done], y[C.page], y[C.nclick], y[C.nstart] + y[C.nlets] > 0 ? 1 : 0, y[C.chain], Math.round(y[C.speech] / 6) / 10,
+      est.has(u.id) ? 1 : 0, act1.has(u.id) ? 1 : 0]);
+  }
+  return { asOf: lastDay, cols: USER_FIELDS, rows };
+}
