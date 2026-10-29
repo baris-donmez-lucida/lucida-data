@@ -333,7 +333,7 @@
   },
   {
    "id": "stickiness",
-   "label": "Stickiness (aktivasyon hariç)",
+   "label": "Stickiness (aktivasyon dışı)",
    "tabs": [
     "genel",
     "kullanim"
@@ -345,7 +345,23 @@
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "DAU / WAU; o gün aktivasyon aşamasında olan aboneler (dashboard'u ilk kez gördüğü gün d0, d0–d8) hem DAU'dan hem WAU'dan çıkarılır. × 7 = haftada ortalama aktif gün.",
+   "note": "DAU / WAU, yalnızca o gün aktivasyon aşamasında OLMAYAN aboneler (dashboard'u d0–d8 penceresinden önce de görmüş). × 7 = haftada ortalama aktif gün.",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "stickiness_inact",
+   "label": "Stickiness (aktivasyonda)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "ratio",
+   "unit": "ratio",
+   "num": "active-active_nonact",
+   "den": "wau-wau_nonact",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "DAU / WAU, yalnızca o gün aktivasyon aşamasında (d0–d8; d0 = dashboard'u ilk gördüğü gün) olan aboneler: tüm aboneler eksi aktivasyon dışı. Bu gruptaki kişiler en fazla 9 günlük olduğundan WAU'ları kısa geçmişle oluşur.",
    "period": "ratio_of_sums"
   },
   {

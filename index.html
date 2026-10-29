@@ -607,7 +607,7 @@ function kpiCard(id, countId, extraId, opts = {}) {
   else { w = win(); pw = prevWin(); cmpLabel = `önceki ${S.range} güne göre`; }
   const [i0, i1] = w;
   const cur = periodValue(c, s, i0, i1);
-  const isStick = id === "stickiness" || id === "stickiness_all";
+  const isStick = id.startsWith("stickiness");
   let subs = [];
   if (isStick) subs.push(`<span>haftada <b>${fmt("ratio", cur, { days: true })}</b></span>`);
   if (opts.own && s.num) {
@@ -760,7 +760,7 @@ const KSEL = {
   ut: { v: "northstar", aria: "Kullanıcı tipi", opts: [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]] },
   users: { v: "active", aria: "Abone sayısı", opts: [["active", "Aktif abone", "active", null], ["online", "Online abone", "online", null]] },
   act: { v: "active", aria: "Aktif", opts: [["active", "Aktif abone", "active", null], ["rate", "Aktif / Online", "talk_rate", "aktif"]] },
-  stick: { v: "act", aria: "Stickiness", opts: [["act", "Stickiness · aktivasyon hariç", "stickiness", null], ["all", "Stickiness · tüm aboneler", "stickiness_all", null]] },
+  stick: { v: "out", aria: "Stickiness", opts: [["out", "Stickiness · aktivasyon dışı", "stickiness", null], ["in", "Stickiness · aktivasyonda", "stickiness_inact", null]] },
   dwm: { v: "dau", aria: "DAU / WAU / MAU", opts: [["dau", "DAU", "active", null], ["wau", "WAU", "wau", null], ["mau", "MAU", "mau", null]] },
 };
 // Node card: click / start / complete rate, session-based (÷ sessions opened that day) or user-based (÷ subscribers who opened the app)
@@ -929,17 +929,16 @@ SECTIONS.kullanim = () => {
         trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
         trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"]),
         trendCard("WAU, MAU ve abone tabanı", ["wau", "mau", "base"], ["activity_rate"], { help: "WAU/MAU = o güne kadar 7/28 günde ≥1 call_ok yapan abone. Taban = Amplitude cohort'u (güncel RevenueCat durumu aboneli), her sabah kaydedilir." }),
-        trendCard("Stickiness ve DAU / MAU", ["stickiness", "stickiness_all"], ["dau_mau"], { help: "Stickiness = DAU / WAU; × 7 = bir aktif abonenin haftada ortalama aktif gün sayısı. Aktivasyon hariç: o gün d0–d8 aşamasındaki aboneler (dashboard'u ilk gördüğü gün d0) DAU ve WAU'dan çıkarılır." }),
+        trendCard("Stickiness ve DAU / MAU", ["stickiness", "stickiness_inact", "stickiness_all"], ["dau_mau"], { help: "Stickiness = DAU / WAU; × 7 = bir aktif abonenin haftada ortalama aktif gün sayısı. Aktivasyonda = o gün d0–d8 aşamasındaki aboneler (dashboard'u ilk gördüğü gün d0); aktivasyon dışı = geri kalanlar; ikisi DAU ve WAU'yu ayrı ayrı böler." }),
       ],
     },
     node: {
-      kpis: ["node", "chain", ["node_done_rate"]],
+      kpis: ["node", "chain"],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
         trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
         trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
-        trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
         mixCard("Node tipi karışımı (lesson_entry_type)", "entry_type_mix", { help: "Ders başlatmaların giriş tipi: current (sıradaki node), jump (ileri atlama), replay (tekrar), next (zincir)." }),
         trendCard("İlk kez tamamlanan node", ["lesson_completed_first"], []),
         pathCard(),
@@ -947,7 +946,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: [["lesson_start"], ["connect_rate", { own: "bağlanan" }], ["completion_rate", { own: "tamamlanan" }], ["abandon_rate_s", { own: "session" }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
+      kpis: [["abandon_rate_s", { own: "session" }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
@@ -1340,6 +1339,7 @@ SECTIONS.diger = () => {
     trendCard("Online → Aktif (adet)", ["online", "openers", "active"], ["talk_rate"], { help: "Online = dashboard_page_viewed, app açan = session_start, Aktif = call_ok (tekil abone)." }),
     trendCard("Regular / Aktif ve North Star / Aktif", ["ns_rate", "regular_rate"], [], { help: "Eski genel bakış oranları (payda Aktif). Yeni genel bakışta payda Online." }),
     trendCard("Başlatma → ders sayfası", ["start_to_page"], [], { help: "Açılan ders sayfası (anm_conv_page_viewed, lessonTalk) / ders başlatma dokunuşları (node'dan d_start_continue_lesson_bt + zincirden lesson_next_launched). Adet bazında; başlatıp sayfa açılmadan vazgeçmeyi gösterir." }),
+    trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
     trendCard("Node akışı (adet)", ["node_tap", "node_start", "chain_start"], ["node_start_rate", "chain_share_s"]),
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
