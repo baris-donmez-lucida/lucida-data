@@ -801,7 +801,7 @@ function tiersCard(key) {
 SECTIONS.genel = () => {
   const blocks = [tiersCard("g-tiers")];
   const tbl = dailyTable("g-daily");
-  return { html: `<div class="kpis big">${selectKpi("ut")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Aktivasyon aşamasındaki abone" })}`
+  return { html: `<div class="kpis big">${selectKpi("ut")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Activation Users" })}`
       + `${nodeKpi()}${kpiCard("lessons_per_online", null, null, { mode: "day", own: "ders" })}${kpiCard("min_per_online", null, null, { mode: "day", own: "dk" })}</div>`
       + `<div class="cards ov">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
