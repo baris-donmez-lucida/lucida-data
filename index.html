@@ -91,6 +91,12 @@
 
   /* Sections */
   .sec { padding-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .grp-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .grp-nav button { font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .grp-nav button:hover { color: var(--ink); }
+  .ugrp { display: grid; gap: 14px; }
+  .ugrp + .ugrp { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--border); }
+  .grp-h { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
   .sec-intro { margin: 0; font-size: 13px; color: var(--ink-2); max-width: 78ch; }
   .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 12px; }
   @media (min-width: 1100px) { .kpis { grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); } }
@@ -869,19 +875,11 @@ function dayBreakdown(i, sub = S.sub) {
   return `<div class="det"><div><h4>${dLong(D.d.days[i])} · ${SUB_LABEL[sub]}</h4><table><tr><td></td>${ids.map((id) => `<td><b>${esc(shortLabel(D.cat[id]))}</b></td>`).join("")}</tr>${rows}</table></div></div>`;
 }
 
-SECTIONS.aktif = () => {
-  const b = [
-    trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"], { wide: true }),
-    trendCard("WAU, MAU ve abone tabanı", ["wau", "mau", "base"], ["activity_rate"], { help: "WAU/MAU = o güne kadar 7/28 günde ≥1 call_ok yapan abone. Taban = Amplitude cohort'u (güncel RevenueCat durumu aboneli), her sabah kaydedilir." }),
-    trendCard("Stickiness ve DAU / MAU", ["stickiness"], ["dau_mau"], { help: "Stickiness = DAU / WAU; × 7 = bir aktif abonenin haftada ortalama aktif gün sayısı." }),
-    trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
-    customCard("Haftalık aktif gün dağılımı (0–7 gün)", `<div class="placeholder">Faz 2: kullanıcı bazlı ham event gerektiriyor (abone başına haftada kaç gün call_ok). Şu an Amplitude toplu sorgularıyla hesaplanamıyor.</div>`, () => {}, { wide: false }),
-  ];
-  return { html: kpiRow([["online"], ["active"], ["wau"], ["mau"], ["base"], ["activity_rate", "wau"], ["stickiness"], ["dau_mau"], ["talk_rate", "active"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
-};
-
-SECTIONS.konusma = () => {
-  const ct = customCard("Konuşma dakikası (konuşma tipine göre)", `<div class="legend"></div><div class="chart ch-a"></div><p class="card-sub">Konuşma tipi kırılımı yalnızca tüm abonelerde ve kırılımsız; platform / ülke / sürüm seçiliyken toplam çizilir.</p>`, (card) => {
+// Kullanım: aktif kullanım → node → ders → konuşma, in the order a subscriber moves through the app.
+// Each group has a short KPI row and its charts; the chips at the top scroll to a group.
+const USE_GROUPS = [["aktif", "Aktif kullanım"], ["node", "Node sistemi"], ["dersler", "Dersler"], ["konusma", "Konuşma"]];
+SECTIONS.kullanim = () => {
+  const speechByType = customCard("Konuşma dakikası (konuşma tipine göre)", `<div class="legend"></div><div class="chart ch-a"></div><p class="card-sub">Konuşma tipi kırılımı yalnızca tüm abonelerde ve kırılımsız; platform / ülke / sürüm seçiliyken toplam çizilir.</p>`, (card) => {
     const [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1);
     const CT = [["lessontalk", "Ders"], ["freetalk", "Serbest"], ["topictalk", "Konu"], ["liveevent", "Canlı etkinlik"]];
     let cats;
@@ -890,33 +888,79 @@ SECTIONS.konusma = () => {
     card.querySelector(".legend").innerHTML = cats.map((c) => `<span><i class="sq" style="--c:${c.color}"></i>${esc(c.name)}</span>`).join("");
     stackChart(card.querySelector(".ch-a"), card, x, cats, { fmt: (v) => nf.format(Math.round(v)) + " dk", yFmt: (t) => nf.format(t) + " dk", aria: "Konuşma dakikası" });
   });
-  const b = [
-    speechOnlineCard("k-speech"),
-    trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
-    ct,
-    trendCard("Aktif abone başına dakika", ["min_per_active"], []),
-    trendCard("Ders süresi ve ders ekranı süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
-    trendCard("Ders dakikası payı", ["lesson_min_share"], []),
-    trendCard("speech_duration = 0 oranı (veri sağlığı)", ["speech_zero_rate"], [], { threshold: 0.05, help: "Sınırsız konuşma modunda speech_duration 0 yazılıyor. %5'i geçerse konuşma dakikası eksik sayılıyor demektir." }),
-  ];
-  return { html: kpiRow([["speech_min"], ["min_per_active", "speech_min"], ["lesson_duration"], ["screen_duration"], ["lesson_min_share"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  const nodeFlow = customCard("Node akışı (seçili dönem)", `<div class="flow"></div>`, (card) => {
+    const [i0, i1] = win();
+    const v = (id) => periodValue(D.cat[id], series(id), i0, i1);
+    const st = [["node_tap", "Node tıklama", "pre_lesson_viewed"], ["node_start", "Node'dan başlatma", "d_start_continue_lesson_bt"], ["lesson_start", "Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["lesson_completed", "Ders tamamlama", "anm_c_lesson_completed"]];
+    const vals = st.map(([id]) => v(id));
+    const pct = (a, b) => (a != null && b ? "%" + nf1.format((100 * a) / b) : "—");
+    card.querySelector(".flow").innerHTML = st.map(([, l, e], j) => `${j ? `<span class="ar">→</span>` : ""}<div class="st"><span>${esc(l)}</span><b>${fmt("count", vals[j])}</b><small>${j === 2 ? "başlatma + zincir → sayfa " + pct(vals[2], (vals[1] || 0) + (v("chain_start") || 0)) : j ? pct(vals[j], vals[j - 1]) + " önceki adıma göre" : esc(e)}</small></div>`).join("")
+      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · ders sayfalarının ${pct(v("chain_start"), vals[2])}'i. Ders sayfası = node'dan başlatma + zincir − vazgeçilen (Başlatma → ders sayfası: ${fmt("pct", v("start_to_page"))}).</div>`;
+  }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
+  const groups = {
+    aktif: {
+      kpis: [["online"], ["active"], ["talk_rate", "active"], ["wau"], ["mau"], ["stickiness"]],
+      cards: [
+        trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
+        trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"]),
+        trendCard("WAU, MAU ve abone tabanı", ["wau", "mau", "base"], ["activity_rate"], { help: "WAU/MAU = o güne kadar 7/28 günde ≥1 call_ok yapan abone. Taban = Amplitude cohort'u (güncel RevenueCat durumu aboneli), her sabah kaydedilir." }),
+        trendCard("Stickiness ve DAU / MAU", ["stickiness"], ["dau_mau"], { help: "Stickiness = DAU / WAU; × 7 = bir aktif abonenin haftada ortalama aktif gün sayısı." }),
+      ],
+    },
+    node: {
+      kpis: [["node_click_rate", "sessions", "s_node"], ["node_start_rate_s", "sessions", "s_node_start"], ["node_tap_rate", "node_tap_users"], ["start_to_page", "lesson_start"], ["chain_share", "chain_start"], ["node_done_rate"]],
+      cards: [
+        nodeFlow,
+        trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
+        trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
+        trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
+        trendCard("Başlatma → ders sayfası, zincir payı", ["start_to_page", "chain_share"], []),
+        trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
+        mixCard("Node tipi karışımı (lesson_entry_type)", "entry_type_mix", { help: "Ders başlatmaların giriş tipi: current (sıradaki node), jump (ileri atlama), replay (tekrar), next (zincir)." }),
+        trendCard("İlk kez tamamlanan node", ["lesson_completed_first"], []),
+        pathCard(),
+        a1LadderCard(),
+      ],
+    },
+    dersler: {
+      kpis: [["lesson_start"], ["connect_rate", "lesson_connected"], ["completion_rate", "lesson_completed"], ["abandon_rate_s", null, null, { own: "session" }], ["lessons_per_active"], ["lesson_duration"]],
+      cards: [
+        trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
+        trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
+        trendCard("Yarım bırakma (session bazlı)", ["abandon_rate_s"], [], { help: "Ders başlatılıp tamamlanmayan session / ders başlatılan session (başlatılan − tamamlanan session; yaklaşık)." }),
+        abandonCard(),
+        trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
+        trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
+        mixCard("Tamamlama nedeni karışımı", "completion_reasons", { help: "anm_c_lesson_completed.reason; 19 Ekim 2026 haftasından önce çoğunlukla boş ('(none)')." }),
+        trendCard("Başlatma kaynağı: Sıradaki ders zinciri", ["chain_start"], ["chain_share"]),
+        lessonTable(),
+      ],
+    },
+    konusma: {
+      kpis: [["speech_min"], ["min_per_active", "speech_min"], ["lesson_min_share"], ["speech_zero_rate"]],
+      cards: [
+        speechOnlineCard("k-speech"),
+        trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
+        speechByType,
+        trendCard("Aktif abone başına dakika", ["min_per_active"], []),
+        trendCard("Ders dakikası payı", ["lesson_min_share"], []),
+        trendCard("speech_duration = 0 oranı (veri sağlığı)", ["speech_zero_rate"], [], { threshold: 0.05, help: "Sınırsız konuşma modunda speech_duration 0 yazılıyor. %5'i geçerse konuşma dakikası eksik sayılıyor demektir." }),
+      ],
+    },
+  };
+  const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
+  const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
+  const html = chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2>${kpiRow(groups[k].kpis)}<div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
+  return { html, draw: () => all.forEach((c) => c.draw()) };
 };
+// scroll a group's heading to just below the sticky page header
+function scrollToGrp(k, smooth) {
+  const el = document.getElementById("grp-" + k); if (!el) return;
+  const head = document.querySelector(".top")?.getBoundingClientRect().bottom || 0;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - Math.max(0, head) - 12, behavior: smooth ? "smooth" : "auto" });
+}
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".grp-nav button"); if (b) scrollToGrp(b.dataset.grp, true); });
 
-SECTIONS.dersler = () => {
-  const reasons = mixCard("Tamamlama nedeni karışımı", "completion_reasons", { help: "anm_c_lesson_completed.reason; 19 Ekim 2026 haftasından önce çoğunlukla boş ('(none)')." });
-  const b = [
-    trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
-    trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
-    abandonCard(),
-    trendCard("Yarım bırakma (session bazlı)", ["abandon_rate_s"], [], { help: "Ders başlatılıp tamamlanmayan session / ders başlatılan session (başlatılan − tamamlanan session; yaklaşık)." }),
-    trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], []),
-    trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
-    reasons,
-    trendCard("Başlatma kaynağı: Sıradaki ders zinciri", ["chain_start"], ["chain_share"]),
-    lessonTable(),
-  ];
-  return { html: kpiRow([["lesson_start"], ["connect_rate", "lesson_connected"], ["completion_rate", "lesson_completed"], ["completion_rate_connected"], ["abandon_rate"], ["abandon_rate_s", null, null, { own: "session" }], ["abandon_after_1min"], ["lesson_duration"], ["lessons_per_active"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
-};
 function abandonCard() {
   return customCard("Yarım bırakma", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const [i0, i1] = win(), pw = prevWin(), x = D.d.days.slice(i0, i1 + 1);
@@ -1018,32 +1062,6 @@ function pathCard() {
     lineChart(card.querySelector(".ch-a"), card, idx.map((i) => L.weeks[i]), ser, { week: true, H: 170, aria: "Haftalık tamamlayan" });
   }, { ctl: lesCtl(), sub: "Seviye içinde 1…N. dersi tamamlayan tekil abone (%: ilk derse göre), hedef dile göre ('Tümü' dilleri toplar). Altta seçili derslerin haftalık tamamlayanları (tam haftalar).", help: "Tamamlayan = anm_c_lesson_completed atan tekil abone, lesson_id bazında; seçili dönem kartın kendi seçicisi." });
 }
-
-SECTIONS.node = () => {
-  const flow = customCard("Node akışı (seçili dönem)", `<div class="flow"></div>`, (card) => {
-    const [i0, i1] = win();
-    const v = (id) => periodValue(D.cat[id], series(id), i0, i1);
-    const st = [["node_tap", "Node tıklama", "pre_lesson_viewed"], ["node_start", "Node'dan başlatma", "d_start_continue_lesson_bt"], ["lesson_start", "Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["lesson_completed", "Ders tamamlama", "anm_c_lesson_completed"]];
-    const vals = st.map(([id]) => v(id));
-    const pct = (a, b) => (a != null && b ? "%" + nf1.format((100 * a) / b) : "—");
-    card.querySelector(".flow").innerHTML = st.map(([, l, e], j) => `${j ? `<span class="ar">→</span>` : ""}<div class="st"><span>${esc(l)}</span><b>${fmt("count", vals[j])}</b><small>${j === 2 ? "başlatma + zincir → sayfa " + pct(vals[2], (vals[1] || 0) + (v("chain_start") || 0)) : j ? pct(vals[j], vals[j - 1]) + " önceki adıma göre" : esc(e)}</small></div>`).join("")
-      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · ders sayfalarının ${pct(v("chain_start"), vals[2])}'i. Ders sayfası = node'dan başlatma + zincir − vazgeçilen (Başlatma → ders sayfası: ${fmt("pct", v("start_to_page"))}).</div>`;
-  }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
-  const b = [
-    flow,
-    trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
-    trendCard("Node click rate (session bazlı)", ["sessions", "s_node"], ["node_click_rate"], { help: "Node'a tıklanan (pre_lesson_viewed) session / o gün açılan session." }),
-    trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
-    trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
-    trendCard("Başlatma → ders sayfası, zincir payı", ["start_to_page", "chain_share"], []),
-    trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
-    trendCard("İlk kez tamamlanan node", ["lesson_completed_first"], []),
-    mixCard("Node tipi karışımı (lesson_entry_type)", "entry_type_mix", { help: "Ders başlatmaların giriş tipi: current (sıradaki node), jump (ileri atlama), replay (tekrar), next (zincir)." }),
-    pathCard(),
-    a1LadderCard(),
-  ];
-  return { html: kpiRow([["node_click_rate", "sessions", "s_node"], ["node_start_rate_s", "sessions", "s_node_start"], ["node_tap_rate", "node_tap_users"], ["node_start_rate", "node_start"], ["start_to_page", "lesson_start"], ["chain_share", "chain_start"], ["node_done_rate"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
-};
 
 // ---------- new subscribers (cohorts by entry day) ----------
 const NEW = { kind: "both" };
@@ -1359,7 +1377,9 @@ function toHash() {
 }
 function fromHash() {
   const [tab, q] = location.hash.slice(1).split("?");
-  S.tab = D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
+  const grp = USE_GROUPS.some(([k]) => k === tab) ? tab : null; // old tabs (#aktif, #node, …) → Kullanım
+  S.tab = grp ? "kullanim" : D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
+  S.grp = grp;
   const p = new URLSearchParams(q || "");
   S.dim = null; S.val = "";
   for (const dim of ["platform", "country", "version"]) if (p.get(dim)) { S.dim = dim; S.val = p.get(dim); }
@@ -1383,7 +1403,8 @@ document.addEventListener("click", (ev) => {
   if (box) { box.remove(); return; }
   card.querySelector(".kpi-h, .card-top").insertAdjacentHTML("afterend", `<div class="notebox h">${esc(h.dataset.help)}</div>`);
 });
-window.addEventListener("hashchange", () => { fromHash(); renderSection(); window.scrollTo(0, 0); });
+function jumpGrp() { if (S.grp) scrollToGrp(S.grp, false); }
+window.addEventListener("hashchange", () => { fromHash(); renderSection(); window.scrollTo(0, 0); jumpGrp(); });
 let rt = null;
 window.addEventListener("resize", () => { if (!D.d) return; clearTimeout(rt); rt = setTimeout(() => current && current.draw(), 150); });
 
@@ -1411,7 +1432,7 @@ function load(data) {
   document.getElementById("updated-at").textContent = tsFmt(data.generatedAt);
   buildNav(); buildControls(); fromHash();
   lockEl.hidden = true; appEl.hidden = false;
-  renderSection();
+  renderSection(); jumpGrp();
 }
 
 // ---------- lock screen (password shared with the other pages) ----------

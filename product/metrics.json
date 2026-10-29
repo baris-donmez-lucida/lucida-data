@@ -10,20 +10,8 @@
    "label": "Retention"
   },
   {
-   "id": "aktif",
-   "label": "Aktif Kullanım"
-  },
-  {
-   "id": "konusma",
-   "label": "Konuşma"
-  },
-  {
-   "id": "dersler",
-   "label": "Dersler"
-  },
-  {
-   "id": "node",
-   "label": "Node Sistemi"
+   "id": "kullanim",
+   "label": "Kullanım"
   },
   {
    "id": "yeni",
@@ -70,7 +58,7 @@
    "label": "Aktif abone (call_ok)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -95,7 +83,7 @@
    "label": "App açan abone (session_start)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -120,7 +108,7 @@
    "label": "Regular (günde tam 1 ders tamamlama)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -169,7 +157,7 @@
    "label": "North Star (günde ≥2 ders tamamlama)",
    "tabs": [
     "genel",
-    "aktif",
+    "kullanim",
     "tanimlar"
    ],
    "kind": "count",
@@ -195,7 +183,7 @@
    "label": "WAU (7 gün kayan)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -219,7 +207,7 @@
    "id": "mau",
    "label": "MAU (28 gün kayan)",
    "tabs": [
-    "aktif"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -243,7 +231,7 @@
    "id": "base",
    "label": "Aktif abone tabanı",
    "tabs": [
-    "aktif"
+    "kullanim"
    ],
    "kind": "snapshot",
    "unit": "count",
@@ -261,7 +249,7 @@
    "id": "ns_rate",
    "label": "North Star / Aktif",
    "tabs": [
-    "aktif",
+    "kullanim",
     "tanimlar",
     "diger"
    ],
@@ -279,7 +267,7 @@
    "id": "regular_rate",
    "label": "Regular / Aktif",
    "tabs": [
-    "aktif",
+    "kullanim",
     "diger"
    ],
    "kind": "ratio",
@@ -296,7 +284,7 @@
    "id": "ns_of_regular",
    "label": "North Star / ders tamamlayan",
    "tabs": [
-    "aktif",
+    "kullanim",
     "diger"
    ],
    "kind": "ratio",
@@ -314,7 +302,7 @@
    "label": "Aktif / Online",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -331,7 +319,7 @@
    "label": "Haftalık aktiflik (WAU / taban)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -348,7 +336,7 @@
    "label": "Stickiness (DAU / WAU)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "ratio",
@@ -364,7 +352,7 @@
    "id": "dau_mau",
    "label": "DAU / MAU",
    "tabs": [
-    "aktif"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -380,7 +368,7 @@
    "id": "node_tap",
    "label": "Node tıklama (pre_lesson_viewed)",
    "tabs": [
-    "node",
+    "kullanim",
     "genel"
    ],
    "kind": "count",
@@ -406,7 +394,7 @@
    "id": "node_start",
    "label": "Node'dan başlatma (continue dahil)",
    "tabs": [
-    "node",
+    "kullanim",
     "genel"
    ],
    "kind": "count",
@@ -432,7 +420,7 @@
    "id": "node_tap_users",
    "label": "Node tıklayan abone",
    "tabs": [
-    "node"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -456,8 +444,7 @@
    "id": "chain_start",
    "label": "Zincir başlatma (Sıradaki ders)",
    "tabs": [
-    "node",
-    "dersler",
+    "kullanim",
     "genel"
    ],
    "kind": "count",
@@ -483,9 +470,8 @@
    "id": "lesson_start",
    "label": "Ders başlatma (ders sayfası)",
    "tabs": [
-    "dersler",
-    "genel",
-    "node"
+    "kullanim",
+    "genel"
    ],
    "kind": "count",
    "unit": "count",
@@ -510,7 +496,7 @@
    "id": "lesson_start_users",
    "label": "Ders başlatan abone",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -534,7 +520,7 @@
    "id": "node_tap_rate",
    "label": "Node tıklama oranı",
    "tabs": [
-    "node"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -551,7 +537,7 @@
    "label": "Node'dan başlama oranı",
    "tabs": [
     "genel",
-    "node"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -567,7 +553,7 @@
    "id": "start_to_page",
    "label": "Başlatma → ders sayfası",
    "tabs": [
-    "node"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -584,8 +570,7 @@
    "label": "Zincir payı",
    "tabs": [
     "genel",
-    "node",
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -601,7 +586,7 @@
    "id": "node_done_rate",
    "label": "Node → tamamlama (1 gün)",
    "tabs": [
-    "node"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -621,7 +606,7 @@
    "id": "lesson_connected",
    "label": "Bağlanan ders",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -646,9 +631,8 @@
    "id": "lesson_completed",
    "label": "Ders tamamlama",
    "tabs": [
-    "dersler",
-    "genel",
-    "node"
+    "kullanim",
+    "genel"
    ],
    "kind": "count",
    "unit": "count",
@@ -673,8 +657,7 @@
    "id": "lesson_completed_first",
    "label": "İlk kez tamamlama",
    "tabs": [
-    "dersler",
-    "node"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -699,7 +682,7 @@
    "id": "lesson_completers",
    "label": "Ders tamamlayan abone",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "count",
@@ -723,7 +706,7 @@
    "id": "connect_rate",
    "label": "Bağlanma oranı",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -740,7 +723,7 @@
    "label": "Tamamlama oranı (/ ders sayfası)",
    "tabs": [
     "genel",
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -756,7 +739,7 @@
    "id": "completion_rate_connected",
    "label": "Tamamlama oranı (/ bağlanan)",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -772,7 +755,7 @@
    "id": "replay_share",
    "label": "Tekrar payı",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -788,7 +771,7 @@
    "id": "lessons_per_active",
    "label": "Aktif başına tamamlanan ders",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "ratio",
@@ -821,7 +804,7 @@
    "label": "Yarım bırakma oranı",
    "tabs": [
     "genel",
-    "dersler"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -842,7 +825,7 @@
    "id": "abandon_after_1min",
    "label": "1. dakikadan sonra bırakma",
    "tabs": [
-    "dersler",
+    "kullanim",
     "genel"
    ],
    "kind": "ratio",
@@ -862,8 +845,7 @@
    "id": "lesson_duration",
    "label": "Ders süresi (sayfa → tamamlama, medyan)",
    "tabs": [
-    "dersler",
-    "konusma",
+    "kullanim",
     "genel"
    ],
    "kind": "duration",
@@ -884,8 +866,7 @@
    "id": "screen_duration",
    "label": "Ders ekranında geçen süre (medyan)",
    "tabs": [
-    "dersler",
-    "konusma"
+    "kullanim"
    ],
    "kind": "duration",
    "unit": "min",
@@ -905,7 +886,7 @@
    "id": "completion_reasons",
    "label": "Tamamlama nedeni karışımı",
    "tabs": [
-    "dersler"
+    "kullanim"
    ],
    "kind": "mix",
    "unit": "pct",
@@ -922,7 +903,7 @@
    "id": "entry_type_mix",
    "label": "Node tipi karışımı (lesson_entry_type)",
    "tabs": [
-    "node"
+    "kullanim"
    ],
    "kind": "mix",
    "unit": "pct",
@@ -939,8 +920,7 @@
    "id": "lesson_table",
    "label": "Ders tablosu ve yol ilerleme eğrisi",
    "tabs": [
-    "dersler",
-    "node"
+    "kullanim"
    ],
    "kind": "table",
    "unit": "count",
@@ -958,7 +938,7 @@
    "label": "Toplam konuşma dakikası",
    "tabs": [
     "genel",
-    "konusma"
+    "kullanim"
    ],
    "kind": "count",
    "unit": "min",
@@ -982,7 +962,7 @@
    "label": "Aktif abone başına dakika",
    "tabs": [
     "genel",
-    "konusma"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "min",
@@ -1014,7 +994,7 @@
    "id": "lesson_min_share",
    "label": "Ders dakikası payı",
    "tabs": [
-    "konusma"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -1030,7 +1010,7 @@
    "label": "speech_duration = 0 oranı (veri sağlığı)",
    "tabs": [
     "tanimlar",
-    "konusma"
+    "kullanim"
    ],
    "kind": "ratio",
    "unit": "pct",
@@ -1194,7 +1174,7 @@
    "label": "A1 ilk 15 ders merdiveni (7 gün)",
    "tabs": [
     "yeni",
-    "node"
+    "kullanim"
    ],
    "kind": "cohort",
    "unit": "pct",
@@ -1357,7 +1337,7 @@
    "label": "Online abone (dashboard_page_viewed)",
    "tabs": [
     "genel",
-    "aktif"
+    "kullanim"
    ],
    "source": {
     "query": "online",
@@ -1560,7 +1540,7 @@
    "den": "sessions",
    "tabs": [
     "genel",
-    "node"
+    "kullanim"
    ],
    "breakdowns": "num ve den'in ortak kırılımları",
    "period": "ratio_of_sums"
@@ -1601,7 +1581,7 @@
    "den": "sessions",
    "tabs": [
     "genel",
-    "node"
+    "kullanim"
    ],
    "breakdowns": "num ve den'in ortak kırılımları",
    "period": "ratio_of_sums"
