@@ -1498,7 +1498,7 @@ SECTIONS.detay = () => {
         names: { [NODE_IDS[nb].click]: "Node click rate", [NODE_IDS[nb].start]: "Node start rate", [NODE_IDS[nb].complete]: "Node complete rate" } })
     : users ? trendCard("Aktif ve Online abone", ["active", "online"], [], { key: "det-users", days: 90, wide: true, noMA: true, H: 420, help: TIERS_HELP })
     : trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
-  if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut && !users && !node) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
+  if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut && !users && !node) b.push(trendCard(DET_TITLE[id] || `${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, ...(DET_EXTRA[id] || []), c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300, names: DET_NAMES }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
   const ul = node ? userListCard("node_click_rate", "det-node-" + nb, { stage: true }) : users ? userListCard("online", "det-users", { onAct: true }) : dwm ? userListCard("active", "det-dwm") : ut ? userListCard("active", "det-ut", { tier: true }) : userListCard(id);
   if (ul) b.push(ul);
@@ -1516,6 +1516,10 @@ document.addEventListener("click", (ev) => {
   const sel = k.querySelector(".ut-sel[data-k]"), g = sel ? sel.dataset.k : k.querySelector(".nk-sel") ? "node" : null;
   location.hash = `#detay?m=${encodeURIComponent(g === "dwm" || g === "users" ? "active" : g === "ut" ? "ns_online" : g === "node" ? NODE_IDS[NK.basis].click : k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
 });
+// extra lines on a detail page's numerator / denominator chart (zincir: lessons started from a home-screen node, for comparison)
+const DET_EXTRA = { chain_share_u: ["node_start_users"] };
+const DET_NAMES = { node_start_users: "Anasayfadan node ile başlatan abone" };
+const DET_TITLE = { chain_share_u: "Zincir ve anasayfa node'u ile başlatan abone / Online abone" };
 // Detail page opened from a card with a metric select: the chart title is that same select (and the node card's
 // Session / User toggle); switching keeps the chart's date range and filter.
 function detailCtl() {
