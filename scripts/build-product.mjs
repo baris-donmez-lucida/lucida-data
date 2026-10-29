@@ -272,7 +272,6 @@ let nfun = null;
   const KEY = {
     nfun: (l) => SEG[l] ?? (COUNTRIES.includes(l) ? "c:" + l : null),
     nfun_ver: (l) => (l && l !== "(none)" && /^\d/.test(l) ? "v:" + l : null),
-    nfun_lvl: (l) => (LVL[l] ? "l:" + LVL[l] : null),
     nfun_type: (l) => (["current", "jump", "replay"].includes(l) ? l : null),
   };
   const main = F("nfun", KEY.nfun);
@@ -281,17 +280,17 @@ let nfun = null;
     nfun = { s: {}, type: {}, act: {}, u: {}, incomplete: [] };
     for (const [k, o] of Object.entries(main)) nfun.s[k] = onAxis(o);
     nfun.incomplete = main.paid.days.filter((d, i) => !main.paid.complete[i]);
-    for (const id of ["nfun_ver", "nfun_lvl"]) for (const [k, o] of Object.entries(F(id, KEY[id]) || {})) nfun.s[k] = onAxis(o);
+    for (const [k, o] of Object.entries(F("nfun_ver", KEY.nfun_ver) || {})) nfun.s[k] = onAxis(o);
     for (const [k, o] of Object.entries(F("nfun_type", KEY.nfun_type) || {})) nfun.type[k] = onAxis(o);
     // new users' first week, per level: d0 (first dashboard) at that level → lesson 1 … 15 of the level in order (entry days up to dataDate − 7)
     nfun.nl = {};
     for (const L of Object.values(LVL)) {
-      const o = F("nfun_new_" + L.toLowerCase(), KEY.nfun_lvl)?.["l:" + L];
+      const o = F("nfun_new_" + L.toLowerCase(), (l) => (LVL[l] ? "l:" + LVL[l] : null))?.["l:" + L];
       if (o) { nfun.nl[L] = onAxis(o); nfun.nlLast = o.days.at(-1); }
     }
     for (const [w, sfx] of [[7, "_w7"], [30, "_w30"], [90, ""]]) {
       const u = {};
-      for (const id of Object.keys(KEY)) for (const [k, o] of Object.entries((load(id + sfx) && F(id + sfx, KEY[id])) || {})) if (o.total) u[k] = o.total;
+      for (const id of ["nfun", "nfun_ver", "nfun_type"]) for (const [k, o] of Object.entries((load(id + sfx) && F(id + sfx, KEY[id])) || {})) if (o.total) u[k] = o.total;
       if (u.paid) nfun.u[w] = u;
     }
   }
