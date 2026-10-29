@@ -1415,6 +1415,152 @@
    }
   },
   {
+   "id": "chain_u",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "lesson_next_launched"
+   ],
+   "parse": "online ile aynı biçim. Gün içinde lesson_next_launched (Sıradaki ders zinciri) yapan tekil abone.",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Zincir kullanan abone (lesson_next_launched)",
+    "events": [
+     {
+      "event": "lesson_next_launched",
+      "where": [],
+      "group_by": []
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
    "id": "activation",
    "groupByLimit": 500,
    "sliced": true,
@@ -2292,6 +2438,261 @@
      },
      {
       "event": "d_start_continue_lesson_bt",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "property_count"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
+   "id": "sess_chain",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "dash",
+    "chain"
+   ],
+   "parse": "Sliced (2 base × 4 slice), segmentIndex = abone tipi. Değer = o gün event'in görüldüğü tekil session_id sayısı (property_count). Base 0 = dashboard_page_viewed görülen session, base 1 = lesson_next_launched (Sıradaki ders zinciri) yapılan session.",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Zincir session'ları (dashboard_page_viewed, lesson_next_launched; tekil session_id)",
+    "events": [
+     {
+      "event": "dashboard_page_viewed",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "dashboard_page_viewed",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "dashboard_page_viewed",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "dashboard_page_viewed",
+      "where": [
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
+      "where": [
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "session_id",
+        "scope": "event"
+       },
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "lesson_next_launched",
       "where": [
        {
         "property": "version",
@@ -5951,116 +6352,120 @@
    "parse": "HER SABAH yalnızca dün için çalışır (<DAY_START>/<DAY_END>). jsonResponse.data[0]: opened = cumulativeRaw[0], abandoned = cumulativeRaw[1], stepTransTimeDistribution.step_bins[1].bins -> start >= 60000 olan bin'lerin totals toplamı = over60. Nokta {d, opened, abandoned, over60} geçmişe eklenir; ilk kurulumda son 30 gün için tek tek doldurulur."
   },
   {
-   "id": "stick_day",
+   "id": "stick_act",
    "groupByLimit": 10,
-   "sliced": false,
-   "series": [
-    "call_ok"
-   ],
-   "parse": "HER SABAH yalnızca dünün haftası için çalışır (<WEEK_START> = dün − 6 gün 00:00, <DAY_END> = dün 23:59:59). Segmentler paid / store / web, her biri o 7 günde yeni (Amplitude _new, ilk görülme) olmayan aboneler. dau = timeSeries'in son noktası (dün), wau = overallSeries (7 günün tekili). Nokta {d: dün, paid: {dau, wau}, store: {...}, web: {...}} product-history 'stickiness' dokümanına eklenir.",
-   "chart": {
-    "kind": "segmentation",
-    "name": "Product v2 · Stickiness, son 7 günün yeni kullanıcıları hariç (tek gün)",
-    "events": [
-     {
-      "event": "call_ok",
-      "where": [],
-      "group_by": []
-     }
-    ],
-    "measured_as": {
-     "as": "unique_users"
-    },
-    "segments": [
-     {
-      "label": "paid",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period",
-         "promotional"
-        ]
-       }
-      ],
-      "performed": [
-       {
-        "event": "_new",
-        "op": "=",
-        "count": 0,
-        "time_type": "absolute",
-        "time_value": [
-         "<WEEK_START>",
-         "<DAY_END>"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "store",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "active",
-         "intro",
-         "cancelled",
-         "grace_period"
-        ]
-       }
-      ],
-      "performed": [
-       {
-        "event": "_new",
-        "op": "=",
-        "count": 0,
-        "time_type": "absolute",
-        "time_value": [
-         "<WEEK_START>",
-         "<DAY_END>"
-        ]
-       }
-      ]
-     },
-     {
-      "label": "web",
-      "where": [
-       {
-        "property": "gp:rc_subscription_status",
-        "scope": "user",
-        "op": "is",
-        "values": [
-         "promotional"
-        ]
-       }
-      ],
-      "performed": [
-       {
-        "event": "_new",
-        "op": "=",
-        "count": 0,
-        "time_type": "absolute",
-        "time_value": [
-         "<WEEK_START>",
-         "<DAY_END>"
-        ]
-       }
-      ]
-     }
-    ],
-    "date_range": {
+   "timeSeriesLimit": 10,
+   "parse": "HER SABAH yalnızca dün için (<WEEK_START> = dün − 6 gün 00:00, <DAY_END> = dün 23:59:59, <ACT_END> = dün − 9 gün 23:59:59). Segmentler paid / store / web; her biri o gün aktivasyon aşamasında OLMAYAN aboneler: dashboard_page_viewed'ı d0–d8 penceresinden (dün − 8 gün) önce de görmüş olan. dau = timeSeries'in son noktası (dün), wau = overallSeries (7 günün tekili). Nokta {d: dün, paid: {dau, wau}, store: {…}, web: {…}} → product-history/stickiness_act.",
+   "definition": {
+    "app": "773708",
+    "type": "eventsSegmentation",
+    "name": "Product v2 · Stickiness, aktivasyon aşamasındakiler hariç (tek gün)",
+    "params": {
      "start": "<WEEK_START>",
      "end": "<DAY_END>",
-     "timezone": "UTC"
-    },
-    "interval": "day"
+     "timezone": "UTC",
+     "interval": 1,
+     "metric": "uniques",
+     "countGroup": "User",
+     "groupBy": [],
+     "events": [
+      {
+       "event_type": "call_ok",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "event",
+         "event_type": "dashboard_page_viewed",
+         "filters": [],
+         "time_type": "absolute",
+         "time_value": [
+          1704067200,
+          "<ACT_END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      },
+      {
+       "label": "store",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period"
+         ]
+        },
+        {
+         "type": "event",
+         "event_type": "dashboard_page_viewed",
+         "filters": [],
+         "time_type": "absolute",
+         "time_value": [
+          1704067200,
+          "<ACT_END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      },
+      {
+       "label": "web",
+       "conditions": [
+        {
+         "type": "property",
+         "group_type": "User",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "promotional"
+         ]
+        },
+        {
+         "type": "event",
+         "event_type": "dashboard_page_viewed",
+         "filters": [],
+         "time_type": "absolute",
+         "time_value": [
+          1704067200,
+          "<ACT_END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ]
+    }
    }
   },
   {

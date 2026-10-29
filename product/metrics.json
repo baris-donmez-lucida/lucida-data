@@ -333,19 +333,35 @@
   },
   {
    "id": "stickiness",
-   "label": "Stickiness (DAU / WAU)",
+   "label": "Stickiness (aktivasyon hariç)",
    "tabs": [
     "genel",
     "kullanim"
    ],
    "kind": "ratio",
    "unit": "ratio",
-   "num": "active_nonnew",
-   "den": "wau_nonnew",
+   "num": "active_nonact",
+   "den": "wau_nonact",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "DAU / WAU, son 7 günde gelen yeni kullanıcılar (Amplitude ilk görülme) hariç; × 7 = haftada ortalama aktif gün. Günlük tek sorgu, geçmiş 26 Eylül'den itibaren.",
+   "note": "DAU / WAU; o gün aktivasyon aşamasında olan aboneler (dashboard'u ilk kez gördüğü gün d0, d0–d8) hem DAU'dan hem WAU'dan çıkarılır. × 7 = haftada ortalama aktif gün.",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "stickiness_all",
+   "label": "Stickiness (tüm aboneler)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "ratio",
+   "unit": "ratio",
+   "num": "active",
+   "den": "wau",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "DAU / WAU, hiç kimse çıkarılmadan (aktif abone / 7 günlük tekil aktif abone). × 7 = haftada ortalama aktif gün.",
    "period": "ratio_of_sums"
   },
   {
@@ -622,21 +638,108 @@
    "period": "ratio_of_sums"
   },
   {
-   "id": "chain_share",
-   "label": "Zincir payı",
    "tabs": [
-    "genel",
     "kullanim"
    ],
-   "kind": "ratio",
-   "unit": "pct",
-   "num": "chain_start",
-   "den": "lesson_start",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "id": "s_dash",
+   "label": "Dashboard görülen session",
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "sess_chain",
+    "base": 0,
+    "segments": "sub"
+   },
+   "note": "İçinde dashboard_page_viewed olan session (tekil session_id).",
+   "period": "sum"
+  },
+  {
+   "tabs": [
+    "kullanim"
+   ],
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "id": "s_chain",
+   "label": "Zincir kullanılan session",
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "sess_chain",
+    "base": 1,
+    "segments": "sub"
+   },
+   "note": "İçinde lesson_next_launched (Sıradaki ders) olan session.",
+   "period": "sum"
+  },
+  {
+   "tabs": [
+    "kullanim"
+   ],
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "",
-   "period": "ratio_of_sums"
+   "period": "ratio_of_sums",
+   "kind": "ratio",
+   "unit": "pct",
+   "id": "chain_share_s",
+   "label": "Zincir payı (session)",
+   "num": "s_chain",
+   "den": "s_dash",
+   "note": "lesson_next_launched yapılan session / dashboard_page_viewed görülen session."
+  },
+  {
+   "tabs": [
+    "kullanim"
+   ],
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "id": "chain_users",
+   "label": "Zincir kullanan abone",
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "chain_u",
+    "base": 0,
+    "segments": "sub"
+   },
+   "note": "Gün içinde lesson_next_launched yapan tekil abone.",
+   "period": "daily_mean"
+  },
+  {
+   "tabs": [
+    "kullanim"
+   ],
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums",
+   "kind": "ratio",
+   "unit": "pct",
+   "id": "chain_share_u",
+   "label": "Zincir payı (user)",
+   "num": "chain_users",
+   "den": "online",
+   "note": "lesson_next_launched yapan tekil abone / Online abone (dashboard_page_viewed tekil)."
   },
   {
    "id": "node_done_rate",
@@ -1771,16 +1874,16 @@
    "period": "ratio_of_sums"
   },
   {
-   "id": "active_nonnew",
-   "label": "Aktif abone (son 7 günde yeni olmayan)",
+   "id": "active_nonact",
+   "label": "Aktif abone (aktivasyon aşaması hariç)",
    "tabs": [
     "tanimlar"
    ],
    "kind": "count",
    "unit": "count",
    "source": {
-    "query": "stick_day",
-    "history": "product-history koleksiyonu, doküman 'stickiness': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
+    "query": "stick_act",
+    "history": "product-history koleksiyonu, doküman 'stickiness_act': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
    },
    "chart": "line",
    "timeline": "day",
@@ -1788,19 +1891,19 @@
     "subType"
    ],
    "period": "daily_mean",
-   "note": "Gün içinde call_ok yapan, o güne kadarki 7 günde ilk kez görülmemiş (Amplitude yeni kullanıcı değil) abone."
+   "note": "Gün içinde call_ok yapan, o gün aktivasyon aşamasında olmayan (d0–d8 dışında; dashboard'u d0–d8 penceresinden önce de görmüş) abone."
   },
   {
-   "id": "wau_nonnew",
-   "label": "WAU (son 7 günde yeni olmayan)",
+   "id": "wau_nonact",
+   "label": "WAU (aktivasyon aşaması hariç)",
    "tabs": [
     "tanimlar"
    ],
    "kind": "count",
    "unit": "count",
    "source": {
-    "query": "stick_day",
-    "history": "product-history koleksiyonu, doküman 'stickiness': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
+    "query": "stick_act",
+    "history": "product-history koleksiyonu, doküman 'stickiness_act': points [{d, paid:{dau,wau}, store:{...}, web:{...}}]"
    },
    "chart": "line",
    "timeline": "day",
@@ -1808,7 +1911,7 @@
     "subType"
    ],
    "period": "last",
-   "note": "O güne kadarki 7 günde call_ok yapan, bu 7 günde yeni olmayan tekil abone."
+   "note": "O güne kadarki 7 günde call_ok yapan, o gün aktivasyon aşamasında olmayan tekil abone."
   }
  ],
  "northstar_def": {

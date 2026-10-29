@@ -201,7 +201,7 @@ export function abandDay(data) {
   return { opened: Number(x.cumulativeRaw[0]) || 0, abandoned: Number(x.cumulativeRaw[1]) || 0, over60 };
 }
 
-// stick_day (one 7-day window ending on its last day, one segment per subscriber type, new users excluded):
+// stick_act (one 7-day window ending on its last day, one segment per subscriber type, activation-phase users excluded):
 // { d, <sub>: { dau: last day's uniques, wau: uniques of the whole window } }
 export function stickDay(data, subs) {
   const s = segSeries(data);
