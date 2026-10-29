@@ -273,6 +273,9 @@ let nfun = null;
     for (const [k, o] of Object.entries(main)) nfun.s[k] = onAxis(o);
     nfun.incomplete = main.paid.days.filter((d, i) => !main.paid.complete[i]);
     for (const [k, o] of Object.entries(F("nfun_ver", (l) => (l && l !== "(none)" && /^\d/.test(l) ? "v:" + l : null)) || {})) nfun.s[k] = onAxis(o);
+    // level at funnel entry: user property english_level 1…5 = A1, A2, B1, B2, C1
+    const LVL = { 1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1" };
+    for (const [k, o] of Object.entries(F("nfun_lvl", (l) => (LVL[l] ? "l:" + LVL[l] : null)) || {})) nfun.s[k] = onAxis(o);
     for (const [k, o] of Object.entries(F("nfun_type", (l) => (["current", "jump", "replay"].includes(l) ? l : null)) || {})) nfun.type[k] = onAxis(o);
   }
   // Activation / Activated: one point per day (history), yesterday from nfun_act

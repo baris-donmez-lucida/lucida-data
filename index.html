@@ -940,6 +940,9 @@ function funnelCard(key) {
     } else if (view === "act") {
       [["activation", "Activation Users"], ["activated", "Activated Users"]].forEach(([g, l], j) => F.act[g] && series.push({ name: l, steps: F.act[g], c: j }));
       notes.push("Activation / Activated yalnız tüm abonelerde; filtre uygulanmıyor. Geçmiş 28 Eylül 2026'dan itibaren.");
+    } else if (view === "lvl") {
+      ["A1", "A2", "B1", "B2", "C1"].forEach((l, j) => F.s["l:" + l] && series.push({ name: l, steps: F.s["l:" + l], c: j }));
+      notes.push("Seviye = abonenin funnel'a girdiği andaki seviyesi (user property english_level: 1 = A1 … 5 = C1). Seviyesi boş olanlar gösterilmiyor. Yalnız tüm aboneler; filtre uygulanmıyor.");
     } else if (view === "type") {
       first = 1;
       FN_TYPE.forEach(([g, l], j) => F.type[g] && series.push({ name: l, steps: F.type[g], c: j }));
@@ -978,7 +981,7 @@ function funnelCard(key) {
     L.forEach((s) => { s.fmt = (v) => fmt("pct", v); s.ma = null; });
     card.querySelector(".lg-b").innerHTML = legendHtml(L);
     lineChart(card.querySelector(".ch-a"), card, x, L, { yFmt: yFmtFor("pct"), pctMax: true, H: 260, aria: "Funnel dönüşümü (günlük)" });
-  }, { key, days: 30, help, views: [["all", "Tek funnel"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
+  }, { key, days: 30, help, views: [["all", "Tek funnel"], ["lvl", "Seviye (A1, A2…)"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
 }
 // Funnel columns, left to right: one group per step, one bar per series; bar height = share of the series' first step,
 // the faint part above it = lost since the previous step. Labels: % of the first step and the count (one series only).
