@@ -103,6 +103,7 @@
   .back { font-size: 13px; font-weight: 600; color: var(--ink-2); text-decoration: none; justify-self: start; }
   .back:hover { color: var(--ink); }
   .ugrp + .ugrp { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--border); }
+  .use-sec { margin-top: 34px; padding-top: 28px; border-top: 1px solid var(--border); }
   .grp-h { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
   .sec-intro { margin: 0; font-size: 13px; color: var(--ink-2); max-width: 78ch; }
   .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 12px; }
@@ -904,7 +905,14 @@ function dayBreakdown(i, sub = S.sub) {
 // Kullanım: aktif kullanım → node → ders → konuşma, in the order a subscriber moves through the app.
 // Each group has a short KPI row and its charts; the chips at the top scroll to a group.
 const USE_GROUPS = [["aktif", "Aktif kullanım"], ["node", "Node sistemi"], ["dersler", "Dersler"], ["konusma", "Konuşma"]];
+// Kullanım: only the KPI cards (one grid, no labels); a string spec is a combined card (select / toggle)
+const USE_KPIS = ["act", "dwm", "stick", "node", ["chain_share_u", { own: "abone", withDen: true }], ["abandon_rate_u", { own: "abone", withDen: true }]];
 SECTIONS.kullanim = () => {
+  const card = (sp) => (sp === "node" ? nodeKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
+  return { html: `<div class="kpis big">${USE_KPIS.map(card).join("")}</div>`, draw: () => {} };
+};
+// The former Kullanım charts, by group (shown on Diğer Grafikler)
+function useGroups() {
   const speechByType = customCard("Konuşma dakikası (konuşma tipine göre)", `<div class="legend"></div><div class="chart ch-a"></div><p class="card-sub">Konuşma tipi kırılımı yalnızca tüm abonelerde ve kırılımsız; platform / ülke / sürüm seçiliyken toplam çizilir.</p>`, (card) => {
     const [i0, i1] = win(), x = D.d.days.slice(i0, i1 + 1);
     const CT = [["lessontalk", "Ders"], ["freetalk", "Serbest"], ["topictalk", "Konu"], ["liveevent", "Canlı etkinlik"]];
@@ -925,7 +933,6 @@ SECTIONS.kullanim = () => {
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const groups = {
     aktif: {
-      kpis: ["act", "dwm", "stick"],
       cards: [
         trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
         trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"]),
@@ -934,7 +941,6 @@ SECTIONS.kullanim = () => {
       ],
     },
     node: {
-      kpis: ["node", ["chain_share_u", { own: "abone", withDen: true }], ["abandon_rate_u", { own: "abone", withDen: true }]],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün dashboard_page_viewed görülen session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
@@ -947,7 +953,6 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: [],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
@@ -961,7 +966,6 @@ SECTIONS.kullanim = () => {
       ],
     },
     konusma: {
-      kpis: [],
       cards: [
         speechOnlineCard("k-speech"),
         trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün dashboard_page_viewed görülen session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
@@ -974,12 +978,9 @@ SECTIONS.kullanim = () => {
   };
   const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
   const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
-  // all KPIs at the top in one grid (group order, no labels); a string spec is a combined card (select / toggle)
-  const card = (sp) => (sp === "node" ? nodeKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
-  const top = `<div class="kpis big">${USE_GROUPS.map(([k]) => groups[k].kpis.map(card).join("")).join("")}</div>`;
-  const html = top + chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
+  const html = chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
   return { html, draw: () => all.forEach((c) => c.draw()) };
-};
+}
 // scroll a group's heading to just below the sticky page header
 function scrollToGrp(k, smooth) {
   const el = document.getElementById("grp-" + k); if (!el) return;
@@ -1347,7 +1348,9 @@ SECTIONS.diger = () => {
   ];
   const cards = kpiRow([["regular_online", { own: "regular" }], ["talk_rate", { own: "aktif" }], ["completion_rate_s", { own: "session" }], ["abandon_rate_s", { own: "session" }],
     ["speech_min", { sub: SPEECH_SUB }], ["stickiness"], ["stickiness_all"], ["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]]);
-  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  const use = useGroups();
+  return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler; altta Kullanım sayfasının grafikleri. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`
+    + `<section class="ugrp use-sec"><h2 class="grp-h">Kullanım grafikleri</h2>${use.html}</section>`, draw: () => { b.forEach((x) => x.draw()); use.draw(); } };
 };
 
 // Users behind a metric on the last day (numerator group), from D.d.users (one row per user, last 7 days).
@@ -1518,11 +1521,11 @@ function toHash() {
 }
 function fromHash() {
   const [tab, q] = location.hash.slice(1).split("?");
-  const grp = USE_GROUPS.some(([k]) => k === tab) ? tab : null; // old tabs (#aktif, #node, …) → Kullanım
+  const grp = USE_GROUPS.some(([k]) => k === tab) ? tab : null; // old tabs (#aktif, #node, …) → that group on Diğer Grafikler
   const q0 = new URLSearchParams(q || "");
   S.metric = tab === "detay" && D.cat[q0.get("m")] ? q0.get("m") : null; // metric detail page (#detay?m=<id>&from=<tab>)
   S.from = S.metric && D.d.tabs.some((t) => t.id === q0.get("from")) ? q0.get("from") : "genel";
-  S.tab = S.metric ? "detay" : grp ? "kullanim" : D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
+  S.tab = S.metric ? "detay" : grp ? "diger" : D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
   const g = q0.get("g"); // the card's metric select (KSEL key or "node"), shown again on the detail chart
   S.group = S.metric && (g === "node" ? nodeV(S.metric) : KSEL[g]?.opts.some((o) => o[2] === S.metric)) ? g : null;
   S.grp = grp;
