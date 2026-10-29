@@ -333,7 +333,7 @@
   },
   {
    "id": "stickiness",
-   "label": "Stickiness (aktivasyonu tamamlamış)",
+   "label": "Stickiness (Activated Users)",
    "tabs": [
     "genel",
     "kullanim"
@@ -410,7 +410,7 @@
   },
   {
    "id": "stick_activation",
-   "label": "Stickiness (aktivasyonda)",
+   "label": "Stickiness (Activation Users)",
    "tabs": [
     "kullanim"
    ],
