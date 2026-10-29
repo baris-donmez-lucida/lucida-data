@@ -365,6 +365,66 @@
    "period": "ratio_of_sums"
   },
   {
+   "id": "act_online",
+   "label": "Aktivasyondaki abone, o gün online",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "nret",
+    "read": "nret kohort satırlarının çaprazı: X günü için kohort X−N, hücre DN (N = 1…8)"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "subType"
+   ],
+   "note": "İlk dashboard'u son 8 günde (gün − 8 … gün − 1, d1–d8) gören ve o gün yine dashboard'u gören abone.",
+   "period": "daily_mean"
+  },
+  {
+   "id": "act_cohort",
+   "label": "Aktivasyondaki abone (d1–d8)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "nret",
+    "read": "nret kohort satırlarının çaprazı: X günü için kohort X−N, hücre DN (N = 1…8)"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "subType"
+   ],
+   "note": "İlk dashboard'u gün − 8 … gün − 1 arasında gören tekil abone (8 yeni kullanıcı kohortunun toplamı).",
+   "period": "daily_mean"
+  },
+  {
+   "id": "stick_activation",
+   "label": "Stickiness (aktivasyonda)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "ratio",
+   "unit": "ratio",
+   "num": "act_online",
+   "den": "act_cohort",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "Aktivasyondaki abonelerin (ilk dashboard gün − 8 … gün − 1; o gün gelenler hariç) o gün online olma oranı: o gün online olan / kohortun tamamı. New-User Retention kohortlarının D1…D8 çaprazından hesaplanır (takvim günü).",
+   "period": "ratio_of_sums"
+  },
+  {
    "id": "dau_mau",
    "label": "DAU / MAU",
    "tabs": [

@@ -189,6 +189,21 @@ const retLoad = (main, byCountry) => {
 const ret = retLoad("ret", "ret_country"), retu = retLoad("retu", "retu_country");
 // nret / nret_country: new-user cohorts (day 0 = first-ever dashboard_page_viewed), Return On, calendar days
 const nret = retLoad("nret", "nret_country"), nretu = retLoad("nretu", "nretu_country");
+// activation stickiness from the new-user cohorts: on day X, users whose first dashboard view was X−8 … X−1 (d1–d8)
+// and who are online on X (cohort X−N, cell DN) / the size of those 8 cohorts. Null until all 8 cohorts are in range.
+if (nret) for (const [key, rows] of Object.entries(nret)) {
+  const at = new Map(rows.map((r) => [r.d, r])), sub = key.startsWith("s:") ? key.slice(2) : "paid", slice = key.startsWith("s:") ? "all" : key;
+  const num = [], den = [];
+  for (const d of days) {
+    let a = 0, b = 0, ok = true;
+    for (let N = 1; N <= 8 && ok; N++) {
+      const r = at.get(new Date(Date.parse(d + "T00:00:00Z") - N * 864e5).toISOString().slice(0, 10));
+      if (!r || r.cells[N] == null) ok = false; else { a += r.cells[N]; b += r.users; }
+    }
+    num.push(ok ? a : null); den.push(ok ? b : null);
+  }
+  put("act_online", sub, slice, num); put("act_cohort", sub, slice, den);
+}
 
 // ---------- new subscribers (raw funnels, entry-day cohorts) ----------
 const ep =(s) => new Date(s * 1000).toISOString().slice(0, 10);
