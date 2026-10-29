@@ -1380,9 +1380,10 @@ function userListCard(id, key = "det-" + id, opts = {}) {
   const g = userGroup(id), U = D.d.users;
   if (!g || !U) return null;
   const all = U.rows.map((r) => Object.fromEntries(U.cols.map((c, i) => [c, r[i]])));
+  if (opts.onAct) all.forEach((u) => { u.dact = u.act_y > 0 ? "Aktif" : "Sadece online"; });
   if (opts.tier) all.forEach((u) => { u.tier = u.done_y >= 2 ? "North Star" : u.done_y === 1 ? "Regular" : "Aktif"; });
   const n1 = (v) => (v == null ? "—" : nf.format(v)), dd = (v) => (v ? dShort(v) : "—");
-  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, ...(opts.tier ? [{ k: "tier", label: "Dün tip" }] : []), { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
+  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, ...(opts.tier ? [{ k: "tier", label: "Dün tip" }] : []), ...(opts.onAct ? [{ k: "dact", label: "Dün" }] : []), { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
     { k: "status", label: "Abonelik" }, { k: "d0", label: "d0", fmt: dd }, { k: "last", label: "Son görülme", fmt: dd },
     { k: "on7", label: "Online gün (7g)", num: true, fmt: n1 }, { k: "act7", label: "Aktif gün (7g)", num: true, fmt: n1 }, { k: "done7", label: "Tamamlanan ders (7g)", num: true, fmt: n1 },
     { k: "page7", label: "Açılan ders (7g)", num: true, fmt: n1 }, { k: "min7", label: "Konuşma dk (7g)", num: true, fmt: (v) => (v ? nf1.format(v) : "—") },
@@ -1404,21 +1405,23 @@ SECTIONS.detay = () => {
   const id = S.metric, c = D.cat[id], back = D.d.tabs.find((t) => t.id === S.from)?.label || "Genel Bakış";
   const simple = (x) => x && /^[a-z0-9_]+$/.test(x) && D.cat[x];
   // Aktif abone (from the Aktif or abone-count select) is drawn together with Online; Aktif / Online then needs no num/den chart
-  const withOnline = id === "active" && (S.group === "act" || S.group === "users");
+  const users = S.group === "users"; // abone-count card (Aktif / Online select) → one chart with both, no select
+  const withOnline = users || (id === "active" && S.group === "act");
   const ut = S.group === "ut"; // user-type card → NS, Regular and Aktif per Online as plain lines in one chart
   const dwm = S.group === "dwm"; // DAU / WAU / MAU card → one area chart with all three (DAU ⊂ WAU ⊂ MAU, so the areas overlap, not add up)
   const b = [ut ? trendCard("Kullanıcı tipleri / Online", ["ns_online", "regular_online", "talk_rate"], [], { key: "det-ut", days: 90, wide: true, noMA: true, H: 420, help: TIERS_HELP })
     : dwm ? trendCard("DAU / WAU / MAU", ["mau", "wau", "active"], [], { key: "det-dwm", days: 90, wide: true, noMA: true, H: 420, area: true, names: { active: "DAU", wau: "WAU", mau: "MAU" } })
+    : users ? trendCard("Aktif ve Online abone", ["active", "online"], [], { key: "det-users", days: 90, wide: true, noMA: true, H: 420, help: TIERS_HELP })
     : trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
-  if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
+  if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut && !users) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
-  const ul = dwm ? userListCard("active", "det-dwm") : ut ? userListCard("active", "det-ut", { tier: true }) : userListCard(id);
+  const ul = users ? userListCard("online", "det-users", { onAct: true }) : dwm ? userListCard("active", "det-dwm") : ut ? userListCard("active", "det-ut", { tier: true }) : userListCard(id);
   if (ul) b.push(ul);
   return { html: head + `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
     draw: () => {
       b.forEach((x) => x.draw());
       // the main chart's filter also filters the user list
-      if (ul) { const k = ut ? "det-ut" : dwm ? "det-dwm" : "det-" + id, main = REDRAW[k]; REDRAW[k] = () => { main(); ul.draw(); }; }
+      if (ul) { const k = users ? "det-users" : ut ? "det-ut" : dwm ? "det-dwm" : "det-" + id, main = REDRAW[k]; REDRAW[k] = () => { main(); ul.draw(); }; }
     } };
 };
 document.addEventListener("click", (ev) => {
@@ -1426,7 +1429,7 @@ document.addEventListener("click", (ev) => {
   const k = ev.target.closest(".kpis.big .kpi[data-mid]");
   if (!k || ev.target.closest("select, button, a, .help")) return;
   const sel = k.querySelector(".ut-sel[data-k]"), g = sel ? sel.dataset.k : k.querySelector(".nk-sel") ? "node" : null;
-  location.hash = `#detay?m=${encodeURIComponent(g === "dwm" ? "active" : g === "ut" ? "ns_online" : k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
+  location.hash = `#detay?m=${encodeURIComponent(g === "dwm" || g === "users" ? "active" : g === "ut" ? "ns_online" : k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
 });
 // Detail page opened from a card with a metric select: the chart title is that same select (and the node card's
 // Session / User toggle); switching keeps the chart's date range and filter.
@@ -1494,7 +1497,7 @@ function syncControls() {
   const fs = document.getElementById("f-sub"); fs.value = S.sub; fs.classList.toggle("on", S.sub !== "paid");
   const navTab = S.tab === "detay" ? S.from : S.tab;
   document.querySelectorAll("#nav a[data-tab]").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === navTab ? "page" : "false"));
-  document.getElementById("title").textContent = S.tab === "detay" ? (S.group === "dwm" ? "DAU / WAU / MAU" : S.group === "ut" ? "Kullanıcı tipleri" : D.cat[S.metric].label) : D.d.tabs.find((t) => t.id === S.tab)?.label || "";
+  document.getElementById("title").textContent = S.tab === "detay" ? (S.group === "dwm" ? "DAU / WAU / MAU" : S.group === "users" ? "Aktif ve Online abone" : S.group === "ut" ? "Kullanıcı tipleri" : D.cat[S.metric].label) : D.d.tabs.find((t) => t.id === S.tab)?.label || "";
 }
 function toHash() {
   const p = new URLSearchParams();
