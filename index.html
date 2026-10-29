@@ -158,6 +158,7 @@
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px 10px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; position: relative; align-content: start; }
   .card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
   .card-top h2 { margin: 0; font-size: 14.5px; font-weight: 600; color: var(--ink); flex: 1; min-width: 0; }
+  .card-top h2 .ut-sel { font-size: 14px; padding: 4px 8px; }
   .card-sub { font-size: 12px; color: var(--muted); margin: -4px 0 0; }
   .card-sub b { color: var(--ink-2); font-weight: 600; }
   .legend { display: flex; flex-wrap: wrap; gap: 3px 14px; font-size: 12px; color: var(--ink-2); }
@@ -687,7 +688,7 @@ function trendCard(title, counts, rates = [], opts = {}) {
   const id = "c" + Math.random().toString(36).slice(2, 8);
   const draw = () => drawTrend(document.getElementById(id), counts, rates, opts);
   if (opts.key) registerCard(opts.key, opts, draw);
-  return { html: `<div class="card${opts.wide ? " wide" : ""}" id="${id}"><div class="card-top"><h2>${esc(title)}</h2><span class="tags"></span>${opts.key ? `<div class="cc-host"></div>` : ""}</div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}<div class="legend"></div><div class="chart ch-a"></div>${rates.length && counts.length ? `<div class="legend lg-b"></div><div class="chart ch-b"></div>` : ""}<div class="tip"></div></div>`,
+  return { html: `<div class="card${opts.wide ? " wide" : ""}" id="${id}"><div class="card-top"><h2${opts.ctl ? ` aria-label="${esc(title)}"` : ""}>${opts.ctl || esc(title)}</h2><span class="tags"></span>${opts.key ? `<div class="cc-host"></div>` : ""}</div>${opts.sub ? `<p class="card-sub">${opts.sub}</p>` : ""}<div class="legend"></div><div class="chart ch-a"></div>${rates.length && counts.length ? `<div class="legend lg-b"></div><div class="chart ch-b"></div>` : ""}<div class="tip"></div></div>`,
     draw };
 }
 function seriesFor(ids, k0, [i0, i1], pw, noMA, f = S) {
@@ -720,7 +721,7 @@ function drawTrend(card, counts, rates, opts) {
   card.querySelector(".tags").innerHTML = tagHtml(tags) + (opts.help ? helpBtn(opts.help) : "");
   const unitA = D.cat[(counts.length ? counts : rates)[0]]?.unit;
   card.querySelector(".legend").innerHTML = legendHtml(A);
-  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, aria: card.querySelector("h2").textContent });
+  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, aria: card.querySelector("h2").getAttribute("aria-label") || card.querySelector("h2").textContent });
   if (B.length) {
     card.querySelector(".lg-b").innerHTML = legendHtml(B);
     lineChart(card.querySelector(".ch-b"), card, x, B, { yFmt: yFmtFor(D.cat[rates[0]]?.unit), pctMax: D.cat[rates[0]]?.unit === "pct", H: 150 });
@@ -1398,7 +1399,7 @@ function userListCard(id) {
 SECTIONS.detay = () => {
   const id = S.metric, c = D.cat[id], back = D.d.tabs.find((t) => t.id === S.from)?.label || "Genel Bakış";
   const simple = (x) => x && /^[a-z0-9_]+$/.test(x) && D.cat[x];
-  const b = [trendCard(c.label, [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c) })];
+  const b = [trendCard(c.label, [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
   if (simple(c.num) && simple(c.den)) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
   const ul = userListCard(id);
@@ -1414,8 +1415,32 @@ document.addEventListener("click", (ev) => {
   if (S.tab !== "genel" && S.tab !== "kullanim") return;
   const k = ev.target.closest(".kpis.big .kpi[data-mid]");
   if (!k || ev.target.closest("select, button, a, .help")) return;
-  location.hash = `#detay?m=${encodeURIComponent(k.dataset.mid)}&from=${S.tab}`;
+  const sel = k.querySelector(".ut-sel[data-k]"), g = sel ? sel.dataset.k : k.querySelector(".nk-sel") ? "node" : null;
+  location.hash = `#detay?m=${encodeURIComponent(k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
 });
+// Detail page opened from a card with a metric select: the chart title is that same select (and the node card's
+// Session / User toggle); switching keeps the chart's date range and filter.
+function detailCtl() {
+  const g = S.group, opt = (v, l, on) => `<option value="${v}"${on ? " selected" : ""}>${esc(l)}</option>`;
+  if (g === "node") {
+    const basis = NODE_IDS.user[nodeV(S.metric)] === S.metric ? "user" : "session", v = nodeV(S.metric);
+    return `<select class="ut-sel det-sel" aria-label="Node oranı">${[["click", "Node click rate"], ["start", "Node start rate"], ["complete", "Node complete rate"]].map(([k, l]) => opt(NODE_IDS[basis][k], l, k === v)).join("")}</select>`
+      + `<span class="seg-ctl nk-basis det-nb" role="group" aria-label="Bazı">${[["session", "Session"], ["user", "User"]].map(([k, l]) => `<button type="button" data-id="${NODE_IDS[k][v]}" aria-pressed="${basis === k}">${l}</button>`).join("")}</span>`;
+  }
+  if (!KSEL[g]) return "";
+  return `<select class="ut-sel det-sel" aria-label="${esc(KSEL[g].aria)}">${KSEL[g].opts.map(([, l, mid]) => opt(mid, l, mid === S.metric)).join("")}</select>`;
+}
+const nodeV = (id) => Object.keys(NODE_IDS.session).find((k) => NODE_IDS.session[k] === id || NODE_IDS.user[k] === id);
+function detailSwitch(id) {
+  if (!D.cat[id] || id === S.metric) return;
+  for (const k of ["det-", "det2-"]) if (CS[k + S.metric]) CS[k + id] = { ...CS[k + S.metric] };
+  // the source page's card shows the same choice when going back
+  if (S.group === "node") { NK.v = nodeV(id); NK.basis = NODE_IDS.user[NK.v] === id ? "user" : "session"; }
+  else if (KSEL[S.group]) KSEL[S.group].v = KSEL[S.group].opts.find((o) => o[2] === id)[0];
+  S.metric = id; go();
+}
+document.addEventListener("change", (ev) => { if (ev.target.matches(".det-sel")) detailSwitch(ev.target.value); });
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".det-nb button"); if (b) detailSwitch(b.dataset.id); });
 
 SECTIONS.tanimlar = () => {
   const ns = trendCard("North Star tanımlarının karşılaştırması (payda Aktif)", ["ns_rate", "ns_rate_pages", "ns_rate_strict"], [], { wide: true, sub: `Geçerli: <b>${esc(D.d.northstar?.options?.[D.d.northstar.default] || "")}</b> Eski: ${esc(D.d.northstar?.options?.tiers || "")} Dar: ${esc(D.d.northstar?.options?.tiers_strict || "")}` });
@@ -1463,7 +1488,7 @@ function syncControls() {
 }
 function toHash() {
   const p = new URLSearchParams();
-  if (S.tab === "detay") { p.set("m", S.metric); p.set("from", S.from); }
+  if (S.tab === "detay") { p.set("m", S.metric); p.set("from", S.from); if (S.group) p.set("g", S.group); }
   if (S.dim) p.set(S.dim, S.val);
   if (S.sub !== "paid") p.set("sub", S.sub);
   if (S.range !== 28) p.set("range", S.range);
@@ -1478,6 +1503,8 @@ function fromHash() {
   S.metric = tab === "detay" && D.cat[q0.get("m")] ? q0.get("m") : null; // metric detail page (#detay?m=<id>&from=<tab>)
   S.from = S.metric && D.d.tabs.some((t) => t.id === q0.get("from")) ? q0.get("from") : "genel";
   S.tab = S.metric ? "detay" : grp ? "kullanim" : D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
+  const g = q0.get("g"); // the card's metric select (KSEL key or "node"), shown again on the detail chart
+  S.group = S.metric && (g === "node" ? nodeV(S.metric) : KSEL[g]?.opts.some((o) => o[2] === S.metric)) ? g : null;
   S.grp = grp;
   const p = new URLSearchParams(q || "");
   S.dim = null; S.val = "";
