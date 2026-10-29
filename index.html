@@ -98,6 +98,10 @@
   .grp-nav button { font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .grp-nav button:hover { color: var(--ink); }
   .ugrp { display: grid; gap: 14px; }
+  .kpis.big .kpi[data-mid] { cursor: pointer; transition: border-color .15s; }
+  .kpis.big .kpi[data-mid]:hover { border-color: var(--s1); }
+  .back { font-size: 13px; font-weight: 600; color: var(--ink-2); text-decoration: none; justify-self: start; }
+  .back:hover { color: var(--ink); }
   .ugrp + .ugrp { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--border); }
   .grp-h { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
   .sec-intro { margin: 0; font-size: 13px; color: var(--ink-2); max-width: 78ch; }
@@ -600,7 +604,7 @@ function kpiCard(id, countId, extraId, opts = {}) {
   const c = D.cat[id];
   if (!c) return "";
   const s = series(id), n = N();
-  if (!s.vals) return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(c.label)}</span>${helpBtn(noteOf(c))}</div><div class="kpi-v">—</div><div class="kpi-s">veri yok</div></div>`;
+  if (!s.vals) return `<div class="kpi" data-mid="${id}"><div class="kpi-h"><span class="kpi-l">${esc(c.label)}</span>${helpBtn(noteOf(c))}</div><div class="kpi-v">—</div><div class="kpi-s">veri yok</div></div>`;
   let w, pw, cmpLabel;
   if (opts.mode === "day") { w = [n - 1, n - 1]; pw = [n - 2, n - 2]; cmpLabel = "önceki güne göre"; }
   else if (opts.mode === "week") { w = [n - 7, n - 1]; pw = [n - 14, n - 8]; cmpLabel = "önceki 7 güne göre"; }
@@ -622,7 +626,7 @@ function kpiCard(id, countId, extraId, opts = {}) {
   const deltas = [];
   if (pw && pw[0] >= 0) deltas.push(opts.mode ? deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), "", { title: cmpLabel }) : deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
   if (!opts.mode && n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
-  return `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${opts.head || esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
+  return `<div class="kpi" data-mid="${id}"><div class="kpi-h"><span class="kpi-l">${opts.head || esc(c.label)}</span>${tagHtml(s.tag)}${badgeHtml(alertText(c, s))}${helpBtn(noteOf(c))}</div>
     <div class="kpi-v">${fmt(c.unit, cur, { days: false })}</div><div class="kpi-s">${subs.join("")}</div><div class="kpi-d">${deltas.join("")}</div>${spark(s.vals.slice(-30), D.d.days.slice(-30).map((d, k) => { const v = s.vals[s.vals.length - 30 + k]; return `${dLong(d)}<br><b>${v == null ? "—" : fmt(c.unit, v)}</b>`; }))}</div>`;
 }
 // drop a trailing "(event_name)" only; keep qualifiers such as "(/ bağlanan)"
@@ -1342,6 +1346,24 @@ SECTIONS.diger = () => {
   return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
+// Metric detail: opened by clicking a KPI card on Genel Bakış / Kullanım. Big timeline with its own date range and
+// filter, and for a ratio its numerator and denominator over time.
+SECTIONS.detay = () => {
+  const id = S.metric, c = D.cat[id], back = D.d.tabs.find((t) => t.id === S.from)?.label || "Genel Bakış";
+  const simple = (x) => x && /^[a-z0-9_]+$/.test(x) && D.cat[x];
+  const b = [trendCard(c.label, [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c) })];
+  if (simple(c.num) && simple(c.den)) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
+  const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
+  return { html: head + `<div class="kpis big">${kpiCard(id, null, null, { mode: c.id.startsWith("rating") ? "week" : "day", own: simple(c.num) ? shortLabel(D.cat[c.num]).toLowerCase() : null, withDen: !!simple(c.den) })}</div><div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
+    draw: () => b.forEach((x) => x.draw()) };
+};
+document.addEventListener("click", (ev) => {
+  if (S.tab !== "genel" && S.tab !== "kullanim") return;
+  const k = ev.target.closest(".kpis.big .kpi[data-mid]");
+  if (!k || ev.target.closest("select, button, a, .help")) return;
+  location.hash = `#detay?m=${encodeURIComponent(k.dataset.mid)}&from=${S.tab}`;
+});
+
 SECTIONS.tanimlar = () => {
   const ns = trendCard("North Star tanımlarının karşılaştırması (payda Aktif)", ["ns_rate", "ns_rate_pages", "ns_rate_strict"], [], { wide: true, sub: `Geçerli: <b>${esc(D.d.northstar?.options?.[D.d.northstar.default] || "")}</b> Eski: ${esc(D.d.northstar?.options?.tiers || "")} Dar: ${esc(D.d.northstar?.options?.tiers_strict || "")}` });
   const health = trendCard("Veri sağlığı: speech_duration = 0 ve teknik hata", ["speech_zero_rate", "tech_fail_rate"], [], { threshold: 0.05 });
@@ -1374,7 +1396,7 @@ function buildControls() {
 }
 function syncControls() {
   document.querySelectorAll("#range button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.r) === S.range)));
-  const ownRanges = S.tab === "genel" || S.tab === "retention";
+  const ownRanges = S.tab === "genel" || S.tab === "retention" || S.tab === "detay";
   document.querySelector(".ctl-row").hidden = ownRanges;
   const cmp = document.getElementById("cmp"), off = S.range === 90;
   cmp.checked = S.cmp && !off; cmp.disabled = off;
@@ -1382,11 +1404,13 @@ function syncControls() {
   document.getElementById("cmp-wrap").title = off ? "90 günde önceki dönem verisi yok" : "";
   for (const dim of ["platform", "country", "version"]) { const el = document.getElementById("f-" + dim); el.value = S.dim === dim ? S.val : ""; el.classList.toggle("on", S.dim === dim); }
   const fs = document.getElementById("f-sub"); fs.value = S.sub; fs.classList.toggle("on", S.sub !== "paid");
-  document.querySelectorAll("#nav a[data-tab]").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === S.tab ? "page" : "false"));
-  document.getElementById("title").textContent = D.d.tabs.find((t) => t.id === S.tab)?.label || "";
+  const navTab = S.tab === "detay" ? S.from : S.tab;
+  document.querySelectorAll("#nav a[data-tab]").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === navTab ? "page" : "false"));
+  document.getElementById("title").textContent = S.tab === "detay" ? D.cat[S.metric].label : D.d.tabs.find((t) => t.id === S.tab)?.label || "";
 }
 function toHash() {
   const p = new URLSearchParams();
+  if (S.tab === "detay") { p.set("m", S.metric); p.set("from", S.from); }
   if (S.dim) p.set(S.dim, S.val);
   if (S.sub !== "paid") p.set("sub", S.sub);
   if (S.range !== 28) p.set("range", S.range);
@@ -1397,7 +1421,10 @@ function toHash() {
 function fromHash() {
   const [tab, q] = location.hash.slice(1).split("?");
   const grp = USE_GROUPS.some(([k]) => k === tab) ? tab : null; // old tabs (#aktif, #node, …) → Kullanım
-  S.tab = grp ? "kullanim" : D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
+  const q0 = new URLSearchParams(q || "");
+  S.metric = tab === "detay" && D.cat[q0.get("m")] ? q0.get("m") : null; // metric detail page (#detay?m=<id>&from=<tab>)
+  S.from = S.metric && D.d.tabs.some((t) => t.id === q0.get("from")) ? q0.get("from") : "genel";
+  S.tab = S.metric ? "detay" : grp ? "kullanim" : D.d.tabs.some((t) => t.id === tab) ? tab : "genel";
   S.grp = grp;
   const p = new URLSearchParams(q || "");
   S.dim = null; S.val = "";
