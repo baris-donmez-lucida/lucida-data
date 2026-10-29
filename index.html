@@ -214,20 +214,18 @@
   .rung b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
   .rung small { color: var(--muted); font-variant-numeric: tabular-nums; }
   .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; }
-  .fn { display: grid; gap: 10px; margin-top: 4px; }
-  .fn-row { display: grid; grid-template-columns: minmax(130px, 190px) 1fr; gap: 6px 14px; align-items: center; }
-  .fn-l b { display: block; font-size: 13.5px; font-weight: 600; color: var(--ink); }
-  .fn-l small { font-size: 11px; color: var(--muted); }
-  .fn-bars { display: grid; gap: 4px; min-width: 0; }
-  .fn-bar { position: relative; height: 26px; border-radius: 6px; background: var(--track); overflow: hidden; }
-  .fn-bar i { position: absolute; inset: 0 auto 0 0; background: var(--c); opacity: .85; border-radius: 6px; }
-  .fn-bar span { position: relative; display: flex; align-items: center; height: 100%; padding: 0 9px; font-size: 12.5px; color: var(--ink); white-space: nowrap; gap: 8px; }
-  .fn-bar span b { font-weight: 700; }
-  .fn-bar span em { font-style: normal; color: var(--ink-2); }
-  .fn-bar span .drop { color: var(--ink); font-weight: 600; opacity: .7; }
+  .fn-wrap { overflow-x: auto; margin-top: 4px; }
+  .fn-wrap .chart { min-width: 720px; }
+  .chart .fn-drop { fill: var(--c); fill-opacity: .16; }
+  .chart .fn-bar { fill: var(--c); fill-opacity: .9; }
+  .chart text.fn-pct { fill: var(--ink); font-size: 12px; font-weight: 700; }
+  .chart text.fn-n { fill: var(--ink-2); font-size: 10.5px; }
+  .chart text.fn-lbl { fill: var(--ink); font-size: 11.5px; font-weight: 600; }
+  .chart text.fn-cv { fill: var(--muted); font-size: 10.5px; }
+  .chart .fn-hit { fill: transparent; }
+  .chart .fn-hit:hover { fill: var(--track); fill-opacity: .5; }
   .fn-vs { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); margin: 2px 0 6px; }
   .fn-vs select { font: inherit; font-size: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px 6px; }
-  @media (max-width: 640px) { .fn-row { grid-template-columns: 1fr; } }
   .flow .st { flex: 1 1 130px; background: var(--track); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
   .flow .st span { font-size: 12px; color: var(--ink-2); }
   .flow .st b { font-size: 20px; font-variant-numeric: tabular-nums; }
@@ -928,7 +926,7 @@ const FN_TYPE = [["current", "Sıradaki node (current)"], ["jump", "İleri atlam
 const FN = { va: null, vb: null };
 function funnelCard(key) {
   const help = "Sıralı funnel, 24 saat pencere: o gün dashboard'u gören abone, sonra node'a dokunup (pre_lesson_viewed) Başla'ya basıp (pre_lesson_lets_start) ders sayfasını açıp (lessonTalk) dersi tamamladı mı; ardından aynı 24 saatte 2., 3. … 10. dersi tamamladı mı (tekrarlar dahil). Her gün tekil abone sayılır; dönem değeri günlerin toplamı (abone-gün). Node tipi görünümü node bazında: lesson_id sabit, aynı abonenin iki farklı node'u iki giriş; Online adımı yok. Activation Users = ilk dashboard'u son 9 günde (d0–d8), Activated Users = daha önce.";
-  return customCard("Node funnel", `<div class="fn-vs" hidden></div><div class="legend"></div><div class="fn"></div><p class="card-sub fn-note"></p><div class="legend lg-b"></div><div class="chart ch-a"></div>`, (card) => {
+  return customCard("Node funnel", `<div class="fn-vs" hidden></div><div class="legend"></div><div class="fn-wrap"><div class="chart fn"></div></div><p class="card-sub fn-note"></p><div class="legend lg-b"></div><div class="chart ch-a"></div>`, (card) => {
     const F = D.d.nfun, st = ccState(key), view = st.view || "all", f = cardFilter(key), [a, b] = cardWin(key);
     const fnEl = card.querySelector(".fn"), note = card.querySelector(".fn-note"), vs = card.querySelector(".fn-vs");
     if (!F) { fnEl.innerHTML = `<div class="chart-empty">Funnel verisi yok.</div>`; return; }
@@ -962,12 +960,7 @@ function funnelCard(key) {
     const nSteps = Math.max(0, ...series.map((x) => x.steps.length)), labels = FN_STEPS.slice(first, first + nSteps);
     if (!series.length) { fnEl.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; note.textContent = notes.join(" "); return; }
     card.querySelector(".legend").innerHTML = series.length > 1 ? series.map((x) => `<span><i style="--c:${x.color}"></i>${esc(x.name)}</span>`).join("") : "";
-    const pct = (x, y) => (x != null && y ? "%" + nf1.format((100 * x) / y) : "—");
-    fnEl.innerHTML = labels.map(([l, e], k) => `<div class="fn-row"><div class="fn-l"><b>${esc(l)}</b><small>${esc(e)}</small></div><div class="fn-bars">${series.map((x) => {
-      const v = x.t[k], w = v == null ? 0 : (100 * v) / x.t[0];
-      const extra = k ? `<em>önceki adımın ${pct(v, x.t[k - 1])}</em>${x.t[k - 1] != null && v != null ? `<em class="drop">−${nf.format(x.t[k - 1] - v)}</em>` : ""}` : "";
-      return `<div class="fn-bar" title="${esc(x.name)}"><i style="width:${w.toFixed(1)}%;--c:${x.color}"></i><span><b>${v == null ? "—" : nf.format(v)}</b><em>${pct(v, x.t[0])}</em>${extra}</span></div>`;
-    }).join("")}</div></div>`).join("");
+    funnelChart(fnEl, card, labels, series);
     // lessons per subscriber who completed one: step k = completed ≥ k, so the sum over the completion steps = lessons (capped at 10)
     const c1 = 4 - first;
     if (labels.length > c1 + 1) notes.unshift("Ders tamamlayan başına günde ortalama " + series.map((x) => `${series.length > 1 ? x.name + " " : ""}${x.t[c1] ? nf2.format(sum(x.t.slice(c1)) / x.t[c1]) : "—"}`).join(", ") + " ders (10'da kesilmiş).");
@@ -986,6 +979,40 @@ function funnelCard(key) {
     card.querySelector(".lg-b").innerHTML = legendHtml(L);
     lineChart(card.querySelector(".ch-a"), card, x, L, { yFmt: yFmtFor("pct"), pctMax: true, H: 260, aria: "Funnel dönüşümü (günlük)" });
   }, { key, days: 30, help, views: [["all", "Tek funnel"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
+}
+// Funnel columns, left to right: one group per step, one bar per series; bar height = share of the series' first step,
+// the faint part above it = lost since the previous step. Labels: % of the first step and the count (one series only).
+function funnelChart(host, card, labels, series) {
+  const tip = card.querySelector(".tip"), n = labels.length, ns = series.length;
+  const W = Math.max(720, Math.round(host.clientWidth || 720)), H = 380, padL = 44, padR = 8, padT = 40, padB = 74;
+  const gw = (W - padL - padR) / n, bw = Math.min(56, (gw * 0.74) / ns), y = (f) => padT + (1 - f) * (H - padT - padB);
+  const X = (k, j) => padL + gw * k + (gw - bw * ns) / 2 + bw * j;
+  const share = (x, k) => (x.t[k] == null || !x.t[0] ? null : x.t[k] / x.t[0]);
+  const pct = (a, b) => (a != null && b ? "%" + nf1.format((100 * a) / b) : "—");
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t).toFixed(1)}" y2="${y(t).toFixed(1)}"/><text x="${padL - 7}" y="${(y(t) + 4).toFixed(1)}" text-anchor="end">%${t * 100}</text>`).join("");
+  const wrap = (l) => { const w = l.split(" "); if (w.length < 2 || l.length < 12) return [l]; const m = Math.ceil(w.length / 2); return [w.slice(0, m).join(" "), w.slice(m).join(" ")]; };
+  let body = "";
+  labels.forEach(([l], k) => {
+    series.forEach((x, j) => {
+      const f = share(x, k), fp = k ? share(x, k - 1) : null, st = `style="--c:${x.color}"`, x0 = X(k, j).toFixed(1);
+      if (f == null) return;
+      if (fp != null && fp > f) body += `<rect class="fn-drop" ${st} x="${x0}" y="${y(fp).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${(y(f) - y(fp)).toFixed(1)}"/>`;
+      body += `<rect class="fn-bar" ${st} x="${x0}" y="${y(f).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${(y(0) - y(f)).toFixed(1)}" rx="2"/>`;
+      if (ns === 1) body += `<text class="fn-pct" x="${(X(k, j) + bw / 2).toFixed(1)}" y="${(y(Math.max(f, fp ?? 0)) - 18).toFixed(1)}" text-anchor="middle">${pct(x.t[k], x.t[0])}</text><text class="fn-n" x="${(X(k, j) + bw / 2).toFixed(1)}" y="${(y(Math.max(f, fp ?? 0)) - 5).toFixed(1)}" text-anchor="middle">${nf.format(x.t[k])}</text>`;
+    });
+    const cx = padL + gw * (k + 0.5);
+    body += wrap(l).map((t, i) => `<text class="fn-lbl" x="${cx.toFixed(1)}" y="${H - padB + 18 + i * 14}" text-anchor="middle">${esc(t)}</text>`).join("");
+    if (k && ns === 1) body += `<text class="fn-cv" x="${cx.toFixed(1)}" y="${H - padB + 54}" text-anchor="middle">→ ${pct(series[0].t[k], series[0].t[k - 1])}</text>`;
+    body += `<rect class="fn-hit" data-k="${k}" x="${(padL + gw * k).toFixed(1)}" y="${padT - 30}" width="${gw.toFixed(1)}" height="${H - padT + 30}"/>`;
+  });
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Node funnel">${ticks}<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(0)}" y2="${y(0)}"/>${body}</svg>`;
+  const svg = host.querySelector("svg");
+  svg.addEventListener("pointermove", (ev) => {
+    const h = ev.target.closest(".fn-hit"); if (!h) { tip.style.display = "none"; return; }
+    const k = Number(h.dataset.k), top = Math.min(...series.map((x) => y(share(x, k) ?? 0)));
+    placeTip(tip, card, svg, W, H, padL + gw * (k + 0.5), top - 8, `<b>${esc(labels[k][0])}</b> <small>${esc(labels[k][1])}</small>` + series.map((x) => `<br><span class="sw" style="background:${x.color}"></span>${ns > 1 ? esc(x.name) + ": " : ""}<b>${x.t[k] == null ? "—" : nf.format(x.t[k])}</b> · ilk adımın ${pct(x.t[k], x.t[0])}${k ? ` · önceki adımın ${pct(x.t[k], x.t[k - 1])} · −${nf.format((x.t[k - 1] || 0) - (x.t[k] || 0))}` : ""}`).join(""));
+  });
+  svg.addEventListener("pointerleave", () => { tip.style.display = "none"; });
 }
 document.addEventListener("change", (ev) => { const t = ev.target.closest(".fn-vs select"); if (!t) return; FN[t.dataset.fv === "a" ? "va" : "vb"] = t.value; REDRAW["k-funnel"]?.(); });
 // Kullanım: only the KPI cards (one grid, no labels); a string spec is a combined card (select / toggle)
