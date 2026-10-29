@@ -189,7 +189,6 @@
   .chart .ma { fill: none; stroke: var(--c); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
   .chart .ma.only { stroke-width: 2; }
   .chart .area { fill: var(--c); fill-opacity: .32; stroke: none; }
-  .chart .area.stk { fill-opacity: .45; }
   .chart .prev { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-dasharray: 4 4; opacity: 0.7; }
   .chart .pt-faded { fill: var(--c); opacity: 0.28; }
   .chart .pt-hollow { fill: var(--surface); stroke: var(--c); stroke-width: 1.4; }
@@ -473,9 +472,7 @@ function changesIn(x) {
 function lineChart(host, card, x, series, opts = {}) {
   const tip = card.querySelector(".tip");
   const ok = (v) => v != null && Number.isFinite(v);
-  if (opts.stack) { let acc = x.map(() => 0); series.forEach((s) => { s.lo = acc; s.hi = s.vals.map((v, i) => (ok(v) ? acc[i] + Math.max(0, v) : null)); acc = s.hi.map((v, i) => v ?? acc[i]); }); }
-  const top = (s) => (opts.stack ? s.hi : s.vals); // drawn value (stack top) vs. shown value
-  const all = series.flatMap((s) => [...top(s).filter((v, i) => !s.faded?.[i]), ...(s.ma || []), ...(s.prev || [])]).filter(ok);
+  const all = series.flatMap((s) => [...s.vals.filter((v, i) => !s.faded?.[i]), ...(s.ma || []), ...(s.prev || [])]).filter(ok);
   if (!all.length) { host.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; return; }
   const n = x.length, W = Math.max(300, Math.round(host.clientWidth || 600)), H = opts.H || 200;
   const padL = 50, padR = 12, padT = opts.xTip ? 12 : 20, padB = 24;
@@ -497,12 +494,11 @@ function lineChart(host, card, x, series, opts = {}) {
   const body = series.map((s) => {
     const st = `style="--c:${s.color}"`;
     let out = "";
-    if (opts.stack) { const iv = s.hi.map((v, i) => (inRange(v) ? i : -1)).filter((i) => i >= 0); if (iv.length) out += `<path class="area stk" ${st} d="${path(s.hi)}${[...iv].reverse().map((i) => `L${X(i).toFixed(1)} ${y(s.lo[i]).toFixed(1)} `).join("")}Z"/>`; }
     if (opts.area) { const iv = s.vals.map((v, i) => (inRange(v) ? i : -1)).filter((i) => i >= 0); if (iv.length) out += `<path class="area" ${st} d="${path(s.vals)}L${X(iv[iv.length - 1]).toFixed(1)} ${y(0).toFixed(1)} L${X(iv[0]).toFixed(1)} ${y(0).toFixed(1)} Z"/>`; }
     if (s.prev) out += `<path class="prev" ${st} d="${path(s.prev)}"/>`;
     if (s.ma) out += `<path class="ln" ${st} d="${path(s.vals)}"/><path class="ma" ${st} d="${path(s.ma)}"/>`;
-    else out += `<path class="ma only" ${st} d="${path(top(s))}"/>`;
-    top(s).forEach((v, i) => {
+    else out += `<path class="ma only" ${st} d="${path(s.vals)}"/>`;
+    s.vals.forEach((v, i) => {
       if (!inRange(v)) return;
       if (s.hollow?.[i]) out += `<circle class="pt-hollow" ${st} cx="${X(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.8"/>`;
       else if (s.faded?.[i]) out += `<circle class="pt-faded" ${st} cx="${X(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.6"/>`;
@@ -519,10 +515,10 @@ function lineChart(host, card, x, series, opts = {}) {
   const svg = host.querySelector("svg"), hl = svg.querySelector(".hover-line"), dots = [...svg.querySelectorAll(".hover-dot")];
   const show = (i) => {
     hl.setAttribute("x1", X(i)); hl.setAttribute("x2", X(i)); hl.style.opacity = 1;
-    dots.forEach((dt, k) => { const v = series[k].ma?.[i] ?? top(series[k])[i]; if (!inRange(v)) { dt.style.opacity = 0; return; } dt.setAttribute("cx", X(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
-    const tipY = Math.min(...series.map((s) => (inRange(top(s)[i]) ? y(top(s)[i]) : H)));
-    const lines = (opts.stack ? [...series].reverse() : series).map((s) => {
-      const v = s.tip ? s.tip[i] : s.vals[i];
+    dots.forEach((dt, k) => { const v = series[k].ma?.[i] ?? series[k].vals[i]; if (!inRange(v)) { dt.style.opacity = 0; return; } dt.setAttribute("cx", X(i)); dt.setAttribute("cy", y(v)); dt.style.opacity = 1; });
+    const tipY = Math.min(...series.map((s) => (inRange(s.vals[i]) ? y(s.vals[i]) : H)));
+    const lines = series.map((s) => {
+      const v = s.vals[i];
       const det = s.detail ? s.detail(i) : "";
       const ma = s.ma && s.ma[i] != null ? ` <small>7g ort. ${s.fmt(s.ma[i])}</small>` : "";
       const pv = s.prev && s.prev[i] != null ? ` <small>önceki ${s.fmt(s.prev[i])}</small>` : "";
@@ -724,12 +720,11 @@ function drawTrend(card, counts, rates, opts) {
   const f = opts.key ? cardFilter(opts.key) : S;
   const A = seriesFor(counts.length ? counts : rates, 0, w, pw, opts.noMA, f), B = counts.length ? seriesFor(rates, counts.length, w, pw, opts.noMA, f) : [];
   if (opts.names) A.forEach((s) => { s.name = opts.names[s.id] || s.name; });
-  if (opts.stackRest && A.length > 1) { const t = A[A.length - 1], parts = A.slice(0, -1); t.tip = t.vals; t.vals = t.vals.map((v, i) => (v == null ? null : Math.max(0, v - sum(parts.map((p) => p.vals[i] || 0))))); }
   const tags = [...A, ...B].some((s) => s.tag);
   card.querySelector(".tags").innerHTML = tagHtml(tags) + (opts.help ? helpBtn(opts.help) : "");
   const unitA = D.cat[(counts.length ? counts : rates)[0]]?.unit;
   card.querySelector(".legend").innerHTML = legendHtml(A);
-  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, area: opts.area, stack: opts.stackRest, aria: card.querySelector("h2").getAttribute("aria-label") || card.querySelector("h2").textContent });
+  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, area: opts.area, aria: card.querySelector("h2").getAttribute("aria-label") || card.querySelector("h2").textContent });
   if (B.length) {
     card.querySelector(".lg-b").innerHTML = legendHtml(B);
     lineChart(card.querySelector(".ch-b"), card, x, B, { yFmt: yFmtFor(D.cat[rates[0]]?.unit), pctMax: D.cat[rates[0]]?.unit === "pct", H: 150 });
@@ -1410,9 +1405,9 @@ SECTIONS.detay = () => {
   const simple = (x) => x && /^[a-z0-9_]+$/.test(x) && D.cat[x];
   // Aktif abone (from the Aktif or abone-count select) is drawn together with Online; Aktif / Online then needs no num/den chart
   const withOnline = id === "active" && (S.group === "act" || S.group === "users");
-  const ut = S.group === "ut"; // user-type card → NS and Regular stacked under Aktif (NS, Regular ⊂ Aktif, disjoint), all ÷ Online
+  const ut = S.group === "ut"; // user-type card → NS, Regular and Aktif per Online as plain lines in one chart
   const dwm = S.group === "dwm"; // DAU / WAU / MAU card → one area chart with all three (DAU ⊂ WAU ⊂ MAU, so the areas overlap, not add up)
-  const b = [ut ? trendCard("Kullanıcı tipleri / Online", ["ns_online", "regular_online", "talk_rate"], [], { key: "det-ut", days: 90, wide: true, noMA: true, H: 420, stackRest: true, help: "Alanlar üst üste: en altta North Star / Online, üstünde Regular / Online, en üstteki alanın tepesi Aktif / Online (aradaki bant = aktif olup ders tamamlamayanlar). Üzerine gelince her oranın kendi değeri görünür." })
+  const b = [ut ? trendCard("Kullanıcı tipleri / Online", ["ns_online", "regular_online", "talk_rate"], [], { key: "det-ut", days: 90, wide: true, noMA: true, H: 420, help: TIERS_HELP })
     : dwm ? trendCard("DAU / WAU / MAU", ["mau", "wau", "active"], [], { key: "det-dwm", days: 90, wide: true, noMA: true, H: 420, area: true, names: { active: "DAU", wau: "WAU", mau: "MAU" } })
     : trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
   if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
