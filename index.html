@@ -142,8 +142,8 @@
   table.ret { --pos: #22c55e; --neg: #ef4444; }
   table.ret tr.tot td { background: var(--surface-2, var(--surface)); }
   table.ret tr.tot td { font-weight: 700; border-bottom: 2px solid var(--border); }
-  table.daily td.up { color: var(--s3); font-weight: 600; }
-  table.daily td.down { color: var(--s2); font-weight: 600; }
+  table.daily { --pos: #22c55e; --neg: #ef4444; }
+  table.daily td.dev { font-weight: 600; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
   .delta { font-weight: 600; font-variant-numeric: tabular-nums; }
   .delta.good { color: var(--s3); }
@@ -874,20 +874,30 @@ const SPEECH_SUB = (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_
 
 // Daily table (the reference site's transaction list): newest day first, click a row for its breakdown
 function dailyTable(key) {
-  // [metric, header, colour threshold = relative change vs the previous day]
-  const COLS = [["online", "Online", 0.05], ["active", "Aktif", 0.05], ["northstar", "NS", 0.05], ["ns_online", "NS / Online", 0.04], ["regular_online", "Regular / Online", 0.04], ["sessions", "Session", 0.05], ["node_click_rate", "Node click", 0.03], ["node_start_rate_s", "Node start", 0.03],
-    ["lesson_start_rate_s", "Ders başlatılan s.", 0.05], ["completion_rate_s", "Tamamlanan s.", 0.05], ["abandon_rate_u", "Yarım bırakma", 0.05], ["speech_min", "Konuşma dk", 0.05], ["rating_high_rate", "4–5★", 0.05]];
-  const LIM = Object.fromEntries(COLS.map(([id, , t]) => [id, t]));
-  return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
+  // [metric, header]
+  const COLS = [["online", "Online"], ["active", "Aktif"], ["northstar", "NS"], ["ns_online", "NS / Online"], ["regular_online", "Regular / Online"], ["sessions", "Session"], ["node_click_rate", "Node click"], ["node_start_rate_s", "Node start"],
+    ["lesson_start_rate_s", "Ders başlatılan s."], ["completion_rate_s", "Tamamlanan s."], ["abandon_rate_u", "Yarım bırakma"], ["speech_min", "Konuşma dk"], ["rating_high_rate", "4–5★"]];
+  return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Renk: sütunun son 90 gün ortalamasından %2'den fazla sapma (yeşil iyi, kırmızı kötü; sapma büyüdükçe renk koyulaşır). Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
     const [i0, i1] = key ? cardWin(key) : win(), f = key ? cardFilter(key) : S;
     const ser = Object.fromEntries(COLS.map(([id]) => [id, series(id, f)]));
-    // change vs the previous day above the column's threshold (relative) colours the cell: green = better, red = worse
+    // each column's mean over the last 90 days (daily values; days below the minimum denominator left out)
+    const n = D.d.days.length, avg = Object.fromEntries(COLS.map(([id]) => {
+      const s = ser[id], xs = [];
+      for (let i = Math.max(0, n - 90); i < n; i++) if (s.vals?.[i] != null && !(s.den && s.den[i] != null && s.den[i] < MIN_DEN)) xs.push(s.vals[i]);
+      return [id, xs.length ? sum(xs) / xs.length : null];
+    }));
+    // beyond ±2% of that mean the text turns green (better) or red (worse): faint just past 2%, full colour from ±25%
     const cell = (id, i) => {
-      const c = D.cat[id], s = ser[id]; const v = s.vals?.[i], p = s.vals?.[i - 1];
+      const c = D.cat[id], s = ser[id], v = s.vals?.[i], a = avg[id];
       const faded = s.den && s.den[i] != null && s.den[i] < MIN_DEN;
-      const ch = v != null && p ? (v - p) / Math.abs(p) : 0;
-      const tone = Math.abs(ch) > LIM[id] ? ((LOWER_BETTER.has(id) ? ch < 0 : ch > 0) ? "up" : "down") : "";
-      return `<td class="${[faded ? "faded" : "", tone].join(" ").trim()}"${tone ? ` title="Önceki güne göre ${ch > 0 ? "+" : "−"}%${nf1.format(Math.abs(ch) * 100)}"` : ""}>${fmt(c.unit, v)}</td>`;
+      const dev = v != null && a ? (v - a) / Math.abs(a) : 0;
+      let style = "", title = "";
+      if (a != null && v != null) title = ` title="90 gün ortalaması ${fmt(c.unit, a)} · ${dev >= 0 ? "+" : "−"}%${nf1.format(Math.abs(dev) * 100)}"`;
+      if (Math.abs(dev) > 0.02 && !faded) {
+        const k = Math.min(1, (Math.abs(dev) - 0.02) / 0.23), good = LOWER_BETTER.has(id) ? dev < 0 : dev > 0;
+        style = ` style="color:color-mix(in srgb, var(${good ? "--pos" : "--neg"}) ${Math.round(30 + 70 * k ** 0.8)}%, var(--ink-2))"`;
+      }
+      return `<td class="${[faded ? "faded" : "", style ? "dev" : ""].join(" ").trim()}"${style}${title}>${fmt(c.unit, v)}</td>`;
     };
     const rows = [];
     for (let i = i1; i >= i0; i--) {
