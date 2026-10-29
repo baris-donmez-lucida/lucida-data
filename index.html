@@ -616,7 +616,6 @@ function kpiCard(id, countId, extraId, opts = {}) {
   if (countId && D.cat[countId]) { const cc = D.cat[countId], cs = series(countId); subs.push(`<span><b>${fmt(cc.unit, periodValue(cc, cs, i0, i1))}</b> ${esc(shortLabel(cc))}</span>`); }
   if (extraId && D.cat[extraId]) { const ec = D.cat[extraId], es = series(extraId); subs.push(`<span>${esc(shortLabel(ec))} <b>${fmt(ec.unit, periodValue(ec, es, i0, i1))}</b></span>`); }
   if (!opts.mode) subs.push(`<span>${PERIOD_LABEL[c.period] || ""}</span>`);
-  else if (opts.mode === "week" && !opts.own) subs.push(`<span>son 7 gün</span>`);
   const deltas = [];
   if (pw && pw[0] >= 0) deltas.push(opts.mode ? deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), "", { title: cmpLabel }) : deltaSpan(c, cur, periodValue(c, s, pw[0], pw[1]), cmpLabel));
   if (!opts.mode && n > 28 && s.vals[n - 1] != null && s.vals[n - 29] != null) deltas.push(deltaSpan(c, s.vals[n - 1], s.vals[n - 29], "son gün, 4 hafta öncesine göre"));
@@ -830,8 +829,12 @@ function dualChart(host, card, x, L, Rr) {
   });
   svg.addEventListener("pointerleave", () => { tip.style.display = "none"; hl.style.opacity = 0; });
 }
-const kpiCols = (n) => (n <= 6 ? n : Math.ceil(n / 2));
-const kpiRow = (specs) => `<div class="kpis" style="--cols:${kpiCols(specs.length)}">${specs.map((s) => kpiCard(...s)).join("")}</div>`;
+// Every KPI row on the site uses the overview card: last complete day vs the day before (arrow + number only, the
+// comparison in the tooltip), the metric's own count in small text when given (own / withDen / sub), a 30-day sparkline
+// with hover values, big 3-per-row layout. spec = [metricId, opts]; opts.mode "week" = last 7 days vs the 7 before.
+const kpiRow = (specs) => `<div class="kpis big">${specs.map(([id, o]) => kpiCard(id, null, null, { mode: "day", ...o })).join("")}</div>`;
+const RATING_SUB = (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>`;
+const SPEECH_SUB = (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>`;
 
 // Daily table (the reference site's transaction list): newest day first, click a row for its breakdown
 function dailyTable(key) {
@@ -899,7 +902,7 @@ SECTIONS.kullanim = () => {
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const groups = {
     aktif: {
-      kpis: [["online"], ["active"], ["talk_rate", "active"], ["wau"], ["mau"], ["stickiness"]],
+      kpis: [["active"], ["talk_rate", { own: "aktif" }], ["wau"], ["mau"], ["stickiness"]],
       cards: [
         trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
         trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"]),
@@ -908,7 +911,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     node: {
-      kpis: [["node_click_rate", "sessions", "s_node"], ["node_start_rate_s", "sessions", "s_node_start"], ["node_tap_rate", "node_tap_users"], ["start_to_page", "lesson_start"], ["chain_share", "chain_start"], ["node_done_rate"]],
+      kpis: [["node_click_rate", { own: "session", withDen: true }], ["node_start_rate_s", { own: "session", withDen: true }], ["node_tap_rate", { own: "abone" }], ["start_to_page", { own: "ders sayfası" }], ["chain_share", { own: "zincir başlatma" }], ["node_done_rate"]],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
@@ -923,7 +926,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: [["lesson_start"], ["connect_rate", "lesson_connected"], ["completion_rate", "lesson_completed"], ["abandon_rate_s", null, null, { own: "session" }], ["lessons_per_active"], ["lesson_duration"]],
+      kpis: [["lesson_start"], ["connect_rate", { own: "bağlanan" }], ["completion_rate", { own: "tamamlanan" }], ["abandon_rate_s", { own: "session" }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
@@ -937,7 +940,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     konusma: {
-      kpis: [["speech_min"], ["min_per_active", "speech_min"], ["lesson_min_share"], ["speech_zero_rate"]],
+      kpis: [["speech_min", { sub: SPEECH_SUB }], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]],
       cards: [
         speechOnlineCard("k-speech"),
         trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
@@ -1179,7 +1182,7 @@ SECTIONS.yeni = () => {
     const r = (set, k) => { if (!set) return null; const idx = maturedIdx(set); const e = sum(idx.map((i) => set.steps[0][i])); return e ? sum(idx.map((i) => set.steps[k][i])) / e : null; };
     const n = act ? sum(maturedIdx(act).map((i) => act.steps[0][i])) : null;
     const box = (l, v, s) => `<div class="kpi"><div class="kpi-h"><span class="kpi-l">${esc(l)}</span></div><div class="kpi-v">${v}</div><div class="kpi-s">${s}</div></div>`;
-    return `<div class="kpis" style="--cols:6">${box("Yeni abone (olgun 28 gün)", fmt("count", n), { both: "mağaza + web", sub: "mağaza", web: "web" }[NEW.kind])}
+    return `<div class="kpis big">${box("Yeni abone (olgun 28 gün)", fmt("count", n), { both: "mağaza + web", sub: "mağaza", web: "web" }[NEW.kind])}
       ${box("7 günde ders tamamlayan", fmt("pct", act ? r(act, act.steps.length - 1) : null), "aktivasyon merdiveninin son basamağı")}
       ${box("7 günde A1-5'e ulaşan", fmt("pct", r(a1, 5)), "yeni aboneye göre")}
       ${box("3 günde 3+ node", fmt("pct", r(d3, 3)), "tamamlanan ders")}${box("5 günde 3+ node", fmt("pct", r(d5, 3)), "")}${box("7 günde 3+ node", fmt("pct", r(d7, 3)), "")}</div>`;
@@ -1297,7 +1300,7 @@ SECTIONS.memnuniyet = () => {
     trendCard("Puan sayısı", ["ratings"], []),
     mixCard("Puan dağılımı (1–5★, haftalık)", "rating_dist", { week: true, order: ["1", "2", "3", "4", "5"], colors: ["var(--s2)", "var(--s7)", "var(--s6)", "var(--s5)", "var(--s3)"], wide: true }),
   ];
-  return { html: kpiRow([["rating_high_rate", "ratings"], ["rating_low_rate"], ["rating_response_rate"], ["tech_fail_rate"], ["ratings"]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
+  return { html: kpiRow([["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }], ["rating_low_rate", { mode: "week" }], ["rating_response_rate", { mode: "week" }], ["tech_fail_rate"], ["ratings", { mode: "week" }]]) + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
 SECTIONS.degisiklik = () => {
@@ -1316,10 +1319,8 @@ SECTIONS.diger = () => {
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
-  const cards = kpiRow([["regular_online", null, null, { mode: "day", own: "regular" }], ["talk_rate", null, null, { mode: "day", own: "aktif" }], ["completion_rate_s", null, null, { mode: "day", own: "session" }], ["abandon_rate_s", null, null, { mode: "day", own: "session" }],
-    ["speech_min", null, null, { mode: "day", sub: (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_active, series("min_per_active"), i0, i1))}</b> / aktif</span>` }],
-    ["stickiness", null, null, { mode: "day" }],
-    ["rating_high_rate", null, null, { mode: "week", own: "4–5★ oy", sub: (i0, i1) => `<span>1–2★ <b>${fmt("pct", periodValue(D.cat.rating_low_rate, series("rating_low_rate"), i0, i1))}</b></span>` }]]);
+  const cards = kpiRow([["regular_online", { own: "regular" }], ["talk_rate", { own: "aktif" }], ["completion_rate_s", { own: "session" }], ["abandon_rate_s", { own: "session" }],
+    ["speech_min", { sub: SPEECH_SUB }], ["stickiness"], ["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }]]);
   return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
@@ -1332,7 +1333,7 @@ SECTIONS.tanimlar = () => {
   const dict = D.d.catalog.map((c) => ({ label: c.label, id: c.id, tabs: (c.tabs || []).map((t) => D.d.tabs.find((x) => x.id === t)?.label || t).join(", "), period: PERIOD_LABEL[c.period] || c.period, src: c.num ? `${c.num} / ${c.den}` : c.rate ? "funnel (Amplitude)" : c.series || c.id, note: c.note || "" }));
   const dt = sortableTable([{ k: "label", label: "Metrik" }, { k: "note", label: "Tanım", wrap: true }, { k: "src", label: "Kaynak", fmt: (v) => `<code>${esc(v)}</code>` }, { k: "period", label: "Dönem değeri" }, { k: "tabs", label: "Bölümler", wrap: true }], dict, { max: 560 });
   const dk = customCard("Metrik sözlüğü", dt.html, () => dt.bind(), { sub: "product/metrics.json'dan otomatik. Abone = event anındaki gp:rc_subscription_status ∈ active, intro, cancelled, grace_period, promotional (mağaza: ilk dördü, web: promotional). Trial ve role play kolu kapsam dışı." });
-  return { html: kpiRow([["ns_rate", "northstar"], ["ns_rate_pages", "northstar_pages"], ["ns_rate_strict", "northstar_strict"], ["speech_zero_rate"], ["tech_fail_rate"]]) + `<div class="cards">${ns.html}${health.html}${runs.html}${dk.html}</div>`, draw: () => { ns.draw(); health.draw(); runs.draw(); dk.draw(); } };
+  return { html: kpiRow([["ns_rate", { own: "north star" }], ["ns_rate_pages", { own: "north star" }], ["ns_rate_strict", { own: "north star" }], ["speech_zero_rate"], ["tech_fail_rate"]]) + `<div class="cards">${ns.html}${health.html}${runs.html}${dk.html}</div>`, draw: () => { ns.draw(); health.draw(); runs.draw(); dk.draw(); } };
 };
 
 // ---------- shell: nav, filters, routing ----------
