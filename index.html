@@ -91,7 +91,10 @@
 
   /* Sections */
   .sec { padding-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-  .grp-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .grp-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .kpi-grp { grid-column: 1 / -1; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 10px 0 -6px; }
+  .kpi-grp:first-child { margin-top: 0; }
+  .nk-basis { margin-left: 6px; }
   .grp-nav button { font: inherit; font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .grp-nav button:hover { color: var(--ink); }
   .ugrp { display: grid; gap: 14px; }
@@ -756,14 +759,25 @@ const TIERS_HELP = "Online = gün içinde dashboard_page_viewed. Aktif = ≥1 ca
 const KSEL = {
   ut: { v: "northstar", aria: "Kullanıcı tipi", opts: [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]] },
   users: { v: "active", aria: "Abone sayısı", opts: [["active", "Aktif abone", "active", null], ["online", "Online abone", "online", null]] },
-  node: { v: "click", aria: "Node oranı", opts: [["click", "Node click rate", "node_click_rate", "session", true], ["start", "Node start rate", "node_start_rate_s", "session", true], ["complete", "Node complete rate", "completion_rate_s", "session", true]] },
+  act: { v: "active", aria: "Aktif", opts: [["active", "Aktif abone", "active", null], ["rate", "Aktif / Online", "talk_rate", "aktif"]] },
+  dwm: { v: "dau", aria: "DAU / WAU / MAU", opts: [["dau", "DAU", "active", null], ["wau", "WAU", "wau", null], ["mau", "MAU", "mau", null]] },
 };
+// Node card: click / start / complete rate, session-based (÷ sessions opened that day) or user-based (÷ subscribers who opened the app)
+const NK = { v: "click", basis: "session" };
+const NODE_IDS = { session: { click: "node_click_rate", start: "node_start_rate_s", complete: "completion_rate_s" }, user: { click: "node_tap_rate", start: "node_start_rate_u", complete: "complete_rate_u" } };
+function nodeKpi() {
+  const head = `<select class="ut-sel nk-sel" aria-label="Node oranı">${[["click", "Node click rate"], ["start", "Node start rate"], ["complete", "Node complete rate"]].map(([v, l]) => `<option value="${v}"${v === NK.v ? " selected" : ""}>${l}</option>`).join("")}</select>`
+    + `<span class="seg-ctl nk-basis" role="group" aria-label="Bazı">${[["session", "Session"], ["user", "User"]].map(([v, l]) => `<button type="button" data-nb="${v}" aria-pressed="${NK.basis === v}">${l}</button>`).join("")}</span>`;
+  return kpiCard(NODE_IDS[NK.basis][NK.v], null, null, { mode: "day", own: NK.basis === "session" ? "session" : "abone", withDen: true, head });
+}
+document.addEventListener("change", (ev) => { if (ev.target.matches(".nk-sel")) { NK.v = ev.target.value; renderSection(); } });
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
 function selectKpi(k) {
   const st = KSEL[k], [, , id, own, withDen] = st.opts.find((o) => o[0] === st.v);
   const head = `<select class="ut-sel" data-k="${k}" aria-label="${st.aria}">${st.opts.map(([v, l]) => `<option value="${v}"${v === st.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
   return kpiCard(id, null, null, { mode: "day", own, withDen, head });
 }
-document.addEventListener("change", (ev) => { if (ev.target.matches(".ut-sel")) { KSEL[ev.target.dataset.k].v = ev.target.value; renderSection(); } });
+document.addEventListener("change", (ev) => { if (ev.target.matches(".ut-sel[data-k]")) { KSEL[ev.target.dataset.k].v = ev.target.value; renderSection(); } });
 // User types over time: ratios to Online by default, user counts through the card's "Görünüm" select
 function tiersCard(key) {
   return customCard("Kullanıcı tipleri", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
@@ -780,7 +794,7 @@ SECTIONS.genel = () => {
   const blocks = [tiersCard("g-tiers")];
   const tbl = dailyTable("g-daily");
   return { html: `<div class="kpis big">${selectKpi("ut")}${selectKpi("users")}${kpiCard("activation", null, null, { mode: "day", head: "Aktivasyon aşamasındaki abone" })}`
-      + `${selectKpi("node")}${kpiCard("lessons_per_online", null, null, { mode: "day", own: "ders" })}${kpiCard("min_per_online", null, null, { mode: "day", own: "dk" })}</div>`
+      + `${nodeKpi()}${kpiCard("lessons_per_online", null, null, { mode: "day", own: "ders" })}${kpiCard("min_per_online", null, null, { mode: "day", own: "dk" })}</div>`
       + `<div class="cards ov">${blocks.map((b) => b.html).join("")}${tbl.html}</div>`,
     draw: () => { blocks.forEach((b) => b.draw()); tbl.draw(); } };
 };
@@ -902,7 +916,7 @@ SECTIONS.kullanim = () => {
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const groups = {
     aktif: {
-      kpis: [["active"], ["talk_rate", { own: "aktif" }], ["wau"], ["mau"], ["stickiness"]],
+      kpis: ["act", "dwm", ["stickiness"]],
       cards: [
         trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
         trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"]),
@@ -911,7 +925,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     node: {
-      kpis: [["node_click_rate", { own: "session", withDen: true }], ["node_start_rate_s", { own: "session", withDen: true }], ["node_tap_rate", { own: "abone" }], ["start_to_page", { own: "ders sayfası" }], ["chain_share", { own: "zincir başlatma" }], ["node_done_rate"]],
+      kpis: ["node", ["start_to_page", { own: "ders sayfası" }], ["chain_share", { own: "zincir başlatma" }], ["node_done_rate"]],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
@@ -953,7 +967,10 @@ SECTIONS.kullanim = () => {
   };
   const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
   const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
-  const html = chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2>${kpiRow(groups[k].kpis)}<div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
+  // all KPIs at the top, one labelled block per group; a string spec is a combined card (select / toggle)
+  const card = (sp) => (sp === "node" ? nodeKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
+  const top = `<div class="kpis big">${USE_GROUPS.map(([k, l]) => `<div class="kpi-grp">${esc(l)}</div>${groups[k].kpis.map(card).join("")}`).join("")}</div>`;
+  const html = top + chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
   return { html, draw: () => all.forEach((c) => c.draw()) };
 };
 // scroll a group's heading to just below the sticky page header

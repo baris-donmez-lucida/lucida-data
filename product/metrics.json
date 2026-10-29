@@ -529,7 +529,63 @@
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "",
+   "note": " Node'a tıklayan abone (pre_lesson_viewed tekil) / o gün app açan abone (session_start tekil).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "node_start_users",
+   "label": "Node'dan başlatan abone",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "flow_node_u",
+    "base": 1,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "Gün içinde d_start_continue_lesson_bt yapan tekil abone.",
+   "period": "daily_mean"
+  },
+  {
+   "id": "node_start_rate_u",
+   "label": "Node start rate (user)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "node_start_users",
+   "den": "openers",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "Node'dan ders başlatan abone / o gün app açan abone (session_start tekil).",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "complete_rate_u",
+   "label": "Node complete rate (user)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "lesson_completers",
+   "den": "openers",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "Ders tamamlayan abone (anm_c_lesson_completed tekil) / o gün app açan abone.",
    "period": "ratio_of_sums"
   },
   {
