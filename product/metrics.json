@@ -796,7 +796,7 @@
    "kind": "ratio",
    "unit": "pct",
    "id": "chain_share_u",
-   "label": "Zincir payı (user)",
+   "label": "Zincir payı",
    "num": "chain_users",
    "den": "online",
    "note": "lesson_next_launched yapan tekil abone / Online abone (dashboard_page_viewed tekil)."

@@ -772,14 +772,7 @@ function nodeKpi() {
   return kpiCard(NODE_IDS[NK.basis][NK.v], null, null, { mode: "day", own: NK.basis === "session" ? "session" : "abone", withDen: true, head });
 }
 document.addEventListener("change", (ev) => { if (ev.target.matches(".nk-sel")) { NK.v = ev.target.value; renderSection(); } });
-// Zincir payı: lesson_next_launched sessions / dashboard sessions, or lesson_next_launched users / Online users
-const CK = { basis: "session" };
-function chainKpi() {
-  const head = `<span>Zincir payı</span><span class="seg-ctl nk-basis ck-basis" role="group" aria-label="Bazı">${[["session", "Session"], ["user", "User"]].map(([v, l]) => `<button type="button" data-cb="${v}" aria-pressed="${CK.basis === v}">${l}</button>`).join("")}</span>`;
-  return kpiCard(CK.basis === "session" ? "chain_share_s" : "chain_share_u", null, null, { mode: "day", own: CK.basis === "session" ? "session" : "abone", withDen: true, head });
-}
-document.addEventListener("click", (ev) => { const b = ev.target.closest(".ck-basis button"); if (b) { CK.basis = b.dataset.cb; renderSection(); } });
-document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis:not(.ck-basis) button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
 function selectKpi(k) {
   const st = KSEL[k], [, , id, own, withDen] = st.opts.find((o) => o[0] === st.v);
   const head = `<select class="ut-sel" data-k="${k}" aria-label="${st.aria}">${st.opts.map(([v, l]) => `<option value="${v}"${v === st.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
@@ -920,7 +913,7 @@ SECTIONS.kullanim = () => {
     const vals = st.map(([id]) => v(id));
     const pct = (a, b) => (a != null && b ? "%" + nf1.format((100 * a) / b) : "—");
     card.querySelector(".flow").innerHTML = st.map(([, l, e], j) => `${j ? `<span class="ar">→</span>` : ""}<div class="st"><span>${esc(l)}</span><b>${fmt("count", vals[j])}</b><small>${j === 2 ? "başlatma + zincir → sayfa " + pct(vals[2], (vals[1] || 0) + (v("chain_start") || 0)) : j ? pct(vals[j], vals[j - 1]) + " önceki adıma göre" : esc(e)}</small></div>`).join("")
-      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · zincir payı ${fmt("pct", v("chain_share_s"))} (session) / ${fmt("pct", v("chain_share_u"))} (user). </div>`;
+      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · zincir payı ${fmt("pct", v("chain_share_u"))}. </div>`;
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const groups = {
     aktif: {
@@ -933,7 +926,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     node: {
-      kpis: ["node", "chain", ["abandon_rate_u", { own: "abone", withDen: true }]],
+      kpis: ["node", ["chain_share_u", { own: "abone", withDen: true }], ["abandon_rate_u", { own: "abone", withDen: true }]],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün dashboard_page_viewed görülen session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
@@ -955,7 +948,7 @@ SECTIONS.kullanim = () => {
         trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
         trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
         mixCard("Tamamlama nedeni karışımı", "completion_reasons", { help: "anm_c_lesson_completed.reason; 19 Ekim 2026 haftasından önce çoğunlukla boş ('(none)')." }),
-        trendCard("Zincir: Sıradaki ders", ["s_chain", "chain_users"], ["chain_share_s", "chain_share_u"], { help: "Zincir payı (session) = lesson_next_launched yapılan session / dashboard_page_viewed görülen session. Zincir payı (user) = lesson_next_launched yapan abone / Online abone." }),
+        trendCard("Zincir: Sıradaki ders", ["chain_users"], ["chain_share_u"], { help: "Zincir payı = lesson_next_launched (Sıradaki ders) yapan abone / Online abone (dashboard_page_viewed tekil)." }),
         lessonTable(),
       ],
     },
@@ -974,7 +967,7 @@ SECTIONS.kullanim = () => {
   const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
   const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
   // all KPIs at the top in one grid (group order, no labels); a string spec is a combined card (select / toggle)
-  const card = (sp) => (sp === "node" ? nodeKpi() : sp === "chain" ? chainKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
+  const card = (sp) => (sp === "node" ? nodeKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
   const top = `<div class="kpis big">${USE_GROUPS.map(([k]) => groups[k].kpis.map(card).join("")).join("")}</div>`;
   const html = top + chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
   return { html, draw: () => all.forEach((c) => c.draw()) };
@@ -1340,7 +1333,7 @@ SECTIONS.diger = () => {
     trendCard("Regular / Aktif ve North Star / Aktif", ["ns_rate", "regular_rate"], [], { help: "Eski genel bakış oranları (payda Aktif). Yeni genel bakışta payda Online." }),
     trendCard("Başlatma → ders sayfası", ["start_to_page"], [], { help: "Açılan ders sayfası (anm_conv_page_viewed, lessonTalk) / ders başlatma dokunuşları (node'dan d_start_continue_lesson_bt + zincirden lesson_next_launched). Adet bazında; başlatıp sayfa açılmadan vazgeçmeyi gösterir." }),
     trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
-    trendCard("Node akışı (adet)", ["node_tap", "node_start", "chain_start"], ["node_start_rate", "chain_share_s"]),
+    trendCard("Node akışı (adet)", ["node_tap", "node_start", "chain_start"], ["node_start_rate", "chain_share_u"]),
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
