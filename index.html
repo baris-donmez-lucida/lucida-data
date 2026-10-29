@@ -939,7 +939,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: [["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
+      kpis: [],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
@@ -953,7 +953,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     konusma: {
-      kpis: [["speech_min", { sub: SPEECH_SUB }], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]],
+      kpis: [],
       cards: [
         speechOnlineCard("k-speech"),
         trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün dashboard_page_viewed görülen session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
@@ -1338,7 +1338,7 @@ SECTIONS.diger = () => {
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
   const cards = kpiRow([["regular_online", { own: "regular" }], ["talk_rate", { own: "aktif" }], ["completion_rate_s", { own: "session" }], ["abandon_rate_s", { own: "session" }],
-    ["speech_min", { sub: SPEECH_SUB }], ["stickiness"], ["stickiness_all"], ["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }]]);
+    ["speech_min", { sub: SPEECH_SUB }], ["stickiness"], ["stickiness_all"], ["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }, ["lessons_per_active", { own: "ders" }], ["lesson_duration"], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]]]);
   return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
