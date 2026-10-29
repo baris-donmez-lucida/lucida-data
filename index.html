@@ -921,17 +921,19 @@ function dayBreakdown(i, sub = S.sub) {
 const USE_GROUPS = [["aktif", "Aktif kullanım"], ["node", "Node sistemi"], ["dersler", "Dersler"], ["konusma", "Konuşma"]];
 // Node funnel (Kullanım): daily unique subscribers per step, summed over the card's date range ("abone-gün").
 // Views: one funnel for the card filter, Activation vs Activated, node type (node-level, lesson_id held), two versions.
-const FN_STEPS = [["Online", "dashboard_page_viewed"], ["Node'a dokundu", "pre_lesson_viewed"], ["Başla", "pre_lesson_lets_start"], ["Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["Tamamladı", "anm_c_lesson_completed"]];
+// steps 4… = 1st … 10th lesson completed within the same 24 h (anm_c_lesson_completed repeated)
+const FN_STEPS = [["Online", "dashboard_page_viewed"], ["Node'a dokundu", "pre_lesson_viewed"], ["Başla", "pre_lesson_lets_start"], ["Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["1. ders tamamlandı", "anm_c_lesson_completed"],
+  ...[2, 3, 4, 5, 6, 7, 8, 9, 10].map((k) => [`${k}. ders`, `aynı gün ${k}. tamamlama`])];
 const FN_TYPE = [["current", "Sıradaki node (current)"], ["jump", "İleri atlama (jump)"], ["replay", "Tekrar (replay)"]];
 const FN = { va: null, vb: null };
 function funnelCard(key) {
-  const help = "Sıralı funnel, 24 saat pencere: o gün dashboard'u gören abone, sonra node'a dokunup (pre_lesson_viewed) Başla'ya basıp (pre_lesson_lets_start) ders sayfasını açıp (lessonTalk) dersi tamamladı mı. Her gün tekil abone sayılır; dönem değeri günlerin toplamı (abone-gün). Node tipi görünümü node bazında: lesson_id sabit, aynı abonenin iki farklı node'u iki giriş; Online adımı yok. Activation Users = ilk dashboard'u son 9 günde (d0–d8), Activated Users = daha önce.";
+  const help = "Sıralı funnel, 24 saat pencere: o gün dashboard'u gören abone, sonra node'a dokunup (pre_lesson_viewed) Başla'ya basıp (pre_lesson_lets_start) ders sayfasını açıp (lessonTalk) dersi tamamladı mı; ardından aynı 24 saatte 2., 3. … 10. dersi tamamladı mı (tekrarlar dahil). Her gün tekil abone sayılır; dönem değeri günlerin toplamı (abone-gün). Node tipi görünümü node bazında: lesson_id sabit, aynı abonenin iki farklı node'u iki giriş; Online adımı yok. Activation Users = ilk dashboard'u son 9 günde (d0–d8), Activated Users = daha önce.";
   return customCard("Node funnel", `<div class="fn-vs" hidden></div><div class="legend"></div><div class="fn"></div><p class="card-sub fn-note"></p><div class="legend lg-b"></div><div class="chart ch-a"></div>`, (card) => {
     const F = D.d.nfun, st = ccState(key), view = st.view || "all", f = cardFilter(key), [a, b] = cardWin(key);
     const fnEl = card.querySelector(".fn"), note = card.querySelector(".fn-note"), vs = card.querySelector(".fn-vs");
     if (!F) { fnEl.innerHTML = `<div class="chart-empty">Funnel verisi yok.</div>`; return; }
     const tot = (steps) => steps.map((v) => { let t = 0, any = false; for (let i = a; i <= b; i++) if (v[i] != null) { t += v[i]; any = true; } return any ? t : null; });
-    let series = [], notes = [], labels = FN_STEPS;
+    let series = [], notes = [], first = 0; // first = index in FN_STEPS of the series' step 0
     vs.hidden = view !== "ver";
     if (view === "all") {
       let k = f.sub === "paid" ? "paid" : f.sub;
@@ -941,7 +943,7 @@ function funnelCard(key) {
       [["activation", "Activation Users"], ["activated", "Activated Users"]].forEach(([g, l], j) => F.act[g] && series.push({ name: l, steps: F.act[g], c: j }));
       notes.push("Activation / Activated yalnız tüm abonelerde; filtre uygulanmıyor. Geçmiş 28 Eylül 2026'dan itibaren.");
     } else if (view === "type") {
-      labels = FN_STEPS.slice(1);
+      first = 1;
       FN_TYPE.forEach(([g, l], j) => F.type[g] && series.push({ name: l, steps: F.type[g], c: j }));
       notes.push("Node bazında (lesson_id sabit): dokunulan node'ların yüzde kaçı başlatılıp tamamlandı. Yalnız tüm aboneler; filtre uygulanmıyor.");
     } else {
@@ -957,6 +959,7 @@ function funnelCard(key) {
     }
     series.forEach((x, j) => { x.color = COL[(x.c ?? j) % COL.length]; x.t = tot(x.steps); });
     series = series.filter((x) => x.t[0]);
+    const nSteps = Math.max(0, ...series.map((x) => x.steps.length)), labels = FN_STEPS.slice(first, first + nSteps);
     if (!series.length) { fnEl.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; note.textContent = notes.join(" "); return; }
     card.querySelector(".legend").innerHTML = series.length > 1 ? series.map((x) => `<span><i style="--c:${x.color}"></i>${esc(x.name)}</span>`).join("") : "";
     const pct = (x, y) => (x != null && y ? "%" + nf1.format((100 * x) / y) : "—");
@@ -965,14 +968,18 @@ function funnelCard(key) {
       const extra = k ? `<em>önceki adımın ${pct(v, x.t[k - 1])}</em>${x.t[k - 1] != null && v != null ? `<em class="drop">−${nf.format(x.t[k - 1] - v)}</em>` : ""}` : "";
       return `<div class="fn-bar" title="${esc(x.name)}"><i style="width:${w.toFixed(1)}%;--c:${x.color}"></i><span><b>${v == null ? "—" : nf.format(v)}</b><em>${pct(v, x.t[0])}</em>${extra}</span></div>`;
     }).join("")}</div></div>`).join("");
+    // lessons per subscriber who completed one: step k = completed ≥ k, so the sum over the completion steps = lessons (capped at 10)
+    const c1 = 4 - first;
+    if (labels.length > c1 + 1) notes.unshift("Ders tamamlayan başına günde ortalama " + series.map((x) => `${series.length > 1 ? x.name + " " : ""}${x.t[c1] ? nf2.format(sum(x.t.slice(c1)) / x.t[c1]) : "—"}`).join(", ") + " ders (10'da kesilmiş).");
     const inc = (F.incomplete || []).filter((d) => d >= D.d.days[a] && d <= D.d.days[b]);
     if (inc.length) notes.push(`${inc.map(dShort).join(", ")} olgunlaşmadı (24 saatlik pencere veri çekildiğinde dolmamıştı).`);
     note.textContent = notes.join(" ");
     // conversion over time: one series → each step's rate to the previous step; several → end to end
     const x = D.d.days.slice(a, b + 1), r = (n, d) => n.slice(a, b + 1).map((v, i) => (v != null && d[a + i] ? v / d[a + i] : null));
-    const last = labels.length - 1;
+    // lines: each step to the previous one up to the 2nd lesson, plus Online → 1st lesson; several series → Online → 1st lesson each
+    const last = Math.min(c1, labels.length - 1), upto = Math.min(c1 + 1, labels.length - 1);
     const L = series.length === 1
-      ? labels.slice(1).map(([l], k) => ({ id: "s" + k, name: `${l} / ${labels[k][0]}`, color: COL[k % COL.length], vals: r(series[0].steps[k + 1], series[0].steps[k]) }))
+      ? labels.slice(1, upto + 1).map(([l], k) => ({ id: "s" + k, name: `${l} / ${labels[k][0]}`, color: COL[k % COL.length], vals: r(series[0].steps[k + 1], series[0].steps[k]) }))
         .concat([{ id: "e2e", name: `Uçtan uca (${labels[last][0]} / ${labels[0][0]})`, color: "var(--ink-2)", vals: r(series[0].steps[last], series[0].steps[0]) }])
       : series.map((s, j) => ({ id: "e" + j, name: `${s.name}: ${labels[last][0]} / ${labels[0][0]}`, color: s.color, vals: r(s.steps[last], s.steps[0]) }));
     L.forEach((s) => { s.fmt = (v) => fmt("pct", v); s.ma = null; });

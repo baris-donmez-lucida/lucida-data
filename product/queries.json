@@ -16276,6 +16276,51 @@
        "event_type": "anm_c_lesson_completed",
        "filters": [],
        "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
       }
      ],
      "segments": [
@@ -16658,7 +16703,7 @@
    },
    "groupByLimit": 20,
    "timeSeriesLimit": 20,
-   "parse": "Node funnel, günlük tekil abone. Adımlar (sıralı, 24 saat pencere, giriş günü = ilk adımın günü): 0 dashboard_page_viewed (Online) → 1 pre_lesson_viewed (node'a dokundu) → 2 pre_lesson_lets_start (Başla) → 3 anm_conv_page_viewed lessonTalk (ders sayfası) → 4 anm_c_lesson_completed (tamamladı). Segmentler sırayla: paid, store, web, paid · iOS, paid · Android, paid · 10 ülke (countries sırası); etiket 'None' gelirse blok sırasına göre eşle. Yanıt csvResponse: satır = blok (segment ya da kırılım değeri) × giriş günü + blok başına 'Total'; k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok). Is complete=false olan son gün olgunlaşmamış."
+   "parse": "Node funnel, günlük tekil abone. Adımlar (sıralı, 24 saat pencere, giriş günü = ilk adımın günü): 0 dashboard_page_viewed (Online) → 1 pre_lesson_viewed (node'a dokundu) → 2 pre_lesson_lets_start (Başla) → 3 anm_conv_page_viewed lessonTalk (ders sayfası) → 4…13 anm_c_lesson_completed: 1. … 10. tamamlanan ders (aynı 24 saat içinde k. tamamlama). Segmentler sırayla: paid, store, web, paid · iOS, paid · Android, paid · 10 ülke (countries sırası); etiket 'None' gelirse blok sırasına göre eşle. Yanıt csvResponse: satır = blok (segment ya da kırılım değeri) × giriş günü + blok başına 'Total'; k. adımın (0'dan) sayısı sütun 3+3k. Tarih 'Oct 12' biçiminde (yıl yok). Is complete=false olan son gün olgunlaşmamış."
   },
   {
    "id": "nfun_ver",
@@ -16708,6 +16753,51 @@
          "group_type": "User"
         }
        ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
        "group_by": []
       },
       {
@@ -16868,6 +16958,33 @@
      },
      {
       "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
      }
     ],
     "conversion_window": {
@@ -16945,7 +17062,7 @@
     "interval": "day"
    },
    "groupByLimit": 10,
-   "parse": "HER SABAH yalnızca dün için (<DAY_START>/<DAY_END>; <ACT_PRE_END> = dün − 9 günün 23:59:59). nfun ile aynı 5 adım, paid aboneler ikiye ayrılır: activation = dashboard'u <ACT_PRE_END>'e kadar hiç görmemiş (ilk dashboard dün − 8 … dün, d0–d8), activated = daha önce görmüş. csvResponse: segment başına 'Total' satırı = o günün adım sayıları (sütun 3+3k). Nokta {d, activation:[5 sayı], activated:[5 sayı]} → product-history/node_funnel_act."
+   "parse": "HER SABAH yalnızca dün için (<DAY_START>/<DAY_END>; <ACT_PRE_END> = dün − 9 günün 23:59:59). nfun ile aynı 14 adım, paid aboneler ikiye ayrılır: activation = dashboard'u <ACT_PRE_END>'e kadar hiç görmemiş (ilk dashboard dün − 8 … dün, d0–d8), activated = daha önce görmüş. csvResponse: segment başına 'Total' satırı = o günün adım sayıları (sütun 3+3k). Nokta {d, activation:[14 sayı], activated:[14 sayı]} → product-history/node_funnel_act."
   }
  ],
  "baseCohortId": null

@@ -280,7 +280,7 @@ let nfun = null;
   const t = L.rawFunnel(load("nfun_act"), dataDate, dataDate, { countries: COUNTRIES, blockLabels: segLabels("nfun_act"), keyOf: (l) => (l === "activation" || l === "activated" ? l : null) });
   if (t?.activation?.total && t?.activated?.total) { hist.nact = hist.nact.filter((x) => x.d !== dataDate); hist.nact.push({ d: dataDate, activation: t.activation.total, activated: t.activated.total }); }
   if (!hist.nact.length) missing.push("history:node_funnel_act");
-  if (nfun) for (const g of ["activation", "activated"]) nfun.act[g] = [0, 1, 2, 3, 4].map((k) => byDay(hist.nact, (p) => p[g]?.[k] ?? null));
+  if (nfun) for (const g of ["activation", "activated"]) nfun.act[g] = [...Array(Math.max(0, ...hist.nact.map((p) => p[g]?.length || 0))).keys()].map((k) => byDay(hist.nact, (p) => p[g]?.[k] ?? null));
 }
 
 // ---------- catalog: metrics.json with num / den normalised to keys of m ----------
