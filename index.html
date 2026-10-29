@@ -1378,7 +1378,7 @@ function userListCard(id) {
   if (!g || !U) return null;
   const all = U.rows.map((r) => Object.fromEntries(U.cols.map((c, i) => [c, r[i]])));
   const n1 = (v) => (v == null ? "—" : nf.format(v)), dd = (v) => (v ? dShort(v) : "—");
-  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, { k: "id", label: "Amplitude ID" }, { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
+  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
     { k: "status", label: "Abonelik" }, { k: "d0", label: "d0", fmt: dd }, { k: "last", label: "Son görülme", fmt: dd },
     { k: "on7", label: "Online gün (7g)", num: true, fmt: n1 }, { k: "act7", label: "Aktif gün (7g)", num: true, fmt: n1 }, { k: "done7", label: "Tamamlanan ders (7g)", num: true, fmt: n1 },
     { k: "page7", label: "Açılan ders (7g)", num: true, fmt: n1 }, { k: "min7", label: "Konuşma dk (7g)", num: true, fmt: (v) => (v ? nf1.format(v) : "—") },
@@ -1389,9 +1389,9 @@ function userListCard(id) {
     const rows = all.filter(g[0]).filter((u) => (f.dim === "platform" ? u.platform === f.val : f.dim === "country" ? u.country === f.val : f.dim === "version" ? u.version === f.val : true)
       && (f.sub === "store" ? STORE_ST.has(u.status) : f.sub === "web" ? u.status === "promotional" : true));
     el.querySelector(".ul-sum").textContent = `${nf.format(rows.length)} abone · ${dLong(U.asOf)} · kullanım sütunları ${dShort(addDays(U.asOf, -6))}–${dShort(U.asOf)}`;
-    tbl = sortableTable(cols, rows, { sort: 10, dir: -1, max: 640 });
+    tbl = sortableTable(cols, rows, { sort: 9, dir: -1, max: 640 });
     el.querySelector(".ul-host").innerHTML = tbl.html; tbl.bind();
-  }, { help: "Liste dünün (son tam gün) pay grubundaki aboneleri gösterir. Kullanıcı ID = uygulamadaki sayısal ID (giriş yapmadan kullananlarda yok); Amplitude ID her kullanıcıda var, Amplitude'da kullanıcı aramak için kullanılabilir. Sütunlar son 7 günün toplamı; Abonelik = son aktif gündeki RevenueCat durumu; d0 = ilk dashboard günü (aktivasyondakiler için). Üstteki grafiğin filtresi listeye de uygulanır." });
+  }, { help: "Liste dünün (son tam gün) pay grubundaki aboneleri gösterir. Kullanıcı ID = uygulamadaki sayısal ID (giriş yapmadan kullananlarda yok). Sütunlar son 7 günün toplamı; Abonelik = son aktif gündeki RevenueCat durumu; d0 = ilk dashboard günü (aktivasyondakiler için). Üstteki grafiğin filtresi listeye de uygulanır." });
   return card;
 }
 // Metric detail: opened by clicking a KPI card on Genel Bakış / Kullanım. Big timeline with its own date range and
