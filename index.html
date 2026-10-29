@@ -763,7 +763,7 @@ const KSEL = {
   stick: { v: "est", aria: "Stickiness", opts: [["act", "Stickiness · Activation Users", "stick_activation", "aktif", true], ["est", "Stickiness · Activated Users", "stickiness", "aktif", true]] },
   dwm: { v: "dau", aria: "DAU / WAU / MAU", opts: [["dau", "DAU", "active", null], ["wau", "WAU", "wau", null], ["mau", "MAU", "mau", null]] },
 };
-// Node card: click / start / complete rate, session-based (÷ sessions opened that day) or user-based (÷ subscribers who opened the app)
+// Node card: click / start / complete rate, session-based (÷ sessions with a dashboard view) or user-based (÷ Online subscribers)
 const NK = { v: "click", basis: "session" };
 const NODE_IDS = { session: { click: "node_click_rate", start: "node_start_rate_s", complete: "completion_rate_s" }, user: { click: "node_tap_rate", start: "node_start_rate_u", complete: "complete_rate_u" } };
 function nodeKpi() {
@@ -943,8 +943,8 @@ SECTIONS.kullanim = () => {
       kpis: ["node", "chain"],
       cards: [
         nodeFlow,
-        trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
-        trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
+        trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün dashboard_page_viewed görülen session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
+        trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / Online abone (dashboard_page_viewed tekil)." }),
         trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
         mixCard("Node tipi karışımı (lesson_entry_type)", "entry_type_mix", { help: "Ders başlatmaların giriş tipi: current (sıradaki node), jump (ileri atlama), replay (tekrar), next (zincir)." }),
         trendCard("İlk kez tamamlanan node", ["lesson_completed_first"], []),
@@ -970,7 +970,7 @@ SECTIONS.kullanim = () => {
       kpis: [["speech_min", { sub: SPEECH_SUB }], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]],
       cards: [
         speechOnlineCard("k-speech"),
-        trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün açılan session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
+        trendCard("Session'larda konuşma, ders başlatma ve tamamlama", ["active_session_rate", "lesson_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "k-sess", help: "Payda: o gün dashboard_page_viewed görülen session. Konuşulan session = içinde call_ok olan; ders başlatılan = ders sayfası açılan; tamamlanan = anm_c_lesson_completed olan." }),
         speechByType,
         trendCard("Aktif abone başına dakika", ["min_per_active"], []),
         trendCard("Ders dakikası payı", ["lesson_min_share"], []),

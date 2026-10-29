@@ -601,11 +601,11 @@
    "kind": "ratio",
    "unit": "pct",
    "num": "node_tap_users",
-   "den": "openers",
+   "den": "online",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": " Node'a tıklayan abone (pre_lesson_viewed tekil) / o gün app açan abone (session_start tekil).",
+   "note": " Node'a tıklayan abone (pre_lesson_viewed tekil) / Online abone (dashboard_page_viewed tekil).",
    "period": "ratio_of_sums"
   },
   {
@@ -641,11 +641,11 @@
    "kind": "ratio",
    "unit": "pct",
    "num": "node_start_users",
-   "den": "openers",
+   "den": "online",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "Node'dan ders başlatan abone / o gün app açan abone (session_start tekil).",
+   "note": "Node'dan ders başlatan abone / Online abone (dashboard_page_viewed tekil).",
    "period": "ratio_of_sums"
   },
   {
@@ -657,11 +657,11 @@
    "kind": "ratio",
    "unit": "pct",
    "num": "lesson_completers",
-   "den": "openers",
+   "den": "online",
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "Ders tamamlayan abone (anm_c_lesson_completed tekil) / o gün app açan abone.",
+   "note": "Ders tamamlayan abone (anm_c_lesson_completed tekil) / Online abone (dashboard_page_viewed tekil).",
    "period": "ratio_of_sums"
   },
   {
@@ -1752,11 +1752,11 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "Node tıklanan session / o gün açılan session.",
+   "note": "Node tıklanan session / o gün dashboard_page_viewed görülen session.",
    "id": "node_click_rate",
    "label": "Node click rate",
    "num": "s_node",
-   "den": "sessions",
+   "den": "s_dash",
    "tabs": [
     "genel",
     "kullanim"
@@ -1793,11 +1793,11 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "Node'dan ders başlatılan session / o gün açılan session.",
+   "note": "Node'dan ders başlatılan session / o gün dashboard_page_viewed görülen session.",
    "id": "node_start_rate_s",
    "label": "Node start rate",
    "num": "s_node_start",
-   "den": "sessions",
+   "den": "s_dash",
    "tabs": [
     "genel",
     "kullanim"
@@ -1810,11 +1810,11 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "",
+   "note": "Payda: o gün dashboard_page_viewed görülen session.",
    "id": "lesson_start_rate_s",
    "label": "Ders başlatılan session oranı",
    "num": "s_lesson_start",
-   "den": "sessions",
+   "den": "s_dash",
    "tabs": [
     "genel"
    ],
@@ -1826,11 +1826,11 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "Ders tamamlanan session / o gün açılan session (genel bakışta Node complete rate).",
+   "note": "Ders tamamlanan session / o gün dashboard_page_viewed görülen session (genel bakışta Node complete rate).",
    "id": "completion_rate_s",
    "label": "Tamamlama oranı (session)",
    "num": "s_lesson_done",
-   "den": "sessions",
+   "den": "s_dash",
    "tabs": [
     "genel"
    ],
@@ -1842,11 +1842,11 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "call_ok olan session / o gün açılan session.",
+   "note": "call_ok olan session / o gün dashboard_page_viewed görülen session.",
    "id": "active_session_rate",
    "label": "Konuşulan session oranı",
    "num": "s_active",
-   "den": "sessions",
+   "den": "s_dash",
    "tabs": [
     "genel"
    ],
