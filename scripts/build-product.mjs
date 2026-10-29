@@ -259,6 +259,30 @@ let les = null;
   }
 }
 
+// ---------- node funnel (raw funnels, entry-day rows; 5 steps Online → node → Başla → ders sayfası → tamamlama) ----------
+// s[key] = per step, count per day (null = day absent): paid / store / web, p:<platform>, c:<country>, v:<version>;
+// type[current|jump|replay] = 4 node-level steps (lesson_id held); act[activation|activated] from the history points.
+let nfun = null;
+{
+  const F = (id, keyOf) => L.rawFunnel(load(id), days[0], dataDate, { countries: COUNTRIES, blockLabels: segLabels(id), keyOf });
+  const onAxis = (o) => { const at = new Map(o.days.map((d, i) => [d, i])); return o.steps.map((st) => days.map((d) => (at.has(d) ? st[at.get(d)] : null))); };
+  const SEG = { paid: "paid", store: "store", web: "web", iOS: "p:iOS", Android: "p:Android" };
+  const main = F("nfun", (l) => SEG[l] ?? (COUNTRIES.includes(l) ? "c:" + l : null));
+  if (main?.paid) {
+    nfun = { s: {}, type: {}, act: {}, incomplete: [] };
+    for (const [k, o] of Object.entries(main)) nfun.s[k] = onAxis(o);
+    nfun.incomplete = main.paid.days.filter((d, i) => !main.paid.complete[i]);
+    for (const [k, o] of Object.entries(F("nfun_ver", (l) => (l && l !== "(none)" && /^\d/.test(l) ? "v:" + l : null)) || {})) nfun.s[k] = onAxis(o);
+    for (const [k, o] of Object.entries(F("nfun_type", (l) => (["current", "jump", "replay"].includes(l) ? l : null)) || {})) nfun.type[k] = onAxis(o);
+  }
+  // Activation / Activated: one point per day (history), yesterday from nfun_act
+  hist.nact = readHist("node_funnel_act") || [];
+  const t = L.rawFunnel(load("nfun_act"), dataDate, dataDate, { countries: COUNTRIES, blockLabels: segLabels("nfun_act"), keyOf: (l) => (l === "activation" || l === "activated" ? l : null) });
+  if (t?.activation?.total && t?.activated?.total) { hist.nact = hist.nact.filter((x) => x.d !== dataDate); hist.nact.push({ d: dataDate, activation: t.activation.total, activated: t.activated.total }); }
+  if (!hist.nact.length) missing.push("history:node_funnel_act");
+  if (nfun) for (const g of ["activation", "activated"]) nfun.act[g] = [0, 1, 2, 3, 4].map((k) => byDay(hist.nact, (p) => p[g]?.[k] ?? null));
+}
+
 // ---------- catalog: metrics.json with num / den normalised to keys of m ----------
 const qSeries = (qid, e) => `${qid}.${queryById[qid].series[e]}`;
 const catalog = M.metrics.map((x) => {
@@ -281,7 +305,7 @@ for (const c of catalog) if (!Array.isArray(c.breakdowns)) c.breakdowns = c.num 
 
 const payload = {
   v: 1, page: "product", generatedAt: new Date().toISOString(), dataDate, days, countries: COUNTRIES, versions,
-  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, nret, nretu, users, co, les, hist,
+  tabs: M.tabs, northstar: M.northstar_def, catalog, m, r, mix, ret, retu, nret, nretu, users, co, les, hist, nfun,
   changes: CH.changes, meta, missing: [...new Set(missing)],
 };
 

@@ -86,7 +86,8 @@ export function csv(data) {
   const rows = data?.csvResponse?.data;
   if (!Array.isArray(rows)) return null;
   const clean = rows.map((r) => (Array.isArray(r) ? r.map(cell) : []));
-  const h = clean.findIndex((r) => r[0] === "Segment");
+  // header row: "Segment" first, or a group-by name (funnels grouped by a property) followed by "Date"
+  const h = clean.findIndex((r) => r[0] === "Segment" || (r[1] === "Date" && r[0] !== ""));
   if (h < 0) return null;
   return { header: clean[h], rows: clean.slice(h + 1).filter((r) => r.length && r[0] !== "" && r[0] != null) };
 }
@@ -171,14 +172,14 @@ export function retention(data, lastDay, { countries, blockLabels, keyOf }) {
 
 // Raw funnel CSV (definition queries): step k count is column 3 + 3k; dates "Oct 05" without a year.
 // out[sliceKey] = { days:[entry day], steps:[[count per day] per step], complete:[bool], total:[per step] }
-export function rawFunnel(data, from, to, { countries, blockLabels }) {
+export function rawFunnel(data, from, to, { countries, blockLabels, keyOf }) {
   const c = csv(data);
   if (!c) return null;
   const nSteps = Math.floor((c.header.length - 3 + 2) / 3);
   const hasComplete = c.header[c.header.length - 1] === "Is complete";
   const steps = hasComplete ? Math.floor((c.header.length - 1 - 3 + 2) / 3) : nSteps;
   const out = {};
-  for (const [k, r] of blocks(c.rows, countries, blockLabels)) {
+  for (const [k, r] of blocks(c.rows, countries, blockLabels, keyOf)) {
     const o = (out[k] ??= { days: [], steps: Array.from({ length: steps }, () => []), complete: [], total: null });
     const vals = Array.from({ length: steps }, (_, s) => num(r[3 + 3 * s]) ?? 0);
     if (r[1] === "Total") { o.total = vals; continue; }

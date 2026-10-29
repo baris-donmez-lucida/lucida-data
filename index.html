@@ -214,6 +214,20 @@
   .rung b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
   .rung small { color: var(--muted); font-variant-numeric: tabular-nums; }
   .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; }
+  .fn { display: grid; gap: 10px; margin-top: 4px; }
+  .fn-row { display: grid; grid-template-columns: minmax(130px, 190px) 1fr; gap: 6px 14px; align-items: center; }
+  .fn-l b { display: block; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .fn-l small { font-size: 11px; color: var(--muted); }
+  .fn-bars { display: grid; gap: 4px; min-width: 0; }
+  .fn-bar { position: relative; height: 26px; border-radius: 6px; background: var(--track); overflow: hidden; }
+  .fn-bar i { position: absolute; inset: 0 auto 0 0; background: var(--c); opacity: .85; border-radius: 6px; }
+  .fn-bar span { position: relative; display: flex; align-items: center; height: 100%; padding: 0 9px; font-size: 12.5px; color: var(--ink); white-space: nowrap; gap: 8px; }
+  .fn-bar span b { font-weight: 700; }
+  .fn-bar span em { font-style: normal; color: var(--ink-2); }
+  .fn-bar span .drop { color: var(--ink); font-weight: 600; opacity: .7; }
+  .fn-vs { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); margin: 2px 0 6px; }
+  .fn-vs select { font: inherit; font-size: 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px 6px; }
+  @media (max-width: 640px) { .fn-row { grid-template-columns: 1fr; } }
   .flow .st { flex: 1 1 130px; background: var(--track); border-radius: 10px; padding: 10px 12px; display: grid; gap: 2px; }
   .flow .st span { font-size: 12px; color: var(--ink-2); }
   .flow .st b { font-size: 20px; font-variant-numeric: tabular-nums; }
@@ -905,11 +919,74 @@ function dayBreakdown(i, sub = S.sub) {
 // Kullanım: aktif kullanım → node → ders → konuşma, in the order a subscriber moves through the app.
 // Each group has a short KPI row and its charts; the chips at the top scroll to a group.
 const USE_GROUPS = [["aktif", "Aktif kullanım"], ["node", "Node sistemi"], ["dersler", "Dersler"], ["konusma", "Konuşma"]];
+// Node funnel (Kullanım): daily unique subscribers per step, summed over the card's date range ("abone-gün").
+// Views: one funnel for the card filter, Activation vs Activated, node type (node-level, lesson_id held), two versions.
+const FN_STEPS = [["Online", "dashboard_page_viewed"], ["Node'a dokundu", "pre_lesson_viewed"], ["Başla", "pre_lesson_lets_start"], ["Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["Tamamladı", "anm_c_lesson_completed"]];
+const FN_TYPE = [["current", "Sıradaki node (current)"], ["jump", "İleri atlama (jump)"], ["replay", "Tekrar (replay)"]];
+const FN = { va: null, vb: null };
+function funnelCard(key) {
+  const help = "Sıralı funnel, 24 saat pencere: o gün dashboard'u gören abone, sonra node'a dokunup (pre_lesson_viewed) Başla'ya basıp (pre_lesson_lets_start) ders sayfasını açıp (lessonTalk) dersi tamamladı mı. Her gün tekil abone sayılır; dönem değeri günlerin toplamı (abone-gün). Node tipi görünümü node bazında: lesson_id sabit, aynı abonenin iki farklı node'u iki giriş; Online adımı yok. Activation Users = ilk dashboard'u son 9 günde (d0–d8), Activated Users = daha önce.";
+  return customCard("Node funnel", `<div class="fn-vs" hidden></div><div class="legend"></div><div class="fn"></div><p class="card-sub fn-note"></p><div class="legend lg-b"></div><div class="chart ch-a"></div>`, (card) => {
+    const F = D.d.nfun, st = ccState(key), view = st.view || "all", f = cardFilter(key), [a, b] = cardWin(key);
+    const fnEl = card.querySelector(".fn"), note = card.querySelector(".fn-note"), vs = card.querySelector(".fn-vs");
+    if (!F) { fnEl.innerHTML = `<div class="chart-empty">Funnel verisi yok.</div>`; return; }
+    const tot = (steps) => steps.map((v) => { let t = 0, any = false; for (let i = a; i <= b; i++) if (v[i] != null) { t += v[i]; any = true; } return any ? t : null; });
+    let series = [], notes = [], labels = FN_STEPS;
+    vs.hidden = view !== "ver";
+    if (view === "all") {
+      let k = f.sub === "paid" ? "paid" : f.sub;
+      if (f.dim) { k = (f.dim === "platform" ? "p:" : f.dim === "country" ? "c:" : "v:") + f.val; if (f.sub !== "paid") notes.push("Abone tipi filtresi platform / ülke / sürümle birlikte uygulanmıyor; tüm aboneler gösteriliyor."); }
+      if (F.s[k]) series.push({ name: "Abone", steps: F.s[k] });
+    } else if (view === "act") {
+      [["activation", "Activation Users"], ["activated", "Activated Users"]].forEach(([g, l], j) => F.act[g] && series.push({ name: l, steps: F.act[g], c: j }));
+      notes.push("Activation / Activated yalnız tüm abonelerde; filtre uygulanmıyor. Geçmiş 28 Eylül 2026'dan itibaren.");
+    } else if (view === "type") {
+      labels = FN_STEPS.slice(1);
+      FN_TYPE.forEach(([g, l], j) => F.type[g] && series.push({ name: l, steps: F.type[g], c: j }));
+      notes.push("Node bazında (lesson_id sabit): dokunulan node'ların yüzde kaçı başlatılıp tamamlandı. Yalnız tüm aboneler; filtre uygulanmıyor.");
+    } else {
+      const vers = Object.keys(F.s).filter((k) => k.startsWith("v:")).map((k) => [k.slice(2), tot(F.s[k])[0] || 0]).filter((x) => x[1] > 0).sort((x, y) => y[1] - x[1]).map((x) => x[0]);
+      const byVer = (x, y) => y.localeCompare(x, undefined, { numeric: true });
+      const sorted = [...vers].sort(byVer);
+      if (!vers.includes(FN.va)) FN.va = sorted[0] || null;
+      if (!vers.includes(FN.vb) || FN.vb === FN.va) FN.vb = sorted.find((v) => v !== FN.va) || null;
+      const sel = (w, cur) => `<select data-fv="${w}">${sorted.map((v) => `<option${v === cur ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>`;
+      vs.innerHTML = `Sürüm ${sel("a", FN.va)} <span>ile</span> ${sel("b", FN.vb)}`;
+      [FN.va, FN.vb].forEach((v, j) => v && F.s["v:" + v] && series.push({ name: v, steps: F.s["v:" + v], c: j }));
+      notes.push("Sürüm = abonenin o günkü ilk dashboard anındaki uygulama sürümü. Yalnız tüm aboneler.");
+    }
+    series.forEach((x, j) => { x.color = COL[(x.c ?? j) % COL.length]; x.t = tot(x.steps); });
+    series = series.filter((x) => x.t[0]);
+    if (!series.length) { fnEl.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; note.textContent = notes.join(" "); return; }
+    card.querySelector(".legend").innerHTML = series.length > 1 ? series.map((x) => `<span><i style="--c:${x.color}"></i>${esc(x.name)}</span>`).join("") : "";
+    const pct = (x, y) => (x != null && y ? "%" + nf1.format((100 * x) / y) : "—");
+    fnEl.innerHTML = labels.map(([l, e], k) => `<div class="fn-row"><div class="fn-l"><b>${esc(l)}</b><small>${esc(e)}</small></div><div class="fn-bars">${series.map((x) => {
+      const v = x.t[k], w = v == null ? 0 : (100 * v) / x.t[0];
+      const extra = k ? `<em>önceki adımın ${pct(v, x.t[k - 1])}</em>${x.t[k - 1] != null && v != null ? `<em class="drop">−${nf.format(x.t[k - 1] - v)}</em>` : ""}` : "";
+      return `<div class="fn-bar" title="${esc(x.name)}"><i style="width:${w.toFixed(1)}%;--c:${x.color}"></i><span><b>${v == null ? "—" : nf.format(v)}</b><em>${pct(v, x.t[0])}</em>${extra}</span></div>`;
+    }).join("")}</div></div>`).join("");
+    const inc = (F.incomplete || []).filter((d) => d >= D.d.days[a] && d <= D.d.days[b]);
+    if (inc.length) notes.push(`${inc.map(dShort).join(", ")} olgunlaşmadı (24 saatlik pencere veri çekildiğinde dolmamıştı).`);
+    note.textContent = notes.join(" ");
+    // conversion over time: one series → each step's rate to the previous step; several → end to end
+    const x = D.d.days.slice(a, b + 1), r = (n, d) => n.slice(a, b + 1).map((v, i) => (v != null && d[a + i] ? v / d[a + i] : null));
+    const last = labels.length - 1;
+    const L = series.length === 1
+      ? labels.slice(1).map(([l], k) => ({ id: "s" + k, name: `${l} / ${labels[k][0]}`, color: COL[k % COL.length], vals: r(series[0].steps[k + 1], series[0].steps[k]) }))
+        .concat([{ id: "e2e", name: `Uçtan uca (${labels[last][0]} / ${labels[0][0]})`, color: "var(--ink-2)", vals: r(series[0].steps[last], series[0].steps[0]) }])
+      : series.map((s, j) => ({ id: "e" + j, name: `${s.name}: ${labels[last][0]} / ${labels[0][0]}`, color: s.color, vals: r(s.steps[last], s.steps[0]) }));
+    L.forEach((s) => { s.fmt = (v) => fmt("pct", v); s.ma = null; });
+    card.querySelector(".lg-b").innerHTML = legendHtml(L);
+    lineChart(card.querySelector(".ch-a"), card, x, L, { yFmt: yFmtFor("pct"), pctMax: true, H: 260, aria: "Funnel dönüşümü (günlük)" });
+  }, { key, days: 30, help, views: [["all", "Tek funnel"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
+}
+document.addEventListener("change", (ev) => { const t = ev.target.closest(".fn-vs select"); if (!t) return; FN[t.dataset.fv === "a" ? "va" : "vb"] = t.value; REDRAW["k-funnel"]?.(); });
 // Kullanım: only the KPI cards (one grid, no labels); a string spec is a combined card (select / toggle)
 const USE_KPIS = ["act", "dwm", "stick", "node", ["chain_share_u", { own: "abone", withDen: true }], ["abandon_rate_u", { own: "abone", withDen: true }]];
 SECTIONS.kullanim = () => {
   const card = (sp) => (sp === "node" ? nodeKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
-  return { html: `<div class="kpis big">${USE_KPIS.map(card).join("")}</div>`, draw: () => {} };
+  const fn = funnelCard("k-funnel");
+  return { html: `<div class="kpis big">${USE_KPIS.map(card).join("")}</div><div class="cards ov">${fn.html}</div>`, draw: () => fn.draw() };
 };
 // The former Kullanım charts, by group (shown on Diğer Grafikler)
 function useGroups() {

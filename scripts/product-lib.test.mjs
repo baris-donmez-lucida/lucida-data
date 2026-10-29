@@ -85,6 +85,19 @@ test("csv: header found below the preamble; unknown segment labels fall back to 
   assert.deepEqual(f["p:iOS"], [0.1, 0.2, null]);
 });
 
+test("rawFunnel: grouped funnel (header starts with the group-by name), step k in column 3 + 3k, own block keys", () => {
+  const head = ["lesson_entry_type", "Date", "Conversion", "a", "Average Time (s)", "Median Time (s)", "b", "Is complete"];
+  const data = { csvResponse: { data: [["Chart"], [], [], head,
+    ["current", "Total", 0.5, 10, 1, 1, 5], ["current", "Jan 01", 0.5, 6, 1, 1, 3, true], ["current", "Jan 02", 0.5, 4, 1, 1, 2, false],
+    ["jump", "Total", 0.25, 4, 1, 1, 1], ["jump", "Jan 01", 0.25, 4, 1, 1, 1, true]] } };
+  const f = L.rawFunnel(data, "2030-01-01", "2030-01-02", { countries: C, blockLabels: ["paid"], keyOf: (l) => (l === "current" || l === "jump" ? l : null) });
+  assert.deepEqual(f.current.total, [10, 5]);
+  assert.deepEqual(f.current.days, ["2030-01-01", "2030-01-02"]);
+  assert.deepEqual(f.current.steps, [[6, 4], [3, 2]]);
+  assert.deepEqual(f.current.complete, [true, false]);
+  assert.deepEqual(f.jump.steps, [[4], [1]]);
+});
+
 // ---------- real response shapes ----------
 test("segmentation fixture (tiers): every series is keyed and has one value per day", skip("tiers"), () => {
   const d = fx("tiers");
