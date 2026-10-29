@@ -188,6 +188,7 @@
   .chart .ln { fill: none; stroke: var(--c); stroke-width: 1.2; opacity: 0.42; stroke-linejoin: round; }
   .chart .ma { fill: none; stroke: var(--c); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
   .chart .ma.only { stroke-width: 2; }
+  .chart .area { fill: var(--c); fill-opacity: .32; stroke: none; }
   .chart .prev { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-dasharray: 4 4; opacity: 0.7; }
   .chart .pt-faded { fill: var(--c); opacity: 0.28; }
   .chart .pt-hollow { fill: var(--surface); stroke: var(--c); stroke-width: 1.4; }
@@ -493,6 +494,7 @@ function lineChart(host, card, x, series, opts = {}) {
   const body = series.map((s) => {
     const st = `style="--c:${s.color}"`;
     let out = "";
+    if (opts.area) { const iv = s.vals.map((v, i) => (inRange(v) ? i : -1)).filter((i) => i >= 0); if (iv.length) out += `<path class="area" ${st} d="${path(s.vals)}L${X(iv[iv.length - 1]).toFixed(1)} ${y(0).toFixed(1)} L${X(iv[0]).toFixed(1)} ${y(0).toFixed(1)} Z"/>`; }
     if (s.prev) out += `<path class="prev" ${st} d="${path(s.prev)}"/>`;
     if (s.ma) out += `<path class="ln" ${st} d="${path(s.vals)}"/><path class="ma" ${st} d="${path(s.ma)}"/>`;
     else out += `<path class="ma only" ${st} d="${path(s.vals)}"/>`;
@@ -717,11 +719,12 @@ function drawTrend(card, counts, rates, opts) {
   if (opts.key) card.querySelector(".cc-host").innerHTML = chartCtl(opts.key);
   const f = opts.key ? cardFilter(opts.key) : S;
   const A = seriesFor(counts.length ? counts : rates, 0, w, pw, opts.noMA, f), B = counts.length ? seriesFor(rates, counts.length, w, pw, opts.noMA, f) : [];
+  if (opts.names) A.forEach((s) => { s.name = opts.names[s.id] || s.name; });
   const tags = [...A, ...B].some((s) => s.tag);
   card.querySelector(".tags").innerHTML = tagHtml(tags) + (opts.help ? helpBtn(opts.help) : "");
   const unitA = D.cat[(counts.length ? counts : rates)[0]]?.unit;
   card.querySelector(".legend").innerHTML = legendHtml(A);
-  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, aria: card.querySelector("h2").getAttribute("aria-label") || card.querySelector("h2").textContent });
+  lineChart(card.querySelector(".ch-a"), card, x, A, { yFmt: yFmtFor(unitA), pctMax: unitA === "pct", threshold: opts.threshold, H: opts.H, area: opts.area, aria: card.querySelector("h2").getAttribute("aria-label") || card.querySelector("h2").textContent });
   if (B.length) {
     card.querySelector(".lg-b").innerHTML = legendHtml(B);
     lineChart(card.querySelector(".ch-b"), card, x, B, { yFmt: yFmtFor(D.cat[rates[0]]?.unit), pctMax: D.cat[rates[0]]?.unit === "pct", H: 150 });
@@ -1373,7 +1376,7 @@ function userGroup(id) {
   return G[M[id]] || null;
 }
 const STORE_ST = new Set(["active", "intro", "cancelled", "grace_period"]);
-function userListCard(id) {
+function userListCard(id, key = "det-" + id) {
   const g = userGroup(id), U = D.d.users;
   if (!g || !U) return null;
   const all = U.rows.map((r) => Object.fromEntries(U.cols.map((c, i) => [c, r[i]])));
@@ -1385,7 +1388,7 @@ function userListCard(id) {
     { k: "done_y", label: "Dün ders", num: true, fmt: n1 }, { k: "min_y", label: "Dün dk", num: true, fmt: (v) => (v ? nf1.format(v) : "—") }];
   let tbl = null;
   const card = customCard(g[1], `<p class="card-sub ul-sum"></p><div class="ul-host"></div>`, (el) => {
-    const f = cardFilter("det-" + id);
+    const f = cardFilter(key);
     const rows = all.filter(g[0]).filter((u) => (f.dim === "platform" ? u.platform === f.val : f.dim === "country" ? u.country === f.val : f.dim === "version" ? u.version === f.val : true)
       && (f.sub === "store" ? STORE_ST.has(u.status) : f.sub === "web" ? u.status === "promotional" : true));
     el.querySelector(".ul-sum").textContent = `${nf.format(rows.length)} abone · ${dLong(U.asOf)} · kullanım sütunları ${dShort(addDays(U.asOf, -6))}–${dShort(U.asOf)}`;
@@ -1401,16 +1404,18 @@ SECTIONS.detay = () => {
   const simple = (x) => x && /^[a-z0-9_]+$/.test(x) && D.cat[x];
   // Aktif abone (from the Aktif or abone-count select) is drawn together with Online; Aktif / Online then needs no num/den chart
   const withOnline = id === "active" && (S.group === "act" || S.group === "users");
-  const b = [trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
-  if (simple(c.num) && simple(c.den) && id !== "talk_rate") b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
+  const dwm = S.group === "dwm"; // DAU / WAU / MAU card → one area chart with all three (DAU ⊂ WAU ⊂ MAU, so the areas overlap, not add up)
+  const b = [dwm ? trendCard("DAU / WAU / MAU", ["mau", "wau", "active"], [], { key: "det-dwm", days: 90, wide: true, noMA: true, H: 420, area: true, names: { active: "DAU", wau: "WAU", mau: "MAU" } })
+    : trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
+  if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm) b.push(trendCard(`${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300 }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
-  const ul = userListCard(id);
+  const ul = dwm ? userListCard("active", "det-dwm") : userListCard(id);
   if (ul) b.push(ul);
   return { html: head + `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
     draw: () => {
       b.forEach((x) => x.draw());
       // the main chart's filter also filters the user list
-      if (ul) { const k = "det-" + id, main = REDRAW[k]; REDRAW[k] = () => { main(); ul.draw(); }; }
+      if (ul) { const k = dwm ? "det-dwm" : "det-" + id, main = REDRAW[k]; REDRAW[k] = () => { main(); ul.draw(); }; }
     } };
 };
 document.addEventListener("click", (ev) => {
@@ -1418,7 +1423,7 @@ document.addEventListener("click", (ev) => {
   const k = ev.target.closest(".kpis.big .kpi[data-mid]");
   if (!k || ev.target.closest("select, button, a, .help")) return;
   const sel = k.querySelector(".ut-sel[data-k]"), g = sel ? sel.dataset.k : k.querySelector(".nk-sel") ? "node" : null;
-  location.hash = `#detay?m=${encodeURIComponent(k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
+  location.hash = `#detay?m=${encodeURIComponent(g === "dwm" ? "active" : k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
 });
 // Detail page opened from a card with a metric select: the chart title is that same select (and the node card's
 // Session / User toggle); switching keeps the chart's date range and filter.
@@ -1486,7 +1491,7 @@ function syncControls() {
   const fs = document.getElementById("f-sub"); fs.value = S.sub; fs.classList.toggle("on", S.sub !== "paid");
   const navTab = S.tab === "detay" ? S.from : S.tab;
   document.querySelectorAll("#nav a[data-tab]").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === navTab ? "page" : "false"));
-  document.getElementById("title").textContent = S.tab === "detay" ? D.cat[S.metric].label : D.d.tabs.find((t) => t.id === S.tab)?.label || "";
+  document.getElementById("title").textContent = S.tab === "detay" ? (S.group === "dwm" ? "DAU / WAU / MAU" : D.cat[S.metric].label) : D.d.tabs.find((t) => t.id === S.tab)?.label || "";
 }
 function toHash() {
   const p = new URLSearchParams();
