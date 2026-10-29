@@ -760,7 +760,7 @@ const KSEL = {
   ut: { v: "northstar", aria: "Kullanıcı tipi", opts: [["northstar", "North Star / Online", "ns_online", "north star"], ["regular", "Regular / Online", "regular_online", "regular"], ["active", "Aktif / Online", "talk_rate", "aktif"], ["online", "Online", "online", null]] },
   users: { v: "active", aria: "Abone sayısı", opts: [["active", "Aktif abone", "active", null], ["online", "Online abone", "online", null]] },
   act: { v: "active", aria: "Aktif", opts: [["active", "Aktif abone", "active", null], ["rate", "Aktif / Online", "talk_rate", "aktif"]] },
-  stick: { v: "est", aria: "Stickiness", opts: [["act", "Stickiness · Activation Users", "stick_activation", "online", true], ["est", "Stickiness · Activated Users", "stickiness", "online", true]] },
+  stick: { v: "est", aria: "Stickiness", opts: [["act", "Stickiness · Activation Users", "stick_activation", "aktif", true], ["est", "Stickiness · Activated Users", "stickiness", "aktif", true]] },
   dwm: { v: "dau", aria: "DAU / WAU / MAU", opts: [["dau", "DAU", "active", null], ["wau", "WAU", "wau", null], ["mau", "MAU", "mau", null]] },
 };
 // Node card: click / start / complete rate, session-based (÷ sessions opened that day) or user-based (÷ subscribers who opened the app)
@@ -929,7 +929,7 @@ SECTIONS.kullanim = () => {
         trendCard("Online → Aktif", ["online", "active"], ["talk_rate"]),
         trendCard("Kullanıcı basamakları", ["active", "regular", "northstar"], ["ns_rate", "regular_rate", "ns_of_regular"]),
         trendCard("WAU, MAU ve abone tabanı", ["wau", "mau", "base"], ["activity_rate"], { help: "WAU/MAU = o güne kadar 7/28 günde ≥1 call_ok yapan abone. Taban = Amplitude cohort'u (güncel RevenueCat durumu aboneli), her sabah kaydedilir." }),
-        trendCard("Stickiness ve DAU / MAU", ["stickiness", "stick_activation"], ["dau_mau"], { help: "Activated Users: o gün online olan / son 7 günde (gün − 6 … gün) online olan abone (dashboard_page_viewed); pencerenin herhangi bir gününde aktivasyon aşamasında (d0–d8) olan aboneler hem paydan hem paydadan çıkarılır, yani ilk dashboard ≤ gün − 15. × 7 = haftada ortalama online gün. Activation Users: ilk dashboard'u son 8 günde (gün − 8 … gün − 1) gören abonelerin o gün online olma oranı (o gün online / kohortun tamamı). DAU / MAU call_ok bazlıdır." }),
+        trendCard("Stickiness ve DAU / MAU", ["stickiness", "stick_activation"], ["dau_mau"], { help: "Activated Users: o gün aktif olan / son 7 günde (gün − 6 … gün) aktif olan abone (call_ok); pencerenin herhangi bir gününde aktivasyon aşamasında (d0–d8) olan aboneler hem paydan hem paydadan çıkarılır, yani ilk dashboard ≤ gün − 15. × 7 = haftada ortalama aktif gün. Activation Users: ilk dashboard'u son 8 günde (gün − 8 … gün − 1) gören abonelerin o gün aktif (call_ok) olma oranı (o gün aktif / kohortun tamamı). Aktivasyon aşaması (d0–d8) ilk dashboard_page_viewed'a göre belirlenir." }),
       ],
     },
     node: {

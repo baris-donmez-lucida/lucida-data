@@ -133,7 +133,7 @@ if (!hist.stick.length) missing.push("history:stickiness_est");
 const byDay = (pts, f) => { const at = new Map(pts.map((p) => [p.d, p])); return days.map((d) => (at.has(d) ? f(at.get(d)) : null)); };
 if (hist.base.length) put("base", "paid", "all", byDay(hist.base, (p) => p.v));
 if (hist.aband.length) for (const f of ["opened", "abandoned", "over60"]) put(`aband_day.${f}`, "paid", "all", byDay(hist.aband, (p) => p[f]));
-// online stickiness (history points, one per day): paid_all = everyone; paid / store / web = activation finished before the 7-day window
+// active (call_ok) stickiness (history points, one per day): paid_all = everyone; paid / store / web = activation finished before the 7-day window
 if (hist.stick.length) for (const sub of SUBS) {
   put("online_est", sub, "all", byDay(hist.stick, (p) => p[sub]?.dau ?? null));
   put("wau_online_est", sub, "all", byDay(hist.stick, (p) => p[sub]?.wau ?? null));
@@ -188,10 +188,11 @@ const retLoad = (main, byCountry) => {
 };
 const ret = retLoad("ret", "ret_country"), retu = retLoad("retu", "retu_country");
 // nret / nret_country: new-user cohorts (day 0 = first-ever dashboard_page_viewed), Return On, calendar days
-const nret = retLoad("nret", "nret_country"), nretu = retLoad("nretu", "nretu_country");
-// activation stickiness from the new-user cohorts: on day X, users whose first dashboard view was X−8 … X−1 (d1–d8)
-// and who are online on X (cohort X−N, cell DN) / the size of those 8 cohorts. Null until all 8 cohorts are in range.
-if (nret) for (const [key, rows] of Object.entries(nret)) {
+const nret = retLoad("nret", "nret_country"), nretu = retLoad("nretu", "nretu_country"), nretc = retLoad("nretc", "nretc_country");
+// activation stickiness from the new-user cohorts (return event call_ok): on day X, users whose first dashboard view was
+// X−8 … X−1 (d1–d8) and who are active (call_ok) on X (cohort X−N, cell DN) / the size of those 8 cohorts.
+// Null until all 8 cohorts are in range.
+if (nretc) for (const [key, rows] of Object.entries(nretc)) {
   const at = new Map(rows.map((r) => [r.d, r])), sub = key.startsWith("s:") ? key.slice(2) : "paid", slice = key.startsWith("s:") ? "all" : key;
   const num = [], den = [];
   for (const d of days) {

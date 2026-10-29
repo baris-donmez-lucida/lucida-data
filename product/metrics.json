@@ -345,7 +345,7 @@
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "O gün online olan / son 7 günde (gün − 6 … gün) online olan; ikisinden de pencerenin herhangi bir gününde aktivasyon aşamasında olan aboneler (ilk dashboard ≥ gün − 14) çıkarılır. Online = dashboard_page_viewed. × 7 = haftada ortalama online gün.",
+   "note": "O gün aktif (call_ok) olan / son 7 günde (gün − 6 … gün) aktif olan; ikisinden de pencerenin herhangi bir gününde aktivasyon aşamasında olan aboneler (ilk dashboard ≥ gün − 14) çıkarılır. × 7 = haftada ortalama aktif gün.",
    "period": "ratio_of_sums"
   },
   {
@@ -361,20 +361,20 @@
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "O gün online olan / son 7 günde (gün − 6 … gün) online olan tekil abone; kimse çıkarılmaz. Online = dashboard_page_viewed. × 7 = haftada ortalama online gün.",
+   "note": "O gün aktif (call_ok) olan / son 7 günde (gün − 6 … gün) aktif olan tekil abone; kimse çıkarılmaz. × 7 = haftada ortalama aktif gün.",
    "period": "ratio_of_sums"
   },
   {
    "id": "act_online",
-   "label": "Aktivasyondaki abone, o gün online",
+   "label": "Aktivasyondaki abone, o gün aktif",
    "tabs": [
     "kullanim"
    ],
    "kind": "count",
    "unit": "count",
    "source": {
-    "query": "nret",
-    "read": "nret kohort satırlarının çaprazı: X günü için kohort X−N, hücre DN (N = 1…8)"
+    "query": "nretc",
+    "read": "nretc kohort satırlarının çaprazı: X günü için kohort X−N, hücre DN (N = 1…8)"
    },
    "chart": "line",
    "timeline": "day",
@@ -383,7 +383,7 @@
     "country",
     "subType"
    ],
-   "note": "İlk dashboard'u son 8 günde (gün − 8 … gün − 1, d1–d8) gören ve o gün yine dashboard'u gören abone.",
+   "note": "İlk dashboard'u son 8 günde (gün − 8 … gün − 1, d1–d8) gören ve o gün call_ok yapan abone.",
    "period": "daily_mean"
   },
   {
@@ -395,8 +395,8 @@
    "kind": "count",
    "unit": "count",
    "source": {
-    "query": "nret",
-    "read": "nret kohort satırlarının çaprazı: X günü için kohort X−N, hücre DN (N = 1…8)"
+    "query": "nretc",
+    "read": "nretc kohort büyüklükleri: X−8 … X−1"
    },
    "chart": "line",
    "timeline": "day",
@@ -421,7 +421,7 @@
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "Aktivasyondaki abonelerin (ilk dashboard gün − 8 … gün − 1; o gün gelenler hariç) o gün online olma oranı: o gün online olan / kohortun tamamı. New-User Retention kohortlarının D1…D8 çaprazından hesaplanır (takvim günü).",
+   "note": "Aktivasyondaki abonelerin (ilk dashboard gün − 8 … gün − 1; o gün gelenler hariç) o gün aktif (call_ok) olma oranı: o gün aktif olan / kohortun tamamı. Yeni kullanıcı (ilk dashboard → call_ok) retention kohortlarının D1…D8 çaprazından hesaplanır (takvim günü).",
    "period": "ratio_of_sums"
   },
   {
@@ -1935,7 +1935,7 @@
   },
   {
    "id": "online_est",
-   "label": "Online abone (aktivasyonu tamamlamış)",
+   "label": "Aktif abone (aktivasyonu tamamlamış)",
    "tabs": [
     "tanimlar"
    ],
@@ -1951,11 +1951,11 @@
     "subType"
    ],
    "period": "daily_mean",
-   "note": "Gün içinde dashboard_page_viewed gören, aktivasyonunu 7 günlük pencereden önce tamamlamış abone (ilk dashboard ≤ gün − 15)."
+   "note": "Gün içinde call_ok yapan, aktivasyonunu 7 günlük pencereden önce tamamlamış abone (ilk dashboard ≤ gün − 15)."
   },
   {
    "id": "wau_online_est",
-   "label": "Haftalık online abone (aktivasyonu tamamlamış)",
+   "label": "Haftalık aktif abone (aktivasyonu tamamlamış)",
    "tabs": [
     "tanimlar"
    ],
@@ -1971,7 +1971,7 @@
     "subType"
    ],
    "period": "last",
-   "note": "Gün − 6 … gün arasında dashboard_page_viewed gören, aktivasyonunu pencereden önce tamamlamış tekil abone."
+   "note": "Gün − 6 … gün arasında call_ok yapan, aktivasyonunu pencereden önce tamamlamış tekil abone."
   },
   {
    "tabs": [
@@ -1989,8 +1989,8 @@
     "history": "product-history koleksiyonu, doküman 'stickiness_est': points [{d, paid_all:{dau,wau}, paid:{dau,wau}, store:{...}, web:{...}}]"
    },
    "id": "online_all_h",
-   "label": "Online abone (stickiness)",
-   "note": "stick_est paid_all dau; Online ile aynı tanım.",
+   "label": "Aktif abone (stickiness)",
+   "note": "stick_est paid_all dau; Aktif (call_ok) ile aynı tanım.",
    "period": "daily_mean"
   },
   {
@@ -2009,8 +2009,8 @@
     "history": "product-history koleksiyonu, doküman 'stickiness_est': points [{d, paid_all:{dau,wau}, paid:{dau,wau}, store:{...}, web:{...}}]"
    },
    "id": "wau_online",
-   "label": "Haftalık online abone",
-   "note": "Gün − 6 … gün arasında dashboard_page_viewed gören tekil abone.",
+   "label": "Haftalık aktif abone",
+   "note": "Gün − 6 … gün arasında call_ok yapan tekil abone.",
    "period": "last"
   }
  ],
