@@ -1338,7 +1338,7 @@ SECTIONS.diger = () => {
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
   ];
   const cards = kpiRow([["regular_online", { own: "regular" }], ["talk_rate", { own: "aktif" }], ["completion_rate_s", { own: "session" }], ["abandon_rate_s", { own: "session" }],
-    ["speech_min", { sub: SPEECH_SUB }], ["stickiness"], ["stickiness_all"], ["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }, ["lessons_per_active", { own: "ders" }], ["lesson_duration"], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]]]);
+    ["speech_min", { sub: SPEECH_SUB }], ["stickiness"], ["stickiness_all"], ["rating_high_rate", { mode: "week", own: "4–5★ oy", sub: RATING_SUB }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"], ["min_per_active"], ["lesson_min_share"], ["speech_zero_rate"]]);
   return { html: intro("Genel bakıştan kaldırılan kartlar (son tam gün; 4–5★ son 7 gün) ve grafikler. Grafiklerin tarih aralığı üstteki seçiciden.") + cards + `<div class="cards">${b.map((x) => x.html).join("")}</div>`, draw: () => b.forEach((x) => x.draw()) };
 };
 
