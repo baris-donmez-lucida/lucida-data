@@ -629,7 +629,7 @@
     "version",
     "subType"
    ],
-   "note": "Gün içinde d_start_continue_lesson_bt yapan tekil abone.",
+   "note": "Gün içinde d_start_continue_lesson_bt veya pre_lesson_lets_start (ikisinden biri ya da ikisi) yapan tekil abone.",
    "period": "daily_mean"
   },
   {
@@ -645,7 +645,7 @@
    "chart": "line",
    "timeline": "day",
    "breakdowns": "num ve den'in ortak kırılımları",
-   "note": "Node'dan ders başlatan abone / Online abone (dashboard_page_viewed tekil).",
+   "note": "Node'dan ders başlatan abone (d_start_continue_lesson_bt veya pre_lesson_lets_start) / Online abone.",
    "period": "ratio_of_sums"
   },
   {
@@ -1769,7 +1769,7 @@
    "unit": "count",
    "chart": "line",
    "timeline": "day",
-   "note": "İçinde d_start_continue_lesson_bt (node'dan ders başlatma) olan session.",
+   "note": "İçinde d_start_continue_lesson_bt veya pre_lesson_lets_start olan session (node'dan ders başlatma).",
    "id": "s_node_start",
    "label": "Node'dan başlatılan session",
    "tabs": [
@@ -1793,7 +1793,7 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "Node'dan ders başlatılan session / o gün dashboard_page_viewed görülen session.",
+   "note": "Node'dan ders başlatılan session (d_start_continue_lesson_bt veya pre_lesson_lets_start) / dashboard_page_viewed görülen session.",
    "id": "node_start_rate_s",
    "label": "Node start rate",
    "num": "s_node_start",

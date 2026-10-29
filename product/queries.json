@@ -2571,13 +2571,26 @@
    "series": [
     "node_start"
    ],
-   "parse": "Sliced (1 base × 4 slice), segmentIndex = abone tipi. Değer = o gün d_start_continue_lesson_bt'nin görüldüğü tekil session_id sayısı (property_count): node'dan ders başlatılan session.",
+   "parse": "Sliced (1 base × 4 slice), segmentIndex = abone tipi. Değer = o gün d_start_continue_lesson_bt veya pre_lesson_lets_start'ın (ikisinden biri) görüldüğü tekil session_id sayısı (property_count): node'dan ders başlatılan session.",
    "chart": {
     "kind": "segmentation",
-    "name": "Product v2 · Node'dan başlatılan session (tekil session_id)",
+    "name": "Product v2 · Node'dan başlatılan session (d_start_continue_lesson_bt veya pre_lesson_lets_start; tekil session_id)",
     "events": [
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [],
       "group_by": [
        {
@@ -2587,7 +2600,20 @@
       ]
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [
        {
         "property": "platform",
@@ -2611,7 +2637,20 @@
       ]
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [
        {
         "property": "country",
@@ -2643,7 +2682,20 @@
       ]
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [
        {
         "property": "version",
@@ -3207,7 +3259,7 @@
    "id": "flow_node_u",
    "chart": {
     "kind": "segmentation",
-    "name": "Product v2 · Node tıklayan ve node'dan başlatan (tekil)",
+    "name": "Product v2 · Node tıklayan ve node'dan başlatan (tekil) · start = d_start_continue_lesson_bt veya pre_lesson_lets_start",
     "events": [
      {
       "event": "pre_lesson_viewed",
@@ -3284,12 +3336,38 @@
       ]
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [],
       "group_by": []
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [
        {
         "property": "platform",
@@ -3309,7 +3387,20 @@
       ]
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [
        {
         "property": "country",
@@ -3337,7 +3428,20 @@
       ]
      },
      {
+      "object_type": "INLINE_CUSTOM_EVENT",
       "event": "d_start_continue_lesson_bt",
+      "members": [
+       {
+        "event": "d_start_continue_lesson_bt",
+        "where": [],
+        "group_by": []
+       },
+       {
+        "event": "pre_lesson_lets_start",
+        "where": [],
+        "group_by": []
+       }
+      ],
       "where": [
        {
         "property": "version",
@@ -3422,7 +3526,7 @@
     "pre_lesson_viewed",
     "d_start_continue_lesson_bt"
    ],
-   "parse": "Node tıklama oranı = pre_lesson_viewed tekil / session_start tekil (act sorgusu)."
+   "parse": "Node tıklama oranı = pre_lesson_viewed tekil / session_start tekil (act sorgusu). Base 1 (node start) = d_start_continue_lesson_bt veya pre_lesson_lets_start yapan tekil abone."
   },
   {
    "id": "flow_start",
