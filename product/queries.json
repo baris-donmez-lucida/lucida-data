@@ -17196,6 +17196,1684 @@
    },
    "groupByLimit": 10,
    "parse": "HER SABAH yalnızca dün için (<DAY_START>/<DAY_END>; <ACT_PRE_END> = dün − 9 günün 23:59:59). nfun ile aynı 14 adım, paid aboneler ikiye ayrılır: activation = dashboard'u <ACT_PRE_END>'e kadar hiç görmemiş (ilk dashboard dün − 8 … dün, d0–d8), activated = daha önce görmüş. csvResponse: segment başına 'Total' satırı = o günün adım sayıları (sütun 3+3k). Nokta {d, activation:[14 sayı], activated:[14 sayı]} → product-history/node_funnel_act."
+  },
+  {
+   "id": "nfun_w7",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel (günlük tekil abone) · son 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START7>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "store",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "web",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "promotional"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "iOS",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Android",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "United States",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "South Korea",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Japan",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Poland",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Czech Republic",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Hungary",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "United Kingdom",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Philippines",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Brazil",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Turkey",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 20,
+   "timeSeriesLimit": 20,
+   "parse": "nfun ile aynı sorgu, pencere son 7 gün (<START7> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_w30",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel (günlük tekil abone) · son 30 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START30>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "store",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "web",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "promotional"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "iOS",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "iOS"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Android",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "platform",
+         "op": "is",
+         "values": [
+          "Android"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "United States",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United States"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "South Korea",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "South Korea"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Japan",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Japan"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Poland",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Poland"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Czech Republic",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Czech Republic"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Hungary",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Hungary"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "United Kingdom",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "United Kingdom"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Philippines",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Philippines"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Brazil",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Brazil"
+         ]
+        }
+       ]
+      },
+      {
+       "label": "Turkey",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        },
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "country",
+         "op": "is",
+         "values": [
+          "Turkey"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": []
+    }
+   },
+   "groupByLimit": 20,
+   "timeSeriesLimit": 20,
+   "parse": "nfun ile aynı sorgu, pencere son 30 gün (<START30> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_lvl_w7",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel · seviye kırılımı · son 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START7>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "nfun_lvl ile aynı sorgu, pencere son 7 gün (<START7> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_lvl_w30",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel · seviye kırılımı · son 30 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START30>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "nfun_lvl ile aynı sorgu, pencere son 30 gün (<START30> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_ver_w7",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel · sürüm kırılımı · son 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START7>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "version"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 40,
+   "timeSeriesLimit": 40,
+   "parse": "nfun_ver ile aynı sorgu, pencere son 7 gün (<START7> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_ver_w30",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel · sürüm kırılımı · son 30 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START30>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "version"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 40,
+   "timeSeriesLimit": 40,
+   "parse": "nfun_ver ile aynı sorgu, pencere son 30 gün (<START30> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_type_w7",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel · node tipi (node bazında) · son 7 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START7>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "event",
+       "value": "lesson_entry_type"
+      }
+     ],
+     "constantProps": [
+      {
+       "type": "event",
+       "value": "lesson_id",
+       "group_type": "User"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "nfun_type ile aynı sorgu, pencere son 7 gün (<START7> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_type_w30",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Node funnel · node tipi (node bazında) · son 30 gün",
+    "params": {
+     "mode": "ordered",
+     "start": "<START30>",
+     "end": "<END>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "conversionSeconds": 86400,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 86400
+     },
+     "events": [
+      {
+       "event_type": "pre_lesson_viewed",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "pre_lesson_lets_start",
+       "filters": [],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_conv_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "conv_type",
+         "subprop_op": "is",
+         "subprop_value": [
+          "lessonTalk"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "property",
+         "prop_type": "user",
+         "prop": "gp:rc_subscription_status",
+         "op": "is",
+         "values": [
+          "active",
+          "intro",
+          "cancelled",
+          "grace_period",
+          "promotional"
+         ]
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "event",
+       "value": "lesson_entry_type"
+      }
+     ],
+     "constantProps": [
+      {
+       "type": "event",
+       "value": "lesson_id",
+       "group_type": "User"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "nfun_type ile aynı sorgu, pencere son 30 gün (<START30> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
   }
  ],
  "baseCohortId": null

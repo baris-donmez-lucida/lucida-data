@@ -267,16 +267,27 @@ let nfun = null;
   const F = (id, keyOf) => L.rawFunnel(load(id), days[0], dataDate, { countries: COUNTRIES, blockLabels: segLabels(id), keyOf });
   const onAxis = (o) => { const at = new Map(o.days.map((d, i) => [d, i])); return o.steps.map((st) => days.map((d) => (at.has(d) ? st[at.get(d)] : null))); };
   const SEG = { paid: "paid", store: "store", web: "web", iOS: "p:iOS", Android: "p:Android" };
-  const main = F("nfun", (l) => SEG[l] ?? (COUNTRIES.includes(l) ? "c:" + l : null));
+  // level at funnel entry: user property english_level 1…5 = A1, A2, B1, B2, C1
+  const LVL = { 1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1" };
+  const KEY = {
+    nfun: (l) => SEG[l] ?? (COUNTRIES.includes(l) ? "c:" + l : null),
+    nfun_ver: (l) => (l && l !== "(none)" && /^\d/.test(l) ? "v:" + l : null),
+    nfun_lvl: (l) => (LVL[l] ? "l:" + LVL[l] : null),
+    nfun_type: (l) => (["current", "jump", "replay"].includes(l) ? l : null),
+  };
+  const main = F("nfun", KEY.nfun);
   if (main?.paid) {
-    nfun = { s: {}, type: {}, act: {}, incomplete: [] };
+    // s / type: per step, unique subscribers per day; u[window][key]: unique subscribers over the last 7 / 30 / 90 days (the queries' Total rows)
+    nfun = { s: {}, type: {}, act: {}, u: {}, incomplete: [] };
     for (const [k, o] of Object.entries(main)) nfun.s[k] = onAxis(o);
     nfun.incomplete = main.paid.days.filter((d, i) => !main.paid.complete[i]);
-    for (const [k, o] of Object.entries(F("nfun_ver", (l) => (l && l !== "(none)" && /^\d/.test(l) ? "v:" + l : null)) || {})) nfun.s[k] = onAxis(o);
-    // level at funnel entry: user property english_level 1…5 = A1, A2, B1, B2, C1
-    const LVL = { 1: "A1", 2: "A2", 3: "B1", 4: "B2", 5: "C1" };
-    for (const [k, o] of Object.entries(F("nfun_lvl", (l) => (LVL[l] ? "l:" + LVL[l] : null)) || {})) nfun.s[k] = onAxis(o);
-    for (const [k, o] of Object.entries(F("nfun_type", (l) => (["current", "jump", "replay"].includes(l) ? l : null)) || {})) nfun.type[k] = onAxis(o);
+    for (const id of ["nfun_ver", "nfun_lvl"]) for (const [k, o] of Object.entries(F(id, KEY[id]) || {})) nfun.s[k] = onAxis(o);
+    for (const [k, o] of Object.entries(F("nfun_type", KEY.nfun_type) || {})) nfun.type[k] = onAxis(o);
+    for (const [w, sfx] of [[7, "_w7"], [30, "_w30"], [90, ""]]) {
+      const u = {};
+      for (const id of Object.keys(KEY)) for (const [k, o] of Object.entries((load(id + sfx) && F(id + sfx, KEY[id])) || {})) if (o.total) u[k] = o.total;
+      if (u.paid) nfun.u[w] = u;
+    }
   }
   // Activation / Activated: one point per day (history), yesterday from nfun_act
   hist.nact = readHist("node_funnel_act") || [];

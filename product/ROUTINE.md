@@ -21,6 +21,7 @@ Mevcut zamanlanmış görevin (Lucida Data günlük yenileme) prompt'unun sonuna
 1. Tarihler (epoch saniye, sayı, UTC):
    - `<START>` = bugün − 90 gün, 00:00:00
    - `<END>` = dün 23:59:59
+   - `<START7>` / `<START30>` = dün − 6 / dün − 29 gün, 00:00:00 (`nfun_*_w7` / `nfun_*_w30`: son 7 / 30 günün tekil funnel'ı)
    - `<WSTART>` = dünün haftasının Pazartesi'si − 16 hafta, 00:00:00
    - `<DAY_START>` / `<DAY_END>` = dünün 00:00:00 / 23:59:59
    - `<WEEK_START>` = dün − 6 gün, 00:00:00 (`stick_est` için: dünle biten 7 günlük pencere)
