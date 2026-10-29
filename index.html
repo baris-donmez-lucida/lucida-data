@@ -933,7 +933,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     node: {
-      kpis: ["node", "chain"],
+      kpis: ["node", "chain", ["abandon_rate_u", { own: "abone", withDen: true }]],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün dashboard_page_viewed görülen session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
@@ -946,7 +946,7 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: [["abandon_rate_u", { own: "abone", withDen: true }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
+      kpis: [["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
@@ -973,9 +973,9 @@ SECTIONS.kullanim = () => {
   };
   const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
   const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
-  // all KPIs at the top, one labelled block per group; a string spec is a combined card (select / toggle)
+  // all KPIs at the top in one grid (group order, no labels); a string spec is a combined card (select / toggle)
   const card = (sp) => (sp === "node" ? nodeKpi() : sp === "chain" ? chainKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
-  const top = `<div class="kpis big">${USE_GROUPS.map(([k, l]) => `<div class="kpi-grp">${esc(l)}</div>${groups[k].kpis.map(card).join("")}`).join("")}</div>`;
+  const top = `<div class="kpis big">${USE_GROUPS.map(([k]) => groups[k].kpis.map(card).join("")).join("")}</div>`;
   const html = top + chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
   return { html, draw: () => all.forEach((c) => c.draw()) };
 };
