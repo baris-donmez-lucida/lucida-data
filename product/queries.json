@@ -1561,6 +1561,212 @@
    }
   },
   {
+   "id": "aband_u",
+   "groupByLimit": 500,
+   "sliced": true,
+   "series": [
+    "aband_users"
+   ],
+   "parse": "online ile aynı biçim (sliced, segmentIndex = abone tipi). Değer = o gün ders sayfası açan (anm_conv_page_viewed, lessonTalk) ama o gün hiç anm_c_lesson_completed yapmamış tekil abone (segment koşulu: performed anm_c_lesson_completed = 0, forEachInterval).",
+   "chart": {
+    "kind": "segmentation",
+    "name": "Product v2 · Ders açıp o gün tamamlamayan abone",
+    "events": [
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ],
+      "group_by": []
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "platform",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "iOS",
+         "Android"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "platform",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "country",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "United States",
+         "South Korea",
+         "Japan",
+         "Poland",
+         "Czech Republic",
+         "Hungary",
+         "United Kingdom",
+         "Philippines",
+         "Brazil",
+         "Turkey"
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "country",
+        "scope": "user"
+       }
+      ]
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       },
+       {
+        "property": "version",
+        "scope": "user",
+        "op": "has prefix",
+        "values": [
+         "2.8",
+         "2.9",
+         "3."
+        ]
+       }
+      ],
+      "group_by": [
+       {
+        "property": "version",
+        "scope": "user"
+       }
+      ]
+     }
+    ],
+    "measured_as": {
+     "as": "unique_users"
+    },
+    "segments": [
+     {
+      "label": "paid",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_c_lesson_completed",
+        "op": "=",
+        "count": 0,
+        "time_type": "forEachInterval",
+        "time_value": 0
+       }
+      ]
+     },
+     {
+      "label": "store",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_c_lesson_completed",
+        "op": "=",
+        "count": 0,
+        "time_type": "forEachInterval",
+        "time_value": 0
+       }
+      ]
+     },
+     {
+      "label": "web",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "anm_c_lesson_completed",
+        "op": "=",
+        "count": 0,
+        "time_type": "forEachInterval",
+        "time_value": 0
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<START>",
+     "end": "<END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   }
+  },
+  {
    "id": "activation",
    "groupByLimit": 500,
    "sliced": true,

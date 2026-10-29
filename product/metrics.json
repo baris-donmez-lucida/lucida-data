@@ -1858,15 +1858,55 @@
    "unit": "pct",
    "chart": "line",
    "timeline": "day",
-   "note": "Ders başlatılıp tamamlanmayan session / ders başlatılan session. Yaklaşık: başlatılan session − tamamlanan session (başka session'da başlatılıp tamamlanan dersler nadir).",
+   "note": "Ders sayfası açılıp ders tamamlanmayan session (ders sayfası açılan session − ders tamamlanan session; yaklaşık) / o gün dashboard_page_viewed görülen session.",
    "id": "abandon_rate_s",
    "label": "Yarım bırakma (session)",
    "num": "s_lesson_start-s_lesson_done",
-   "den": "s_lesson_start",
+   "den": "s_dash",
    "tabs": [
     "genel"
    ],
    "breakdowns": "num ve den'in ortak kırılımları",
+   "period": "ratio_of_sums"
+  },
+  {
+   "id": "aband_users",
+   "label": "Ders açıp tamamlamayan abone",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "count",
+   "unit": "count",
+   "source": {
+    "query": "aband_u",
+    "base": 0,
+    "segments": "sub"
+   },
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": [
+    "platform",
+    "country",
+    "version",
+    "subType"
+   ],
+   "note": "O gün ders sayfası (anm_conv_page_viewed, lessonTalk) açan ama o gün hiç anm_c_lesson_completed yapmamış tekil abone.",
+   "period": "daily_mean"
+  },
+  {
+   "id": "abandon_rate_u",
+   "label": "Yarım bırakma (user)",
+   "tabs": [
+    "kullanim"
+   ],
+   "kind": "ratio",
+   "unit": "pct",
+   "num": "aband_users",
+   "den": "online",
+   "chart": "line",
+   "timeline": "day",
+   "breakdowns": "num ve den'in ortak kırılımları",
+   "note": "Ders açıp o gün hiç ders tamamlamayan abone / Online abone (dashboard_page_viewed tekil).",
    "period": "ratio_of_sums"
   },
   {

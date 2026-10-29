@@ -314,7 +314,7 @@ const SUB_LABEL = { paid: "Tümü", store: "Mağaza", web: "Web" };
 const COL = ["var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--s5)", "var(--s6)", "var(--s7)"];
 const MIN_DEN = 50;
 // lower is better for these (colour of the change arrows)
-const LOWER_BETTER = new Set(["abandon_rate", "abandon_rate_s", "abandon_after_1min", "rating_low_rate", "tech_fail_rate", "speech_zero_rate"]);
+const LOWER_BETTER = new Set(["abandon_rate", "abandon_rate_s", "abandon_rate_u", "abandon_after_1min", "rating_low_rate", "tech_fail_rate", "speech_zero_rate"]);
 
 const D = { d: null, cat: {} };
 const S = { tab: "genel", range: 28, cmp: false, dim: null, val: "", sub: "paid" };
@@ -779,7 +779,14 @@ function chainKpi() {
   return kpiCard(CK.basis === "session" ? "chain_share_s" : "chain_share_u", null, null, { mode: "day", own: CK.basis === "session" ? "session" : "abone", withDen: true, head });
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest(".ck-basis button"); if (b) { CK.basis = b.dataset.cb; renderSection(); } });
-document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis:not(.ck-basis) button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
+// Yarım bırakma: sessions with a lesson page but no completion / dashboard sessions, or the same in users / Online users
+const AK = { basis: "session" };
+function abandonKpi() {
+  const head = `<span>Yarım bırakma</span><span class="seg-ctl nk-basis ak-basis" role="group" aria-label="Bazı">${[["session", "Session"], ["user", "User"]].map(([v, l]) => `<button type="button" data-ab="${v}" aria-pressed="${AK.basis === v}">${l}</button>`).join("")}</span>`;
+  return kpiCard(AK.basis === "session" ? "abandon_rate_s" : "abandon_rate_u", null, null, { mode: "day", own: AK.basis === "session" ? "session" : "abone", withDen: true, head });
+}
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".ak-basis button"); if (b) { AK.basis = b.dataset.ab; renderSection(); } });
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis:not(.ck-basis):not(.ak-basis) button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
 function selectKpi(k) {
   const st = KSEL[k], [, , id, own, withDen] = st.opts.find((o) => o[0] === st.v);
   const head = `<select class="ut-sel" data-k="${k}" aria-label="${st.aria}">${st.opts.map(([v, l]) => `<option value="${v}"${v === st.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
@@ -946,11 +953,11 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: [["abandon_rate_s", { own: "session" }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
+      kpis: ["abandon", ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
-        trendCard("Yarım bırakma (session bazlı)", ["abandon_rate_s"], [], { help: "Ders başlatılıp tamamlanmayan session / ders başlatılan session (başlatılan − tamamlanan session; yaklaşık)." }),
+        trendCard("Yarım bırakma (session / user)", ["abandon_rate_s", "abandon_rate_u"], [], { help: "Session: ders sayfası açılıp ders tamamlanmayan session (açılan − tamamlanan; yaklaşık) / dashboard görülen session. User: ders açıp o gün hiç ders tamamlamayan abone / Online abone." }),
         abandonCard(),
         trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
         trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
@@ -974,7 +981,7 @@ SECTIONS.kullanim = () => {
   const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
   const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
   // all KPIs at the top, one labelled block per group; a string spec is a combined card (select / toggle)
-  const card = (sp) => (sp === "node" ? nodeKpi() : sp === "chain" ? chainKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
+  const card = (sp) => (sp === "node" ? nodeKpi() : sp === "chain" ? chainKpi() : sp === "abandon" ? abandonKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
   const top = `<div class="kpis big">${USE_GROUPS.map(([k, l]) => `<div class="kpi-grp">${esc(l)}</div>${groups[k].kpis.map(card).join("")}`).join("")}</div>`;
   const html = top + chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
   return { html, draw: () => all.forEach((c) => c.draw()) };
