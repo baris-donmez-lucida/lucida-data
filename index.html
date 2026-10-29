@@ -779,14 +779,7 @@ function chainKpi() {
   return kpiCard(CK.basis === "session" ? "chain_share_s" : "chain_share_u", null, null, { mode: "day", own: CK.basis === "session" ? "session" : "abone", withDen: true, head });
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest(".ck-basis button"); if (b) { CK.basis = b.dataset.cb; renderSection(); } });
-// Yarım bırakma: sessions with a lesson page but no completion / dashboard sessions, or the same in users / Online users
-const AK = { basis: "session" };
-function abandonKpi() {
-  const head = `<span>Yarım bırakma</span><span class="seg-ctl nk-basis ak-basis" role="group" aria-label="Bazı">${[["session", "Session"], ["user", "User"]].map(([v, l]) => `<button type="button" data-ab="${v}" aria-pressed="${AK.basis === v}">${l}</button>`).join("")}</span>`;
-  return kpiCard(AK.basis === "session" ? "abandon_rate_s" : "abandon_rate_u", null, null, { mode: "day", own: AK.basis === "session" ? "session" : "abone", withDen: true, head });
-}
-document.addEventListener("click", (ev) => { const b = ev.target.closest(".ak-basis button"); if (b) { AK.basis = b.dataset.ab; renderSection(); } });
-document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis:not(.ck-basis):not(.ak-basis) button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
+document.addEventListener("click", (ev) => { const b = ev.target.closest(".nk-basis:not(.ck-basis) button"); if (b) { NK.basis = b.dataset.nb; renderSection(); } });
 function selectKpi(k) {
   const st = KSEL[k], [, , id, own, withDen] = st.opts.find((o) => o[0] === st.v);
   const head = `<select class="ut-sel" data-k="${k}" aria-label="${st.aria}">${st.opts.map(([v, l]) => `<option value="${v}"${v === st.v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
@@ -869,7 +862,7 @@ const SPEECH_SUB = (i0, i1) => `<span><b>${fmt("min", periodValue(D.cat.min_per_
 function dailyTable(key) {
   // [metric, header, colour threshold = relative change vs the previous day]
   const COLS = [["online", "Online", 0.05], ["active", "Aktif", 0.05], ["northstar", "NS", 0.05], ["ns_online", "NS / Online", 0.04], ["regular_online", "Regular / Online", 0.04], ["sessions", "Session", 0.05], ["node_click_rate", "Node click", 0.03], ["node_start_rate_s", "Node start", 0.03],
-    ["lesson_start_rate_s", "Ders başlatılan s.", 0.05], ["completion_rate_s", "Tamamlanan s.", 0.05], ["abandon_rate_s", "Bırakma (s.)", 0.05], ["speech_min", "Konuşma dk", 0.05], ["rating_high_rate", "4–5★", 0.05]];
+    ["lesson_start_rate_s", "Ders başlatılan s.", 0.05], ["completion_rate_s", "Tamamlanan s.", 0.05], ["abandon_rate_u", "Yarım bırakma", 0.05], ["speech_min", "Konuşma dk", 0.05], ["rating_high_rate", "4–5★", 0.05]];
   const LIM = Object.fromEntries(COLS.map(([id, , t]) => [id, t]));
   return customCard("Günlük tablo", `<p class="card-sub">En yeni gün üstte. Satıra tıkla: o günün platform ve ülke kırılımı. "s." = session bazlı oran.</p><div class="tbl-wrap" style="max-height:520px"><table class="daily"><thead><tr><th>Tarih</th>${COLS.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th class="wrap">Not</th></tr></thead><tbody></tbody></table></div>`, (card) => {
     const [i0, i1] = key ? cardWin(key) : win(), f = key ? cardFilter(key) : S;
@@ -953,11 +946,11 @@ SECTIONS.kullanim = () => {
       ],
     },
     dersler: {
-      kpis: ["abandon", ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
+      kpis: [["abandon_rate_u", { own: "abone", withDen: true }], ["lessons_per_active", { own: "ders" }], ["lesson_duration"]],
       cards: [
         trendCard("Ders akışı: başlatma → bağlanma → tamamlama", ["lesson_start", "lesson_connected", "lesson_completed", "lesson_completed_first"], ["connect_rate", "completion_rate", "completion_rate_connected"], { wide: true }),
         trendCard("Ders başlatan ve tamamlayan abone", ["lesson_start_users", "lesson_completers"], ["lessons_per_active"]),
-        trendCard("Yarım bırakma (session / user)", ["abandon_rate_s", "abandon_rate_u"], [], { help: "Session: ders sayfası açılıp ders tamamlanmayan session (açılan − tamamlanan; yaklaşık) / dashboard görülen session. User: ders açıp o gün hiç ders tamamlamayan abone / Online abone." }),
+        trendCard("Yarım bırakma", ["abandon_rate_u"], [], { help: "Ders sayfası (anm_conv_page_viewed, lessonTalk) açıp o gün hiç ders tamamlamayan (anm_c_lesson_completed yok) abone / Online abone (dashboard_page_viewed tekil)." }),
         abandonCard(),
         trendCard("Ders süresi ve ekran süresi (medyan)", ["lesson_duration", "screen_duration"], [], { help: "Ders süresi: ders sayfası açılışından anm_c_lesson_completed'a; ekran süresi: oturum sonuna (anm_conv_session_ended). Funnel time-to-convert, lesson_id sabit, günlük medyan." }),
         trendCard("Tekrar payı", ["replay_share"], [], { help: "Tamamlanan dersler içinde daha önce tamamlanmış (lesson_entry_type = replay) olanların payı." }),
@@ -981,7 +974,7 @@ SECTIONS.kullanim = () => {
   const all = USE_GROUPS.flatMap(([k]) => groups[k].cards);
   const chips = `<nav class="grp-nav" aria-label="Bölümler">${USE_GROUPS.map(([k, l]) => `<button type="button" data-grp="${k}">${esc(l)}</button>`).join("")}</nav>`;
   // all KPIs at the top, one labelled block per group; a string spec is a combined card (select / toggle)
-  const card = (sp) => (sp === "node" ? nodeKpi() : sp === "chain" ? chainKpi() : sp === "abandon" ? abandonKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
+  const card = (sp) => (sp === "node" ? nodeKpi() : sp === "chain" ? chainKpi() : typeof sp === "string" ? selectKpi(sp) : kpiCard(sp[0], null, null, { mode: "day", ...sp[1] }));
   const top = `<div class="kpis big">${USE_GROUPS.map(([k, l]) => `<div class="kpi-grp">${esc(l)}</div>${groups[k].kpis.map(card).join("")}`).join("")}</div>`;
   const html = top + chips + USE_GROUPS.map(([k, l]) => `<section class="ugrp" id="grp-${k}"><h2 class="grp-h">${esc(l)}</h2><div class="cards">${groups[k].cards.map((c) => c.html).join("")}</div></section>`).join("");
   return { html, draw: () => all.forEach((c) => c.draw()) };
@@ -995,7 +988,7 @@ function scrollToGrp(k, smooth) {
 document.addEventListener("click", (ev) => { const b = ev.target.closest(".grp-nav button"); if (b) scrollToGrp(b.dataset.grp, true); });
 
 function abandonCard() {
-  return customCard("Yarım bırakma", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
+  return customCard("Yarım bırakma (ders bazlı funnel)", `<div class="legend"></div><div class="chart ch-a"></div>`, (card) => {
     const [i0, i1] = win(), pw = prevWin(), x = D.d.days.slice(i0, i1 + 1);
     const A = seriesFor(["abandon_rate", "abandon_after_1min"], 1, [i0, i1], pw);
     // first-minute abandons = (abandoned − over60) / opened, from the same history points

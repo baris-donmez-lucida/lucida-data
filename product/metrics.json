@@ -1895,7 +1895,7 @@
   },
   {
    "id": "abandon_rate_u",
-   "label": "Yarım bırakma (user)",
+   "label": "Yarım bırakma",
    "tabs": [
     "kullanim"
    ],
