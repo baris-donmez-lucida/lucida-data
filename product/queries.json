@@ -18874,6 +18874,1916 @@
    "groupByLimit": 10,
    "timeSeriesLimit": 10,
    "parse": "nfun_type ile aynı sorgu, pencere son 30 gün (<START30> … <END>). Yalnız blok başına 'Total' satırı kullanılır: dönemde tekil abone; abone, 24 saatlik pencere içinde o adıma dönemde en az bir kez ulaştıysa adımda sayılır."
+  },
+  {
+   "id": "nfun_new_a1",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni kullanıcı ilk hafta · A1 ders 1…15",
+    "params": {
+     "mode": "ordered",
+     "start": "<START>",
+     "end": "<END_M7>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 730,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_1",
+          "live_lesson_es_a1_1",
+          "live_lesson_de_a1_1",
+          "live_lesson_fr_a1_1",
+          "live_lesson_ar_a1_1",
+          "live_lesson_pt_a1_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_2",
+          "live_lesson_es_a1_2",
+          "live_lesson_de_a1_2",
+          "live_lesson_fr_a1_2",
+          "live_lesson_ar_a1_2",
+          "live_lesson_pt_a1_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_3",
+          "live_lesson_es_a1_3",
+          "live_lesson_de_a1_3",
+          "live_lesson_fr_a1_3",
+          "live_lesson_ar_a1_3",
+          "live_lesson_pt_a1_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_4",
+          "live_lesson_es_a1_4",
+          "live_lesson_de_a1_4",
+          "live_lesson_fr_a1_4",
+          "live_lesson_ar_a1_4",
+          "live_lesson_pt_a1_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_5",
+          "live_lesson_es_a1_5",
+          "live_lesson_de_a1_5",
+          "live_lesson_fr_a1_5",
+          "live_lesson_ar_a1_5",
+          "live_lesson_pt_a1_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_6",
+          "live_lesson_es_a1_6",
+          "live_lesson_de_a1_6",
+          "live_lesson_fr_a1_6",
+          "live_lesson_ar_a1_6",
+          "live_lesson_pt_a1_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_7",
+          "live_lesson_es_a1_7",
+          "live_lesson_de_a1_7",
+          "live_lesson_fr_a1_7",
+          "live_lesson_ar_a1_7",
+          "live_lesson_pt_a1_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_8",
+          "live_lesson_es_a1_8",
+          "live_lesson_de_a1_8",
+          "live_lesson_fr_a1_8",
+          "live_lesson_ar_a1_8",
+          "live_lesson_pt_a1_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_9",
+          "live_lesson_es_a1_9",
+          "live_lesson_de_a1_9",
+          "live_lesson_fr_a1_9",
+          "live_lesson_ar_a1_9",
+          "live_lesson_pt_a1_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_10",
+          "live_lesson_es_a1_10",
+          "live_lesson_de_a1_10",
+          "live_lesson_fr_a1_10",
+          "live_lesson_ar_a1_10",
+          "live_lesson_pt_a1_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_11",
+          "live_lesson_es_a1_11",
+          "live_lesson_de_a1_11",
+          "live_lesson_fr_a1_11",
+          "live_lesson_ar_a1_11",
+          "live_lesson_pt_a1_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_12",
+          "live_lesson_es_a1_12",
+          "live_lesson_de_a1_12",
+          "live_lesson_fr_a1_12",
+          "live_lesson_ar_a1_12",
+          "live_lesson_pt_a1_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_13",
+          "live_lesson_es_a1_13",
+          "live_lesson_de_a1_13",
+          "live_lesson_fr_a1_13",
+          "live_lesson_ar_a1_13",
+          "live_lesson_pt_a1_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_14",
+          "live_lesson_es_a1_14",
+          "live_lesson_de_a1_14",
+          "live_lesson_fr_a1_14",
+          "live_lesson_ar_a1_14",
+          "live_lesson_pt_a1_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a1_15",
+          "live_lesson_es_a1_15",
+          "live_lesson_de_a1_15",
+          "live_lesson_fr_a1_15",
+          "live_lesson_ar_a1_15",
+          "live_lesson_pt_a1_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period",
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "Yeni kullanıcı seviye funnel'ı (A1): giriş = dashboard_page_viewed'ı ilk kez gördüğü an (nth_time 1, 730 gün; d0), sonra 7 gün içinde sırasıyla A1 ders 1, 2, … 15 tamamlandı (anm_c_lesson_completed, lesson_id = live_lesson_<dil>_a1_<k>, tüm diller). Giriş günleri <START> … <END_M7> (dün − 7: 7 günlük pencere dolmuş olsun). Abone filtresi davranışsal (<START>–<END> arasında abone durumundayken event'i olan). Kırılım: english_level (girişteki seviye, 1 = A1 … 5 = C1); sayfa yalnız aynı seviyenin satırını kullanır. Yanıt csvResponse: satır = seviye × giriş günü + 'Total'; k. adımın sayısı sütun 3+3k. Kişi bir kez girer (nth 1), günler toplanabilir."
+  },
+  {
+   "id": "nfun_new_a2",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni kullanıcı ilk hafta · A2 ders 1…15",
+    "params": {
+     "mode": "ordered",
+     "start": "<START>",
+     "end": "<END_M7>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 730,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_1",
+          "live_lesson_es_a2_1",
+          "live_lesson_de_a2_1",
+          "live_lesson_fr_a2_1",
+          "live_lesson_ar_a2_1",
+          "live_lesson_pt_a2_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_2",
+          "live_lesson_es_a2_2",
+          "live_lesson_de_a2_2",
+          "live_lesson_fr_a2_2",
+          "live_lesson_ar_a2_2",
+          "live_lesson_pt_a2_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_3",
+          "live_lesson_es_a2_3",
+          "live_lesson_de_a2_3",
+          "live_lesson_fr_a2_3",
+          "live_lesson_ar_a2_3",
+          "live_lesson_pt_a2_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_4",
+          "live_lesson_es_a2_4",
+          "live_lesson_de_a2_4",
+          "live_lesson_fr_a2_4",
+          "live_lesson_ar_a2_4",
+          "live_lesson_pt_a2_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_5",
+          "live_lesson_es_a2_5",
+          "live_lesson_de_a2_5",
+          "live_lesson_fr_a2_5",
+          "live_lesson_ar_a2_5",
+          "live_lesson_pt_a2_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_6",
+          "live_lesson_es_a2_6",
+          "live_lesson_de_a2_6",
+          "live_lesson_fr_a2_6",
+          "live_lesson_ar_a2_6",
+          "live_lesson_pt_a2_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_7",
+          "live_lesson_es_a2_7",
+          "live_lesson_de_a2_7",
+          "live_lesson_fr_a2_7",
+          "live_lesson_ar_a2_7",
+          "live_lesson_pt_a2_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_8",
+          "live_lesson_es_a2_8",
+          "live_lesson_de_a2_8",
+          "live_lesson_fr_a2_8",
+          "live_lesson_ar_a2_8",
+          "live_lesson_pt_a2_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_9",
+          "live_lesson_es_a2_9",
+          "live_lesson_de_a2_9",
+          "live_lesson_fr_a2_9",
+          "live_lesson_ar_a2_9",
+          "live_lesson_pt_a2_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_10",
+          "live_lesson_es_a2_10",
+          "live_lesson_de_a2_10",
+          "live_lesson_fr_a2_10",
+          "live_lesson_ar_a2_10",
+          "live_lesson_pt_a2_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_11",
+          "live_lesson_es_a2_11",
+          "live_lesson_de_a2_11",
+          "live_lesson_fr_a2_11",
+          "live_lesson_ar_a2_11",
+          "live_lesson_pt_a2_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_12",
+          "live_lesson_es_a2_12",
+          "live_lesson_de_a2_12",
+          "live_lesson_fr_a2_12",
+          "live_lesson_ar_a2_12",
+          "live_lesson_pt_a2_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_13",
+          "live_lesson_es_a2_13",
+          "live_lesson_de_a2_13",
+          "live_lesson_fr_a2_13",
+          "live_lesson_ar_a2_13",
+          "live_lesson_pt_a2_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_14",
+          "live_lesson_es_a2_14",
+          "live_lesson_de_a2_14",
+          "live_lesson_fr_a2_14",
+          "live_lesson_ar_a2_14",
+          "live_lesson_pt_a2_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_a2_15",
+          "live_lesson_es_a2_15",
+          "live_lesson_de_a2_15",
+          "live_lesson_fr_a2_15",
+          "live_lesson_ar_a2_15",
+          "live_lesson_pt_a2_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period",
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "Yeni kullanıcı seviye funnel'ı (A2): giriş = dashboard_page_viewed'ı ilk kez gördüğü an (nth_time 1, 730 gün; d0), sonra 7 gün içinde sırasıyla A2 ders 1, 2, … 15 tamamlandı (anm_c_lesson_completed, lesson_id = live_lesson_<dil>_a2_<k>, tüm diller). Giriş günleri <START> … <END_M7> (dün − 7: 7 günlük pencere dolmuş olsun). Abone filtresi davranışsal (<START>–<END> arasında abone durumundayken event'i olan). Kırılım: english_level (girişteki seviye, 1 = A1 … 5 = C1); sayfa yalnız aynı seviyenin satırını kullanır. Yanıt csvResponse: satır = seviye × giriş günü + 'Total'; k. adımın sayısı sütun 3+3k. Kişi bir kez girer (nth 1), günler toplanabilir."
+  },
+  {
+   "id": "nfun_new_b1",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni kullanıcı ilk hafta · B1 ders 1…15",
+    "params": {
+     "mode": "ordered",
+     "start": "<START>",
+     "end": "<END_M7>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 730,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_1",
+          "live_lesson_es_b1_1",
+          "live_lesson_de_b1_1",
+          "live_lesson_fr_b1_1",
+          "live_lesson_ar_b1_1",
+          "live_lesson_pt_b1_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_2",
+          "live_lesson_es_b1_2",
+          "live_lesson_de_b1_2",
+          "live_lesson_fr_b1_2",
+          "live_lesson_ar_b1_2",
+          "live_lesson_pt_b1_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_3",
+          "live_lesson_es_b1_3",
+          "live_lesson_de_b1_3",
+          "live_lesson_fr_b1_3",
+          "live_lesson_ar_b1_3",
+          "live_lesson_pt_b1_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_4",
+          "live_lesson_es_b1_4",
+          "live_lesson_de_b1_4",
+          "live_lesson_fr_b1_4",
+          "live_lesson_ar_b1_4",
+          "live_lesson_pt_b1_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_5",
+          "live_lesson_es_b1_5",
+          "live_lesson_de_b1_5",
+          "live_lesson_fr_b1_5",
+          "live_lesson_ar_b1_5",
+          "live_lesson_pt_b1_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_6",
+          "live_lesson_es_b1_6",
+          "live_lesson_de_b1_6",
+          "live_lesson_fr_b1_6",
+          "live_lesson_ar_b1_6",
+          "live_lesson_pt_b1_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_7",
+          "live_lesson_es_b1_7",
+          "live_lesson_de_b1_7",
+          "live_lesson_fr_b1_7",
+          "live_lesson_ar_b1_7",
+          "live_lesson_pt_b1_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_8",
+          "live_lesson_es_b1_8",
+          "live_lesson_de_b1_8",
+          "live_lesson_fr_b1_8",
+          "live_lesson_ar_b1_8",
+          "live_lesson_pt_b1_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_9",
+          "live_lesson_es_b1_9",
+          "live_lesson_de_b1_9",
+          "live_lesson_fr_b1_9",
+          "live_lesson_ar_b1_9",
+          "live_lesson_pt_b1_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_10",
+          "live_lesson_es_b1_10",
+          "live_lesson_de_b1_10",
+          "live_lesson_fr_b1_10",
+          "live_lesson_ar_b1_10",
+          "live_lesson_pt_b1_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_11",
+          "live_lesson_es_b1_11",
+          "live_lesson_de_b1_11",
+          "live_lesson_fr_b1_11",
+          "live_lesson_ar_b1_11",
+          "live_lesson_pt_b1_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_12",
+          "live_lesson_es_b1_12",
+          "live_lesson_de_b1_12",
+          "live_lesson_fr_b1_12",
+          "live_lesson_ar_b1_12",
+          "live_lesson_pt_b1_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_13",
+          "live_lesson_es_b1_13",
+          "live_lesson_de_b1_13",
+          "live_lesson_fr_b1_13",
+          "live_lesson_ar_b1_13",
+          "live_lesson_pt_b1_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_14",
+          "live_lesson_es_b1_14",
+          "live_lesson_de_b1_14",
+          "live_lesson_fr_b1_14",
+          "live_lesson_ar_b1_14",
+          "live_lesson_pt_b1_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b1_15",
+          "live_lesson_es_b1_15",
+          "live_lesson_de_b1_15",
+          "live_lesson_fr_b1_15",
+          "live_lesson_ar_b1_15",
+          "live_lesson_pt_b1_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period",
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "Yeni kullanıcı seviye funnel'ı (B1): giriş = dashboard_page_viewed'ı ilk kez gördüğü an (nth_time 1, 730 gün; d0), sonra 7 gün içinde sırasıyla B1 ders 1, 2, … 15 tamamlandı (anm_c_lesson_completed, lesson_id = live_lesson_<dil>_b1_<k>, tüm diller). Giriş günleri <START> … <END_M7> (dün − 7: 7 günlük pencere dolmuş olsun). Abone filtresi davranışsal (<START>–<END> arasında abone durumundayken event'i olan). Kırılım: english_level (girişteki seviye, 1 = A1 … 5 = C1); sayfa yalnız aynı seviyenin satırını kullanır. Yanıt csvResponse: satır = seviye × giriş günü + 'Total'; k. adımın sayısı sütun 3+3k. Kişi bir kez girer (nth 1), günler toplanabilir."
+  },
+  {
+   "id": "nfun_new_b2",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni kullanıcı ilk hafta · B2 ders 1…15",
+    "params": {
+     "mode": "ordered",
+     "start": "<START>",
+     "end": "<END_M7>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 730,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_1",
+          "live_lesson_es_b2_1",
+          "live_lesson_de_b2_1",
+          "live_lesson_fr_b2_1",
+          "live_lesson_ar_b2_1",
+          "live_lesson_pt_b2_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_2",
+          "live_lesson_es_b2_2",
+          "live_lesson_de_b2_2",
+          "live_lesson_fr_b2_2",
+          "live_lesson_ar_b2_2",
+          "live_lesson_pt_b2_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_3",
+          "live_lesson_es_b2_3",
+          "live_lesson_de_b2_3",
+          "live_lesson_fr_b2_3",
+          "live_lesson_ar_b2_3",
+          "live_lesson_pt_b2_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_4",
+          "live_lesson_es_b2_4",
+          "live_lesson_de_b2_4",
+          "live_lesson_fr_b2_4",
+          "live_lesson_ar_b2_4",
+          "live_lesson_pt_b2_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_5",
+          "live_lesson_es_b2_5",
+          "live_lesson_de_b2_5",
+          "live_lesson_fr_b2_5",
+          "live_lesson_ar_b2_5",
+          "live_lesson_pt_b2_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_6",
+          "live_lesson_es_b2_6",
+          "live_lesson_de_b2_6",
+          "live_lesson_fr_b2_6",
+          "live_lesson_ar_b2_6",
+          "live_lesson_pt_b2_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_7",
+          "live_lesson_es_b2_7",
+          "live_lesson_de_b2_7",
+          "live_lesson_fr_b2_7",
+          "live_lesson_ar_b2_7",
+          "live_lesson_pt_b2_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_8",
+          "live_lesson_es_b2_8",
+          "live_lesson_de_b2_8",
+          "live_lesson_fr_b2_8",
+          "live_lesson_ar_b2_8",
+          "live_lesson_pt_b2_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_9",
+          "live_lesson_es_b2_9",
+          "live_lesson_de_b2_9",
+          "live_lesson_fr_b2_9",
+          "live_lesson_ar_b2_9",
+          "live_lesson_pt_b2_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_10",
+          "live_lesson_es_b2_10",
+          "live_lesson_de_b2_10",
+          "live_lesson_fr_b2_10",
+          "live_lesson_ar_b2_10",
+          "live_lesson_pt_b2_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_11",
+          "live_lesson_es_b2_11",
+          "live_lesson_de_b2_11",
+          "live_lesson_fr_b2_11",
+          "live_lesson_ar_b2_11",
+          "live_lesson_pt_b2_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_12",
+          "live_lesson_es_b2_12",
+          "live_lesson_de_b2_12",
+          "live_lesson_fr_b2_12",
+          "live_lesson_ar_b2_12",
+          "live_lesson_pt_b2_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_13",
+          "live_lesson_es_b2_13",
+          "live_lesson_de_b2_13",
+          "live_lesson_fr_b2_13",
+          "live_lesson_ar_b2_13",
+          "live_lesson_pt_b2_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_14",
+          "live_lesson_es_b2_14",
+          "live_lesson_de_b2_14",
+          "live_lesson_fr_b2_14",
+          "live_lesson_ar_b2_14",
+          "live_lesson_pt_b2_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_b2_15",
+          "live_lesson_es_b2_15",
+          "live_lesson_de_b2_15",
+          "live_lesson_fr_b2_15",
+          "live_lesson_ar_b2_15",
+          "live_lesson_pt_b2_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period",
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "Yeni kullanıcı seviye funnel'ı (B2): giriş = dashboard_page_viewed'ı ilk kez gördüğü an (nth_time 1, 730 gün; d0), sonra 7 gün içinde sırasıyla B2 ders 1, 2, … 15 tamamlandı (anm_c_lesson_completed, lesson_id = live_lesson_<dil>_b2_<k>, tüm diller). Giriş günleri <START> … <END_M7> (dün − 7: 7 günlük pencere dolmuş olsun). Abone filtresi davranışsal (<START>–<END> arasında abone durumundayken event'i olan). Kırılım: english_level (girişteki seviye, 1 = A1 … 5 = C1); sayfa yalnız aynı seviyenin satırını kullanır. Yanıt csvResponse: satır = seviye × giriş günü + 'Total'; k. adımın sayısı sütun 3+3k. Kişi bir kez girer (nth 1), günler toplanabilir."
+  },
+  {
+   "id": "nfun_new_c1",
+   "definition": {
+    "app": "773708",
+    "type": "funnels",
+    "name": "Product v2 · Yeni kullanıcı ilk hafta · C1 ders 1…15",
+    "params": {
+     "mode": "ordered",
+     "start": "<START>",
+     "end": "<END_M7>",
+     "interval": 1,
+     "timezone": "UTC",
+     "metric": "TIME_TO_CONVERT",
+     "countGroup": "User",
+     "nthTimeLookbackWindow": 730,
+     "conversionSeconds": 604800,
+     "funnelConversionWindow": {
+      "type": "TIME",
+      "windowSizeSeconds": 604800
+     },
+     "events": [
+      {
+       "event_type": "dashboard_page_viewed",
+       "filters": [
+        {
+         "subprop_key": "nth_time_performed",
+         "subprop_op": "is",
+         "subprop_value": [
+          "1"
+         ],
+         "subprop_type": "nth_time_hack",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_1",
+          "live_lesson_es_c1_1",
+          "live_lesson_de_c1_1",
+          "live_lesson_fr_c1_1",
+          "live_lesson_ar_c1_1",
+          "live_lesson_pt_c1_1"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_2",
+          "live_lesson_es_c1_2",
+          "live_lesson_de_c1_2",
+          "live_lesson_fr_c1_2",
+          "live_lesson_ar_c1_2",
+          "live_lesson_pt_c1_2"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_3",
+          "live_lesson_es_c1_3",
+          "live_lesson_de_c1_3",
+          "live_lesson_fr_c1_3",
+          "live_lesson_ar_c1_3",
+          "live_lesson_pt_c1_3"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_4",
+          "live_lesson_es_c1_4",
+          "live_lesson_de_c1_4",
+          "live_lesson_fr_c1_4",
+          "live_lesson_ar_c1_4",
+          "live_lesson_pt_c1_4"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_5",
+          "live_lesson_es_c1_5",
+          "live_lesson_de_c1_5",
+          "live_lesson_fr_c1_5",
+          "live_lesson_ar_c1_5",
+          "live_lesson_pt_c1_5"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_6",
+          "live_lesson_es_c1_6",
+          "live_lesson_de_c1_6",
+          "live_lesson_fr_c1_6",
+          "live_lesson_ar_c1_6",
+          "live_lesson_pt_c1_6"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_7",
+          "live_lesson_es_c1_7",
+          "live_lesson_de_c1_7",
+          "live_lesson_fr_c1_7",
+          "live_lesson_ar_c1_7",
+          "live_lesson_pt_c1_7"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_8",
+          "live_lesson_es_c1_8",
+          "live_lesson_de_c1_8",
+          "live_lesson_fr_c1_8",
+          "live_lesson_ar_c1_8",
+          "live_lesson_pt_c1_8"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_9",
+          "live_lesson_es_c1_9",
+          "live_lesson_de_c1_9",
+          "live_lesson_fr_c1_9",
+          "live_lesson_ar_c1_9",
+          "live_lesson_pt_c1_9"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_10",
+          "live_lesson_es_c1_10",
+          "live_lesson_de_c1_10",
+          "live_lesson_fr_c1_10",
+          "live_lesson_ar_c1_10",
+          "live_lesson_pt_c1_10"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_11",
+          "live_lesson_es_c1_11",
+          "live_lesson_de_c1_11",
+          "live_lesson_fr_c1_11",
+          "live_lesson_ar_c1_11",
+          "live_lesson_pt_c1_11"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_12",
+          "live_lesson_es_c1_12",
+          "live_lesson_de_c1_12",
+          "live_lesson_fr_c1_12",
+          "live_lesson_ar_c1_12",
+          "live_lesson_pt_c1_12"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_13",
+          "live_lesson_es_c1_13",
+          "live_lesson_de_c1_13",
+          "live_lesson_fr_c1_13",
+          "live_lesson_ar_c1_13",
+          "live_lesson_pt_c1_13"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_14",
+          "live_lesson_es_c1_14",
+          "live_lesson_de_c1_14",
+          "live_lesson_fr_c1_14",
+          "live_lesson_ar_c1_14",
+          "live_lesson_pt_c1_14"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      },
+      {
+       "event_type": "anm_c_lesson_completed",
+       "filters": [
+        {
+         "subprop_key": "lesson_id",
+         "subprop_op": "is",
+         "subprop_value": [
+          "live_lesson_en_c1_15",
+          "live_lesson_es_c1_15",
+          "live_lesson_de_c1_15",
+          "live_lesson_fr_c1_15",
+          "live_lesson_ar_c1_15",
+          "live_lesson_pt_c1_15"
+         ],
+         "subprop_type": "event",
+         "group_type": "User"
+        }
+       ],
+       "group_by": []
+      }
+     ],
+     "segments": [
+      {
+       "label": "paid",
+       "conditions": [
+        {
+         "type": "event",
+         "event_type": "_active",
+         "filters": [
+          {
+           "group_type": "User",
+           "subprop_key": "gp:rc_subscription_status",
+           "subprop_op": "is",
+           "subprop_value": [
+            "active",
+            "intro",
+            "cancelled",
+            "grace_period",
+            "promotional"
+           ],
+           "subprop_type": "user"
+          }
+         ],
+         "time_type": "absolute",
+         "time_value": [
+          "<START>",
+          "<END>"
+         ],
+         "op": ">=",
+         "value": 1
+        }
+       ]
+      }
+     ],
+     "groupBy": [
+      {
+       "type": "user",
+       "value": "gp:english_level"
+      }
+     ]
+    }
+   },
+   "groupByLimit": 10,
+   "timeSeriesLimit": 10,
+   "parse": "Yeni kullanıcı seviye funnel'ı (C1): giriş = dashboard_page_viewed'ı ilk kez gördüğü an (nth_time 1, 730 gün; d0), sonra 7 gün içinde sırasıyla C1 ders 1, 2, … 15 tamamlandı (anm_c_lesson_completed, lesson_id = live_lesson_<dil>_c1_<k>, tüm diller). Giriş günleri <START> … <END_M7> (dün − 7: 7 günlük pencere dolmuş olsun). Abone filtresi davranışsal (<START>–<END> arasında abone durumundayken event'i olan). Kırılım: english_level (girişteki seviye, 1 = A1 … 5 = C1); sayfa yalnız aynı seviyenin satırını kullanır. Yanıt csvResponse: satır = seviye × giriş günü + 'Total'; k. adımın sayısı sütun 3+3k. Kişi bir kez girer (nth 1), günler toplanabilir."
   }
  ],
  "baseCohortId": null

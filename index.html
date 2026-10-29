@@ -936,7 +936,7 @@ const USE_GROUPS = [["aktif", "Aktif kullanım"], ["node", "Node sistemi"], ["de
 const FN_STEPS = [["Online", "dashboard_page_viewed"], ["Node'a dokundu", "pre_lesson_viewed"], ["Başla", "pre_lesson_lets_start"], ["Ders sayfası", "anm_conv_page_viewed · lessonTalk"], ["1. ders tamamlandı", "anm_c_lesson_completed"],
   ...[2, 3, 4, 5, 6, 7, 8, 9, 10].map((k) => [`${k}. ders`, `aynı gün ${k}. tamamlama`])];
 const FN_TYPE = [["current", "Sıradaki node (current)"], ["jump", "İleri atlama (jump)"], ["replay", "Tekrar (replay)"]];
-const FN = { va: null, vb: null, basis: "user" }; // basis: "user" = unique subscribers over the window, "day" = summed daily uniques
+const FN = { va: null, vb: null, basis: "user", lvl: "A1" }; // basis: "user" = unique subscribers over the window, "day" = summed daily uniques
 function funnelCard(key) {
   const help = "Sıralı funnel, 24 saat pencere: o gün dashboard'u gören abone, sonra node'a dokunup (pre_lesson_viewed) Başla'ya basıp (pre_lesson_lets_start) ders sayfasını açıp (lessonTalk) dersi tamamladı mı; ardından aynı 24 saatte 2., 3. … 10. dersi tamamladı mı (tekrarlar dahil). Tekil abone: dönemde her abone bir kez; dönemde en az bir kez (24 saat içinde) o adıma ulaşan sayılır. Son 7 / 30 / 90 gün hazır; başka bir aralık seçilince en yakını kullanılır. Abone-gün: her gün tekil abone, dönem değeri günlerin toplamı. Node tipi görünümü node bazında: lesson_id sabit, aynı abonenin iki farklı node'u iki giriş; Online adımı yok. Activation Users = ilk dashboard'u son 9 günde (d0–d8), Activated Users = daha önce.";
   return customCard("Node funnel", `<div class="fn-vs" hidden></div><div class="legend"></div><div class="fn-wrap"><div class="chart fn"></div></div><p class="card-sub fn-note"></p><div class="legend lg-b"></div><div class="chart ch-a"></div>`, (card) => {
@@ -947,7 +947,8 @@ function funnelCard(key) {
     card.querySelectorAll(".fn-basis button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.fb === FN.basis)));
     const tot = (steps) => steps.map((v) => { let t = 0, any = false; for (let i = a; i <= b; i++) if (v[i] != null) { t += v[i]; any = true; } return any ? t : null; });
     let series = [], notes = [], first = 0; // first = index in FN_STEPS of the series' step 0
-    vs.hidden = view !== "ver";
+    vs.hidden = view !== "ver" && view !== "lvl";
+    if (view === "lvl") return levelFunnel(card, F, a, b);
     if (view === "all") {
       let k = f.sub === "paid" ? "paid" : f.sub;
       if (f.dim) { k = (f.dim === "platform" ? "p:" : f.dim === "country" ? "c:" : "v:") + f.val; if (f.sub !== "paid") notes.push("Abone tipi filtresi platform / ülke / sürümle birlikte uygulanmıyor; tüm aboneler gösteriliyor."); }
@@ -956,9 +957,6 @@ function funnelCard(key) {
       [["activation", "Activation Users"], ["activated", "Activated Users"]].forEach(([g, l], j) => F.act[g] && series.push({ name: l, steps: F.act[g], c: j }));
       if (user) notes.push("Bu görünüm tekil abone olarak yok (günlük ayrı sorgu); abone-gün gösteriliyor.");
       notes.push("Activation / Activated yalnız tüm abonelerde; filtre uygulanmıyor. Geçmiş 28 Eylül 2026'dan itibaren.");
-    } else if (view === "lvl") {
-      ["A1", "A2", "B1", "B2", "C1"].forEach((l, j) => F.s["l:" + l] && series.push({ name: l, key: "l:" + l, steps: F.s["l:" + l], c: j }));
-      notes.push("Seviye = abonenin funnel'a girdiği andaki seviyesi (user property english_level: 1 = A1 … 5 = C1). Seviyesi boş olanlar gösterilmiyor. Yalnız tüm aboneler; filtre uygulanmıyor.");
     } else if (view === "type") {
       first = 1;
       FN_TYPE.forEach(([g, l], j) => F.type[g] && series.push({ name: l, key: g, steps: F.type[g], c: j }));
@@ -999,8 +997,30 @@ function funnelCard(key) {
     L.forEach((s) => { s.fmt = (v) => fmt("pct", v); s.ma = null; });
     card.querySelector(".lg-b").innerHTML = legendHtml(L);
     lineChart(card.querySelector(".ch-a"), card, x, L, { yFmt: yFmtFor("pct"), pctMax: true, H: 260, aria: "Funnel dönüşümü (günlük)" });
-  }, { key, days: 30, help, ctl: `<span class="seg-ctl fn-basis" role="group" aria-label="Sayım">${[["user", "Tekil abone"], ["day", "Abone-gün"]].map(([v, l]) => `<button type="button" data-fb="${v}" aria-pressed="${FN.basis === v}">${l}</button>`).join("")}</span>`, views: [["all", "Tek funnel"], ["lvl", "Seviye (A1, A2…)"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
+  }, { key, days: 30, help, ctl: `<span class="seg-ctl fn-basis" role="group" aria-label="Sayım">${[["user", "Tekil abone"], ["day", "Abone-gün"]].map(([v, l]) => `<button type="button" data-fb="${v}" aria-pressed="${FN.basis === v}">${l}</button>`).join("")}</span>`, views: [["all", "Tek funnel"], ["lvl", "Yeni kullanıcı · seviye"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
 }
+// New-user level funnel: subscribers whose first dashboard view (d0) falls in the card's range and whose level at d0 is the
+// selected one, then that level's lesson 1, 2, … 15 completed in order within 7 days. Everyone enters once, so days add up.
+function levelFunnel(card, F, a, b) {
+  const L = FN.lvl, l = L.toLowerCase(), steps = F.nl?.[L], fnEl = card.querySelector(".fn"), note = card.querySelector(".fn-note"), vs = card.querySelector(".fn-vs");
+  vs.innerHTML = `Seviye <select data-fl>${["A1", "A2", "B1", "B2", "C1"].map((v) => `<option${v === L ? " selected" : ""}>${v}</option>`).join("")}</select>`;
+  card.querySelector(".legend").innerHTML = "";
+  const t = steps ? steps.map((v) => { let s = 0, any = false; for (let i = a; i <= b; i++) if (v[i] != null) { s += v[i]; any = true; } return any ? s : null; }) : null;
+  if (!t || !t[0]) { fnEl.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; note.textContent = ""; card.querySelector(".lg-b").innerHTML = ""; card.querySelector(".ch-a").innerHTML = ""; return; }
+  const labels = [["Yeni kullanıcı", `ilk dashboard (d0), seviye ${L}`], ...steps.slice(1).map((_, k) => [`${L} ders ${k + 1}`, `live_lesson_*_${l}_${k + 1}`])];
+  funnelChart(fnEl, card, labels, [{ name: L, color: COL[0], t }]);
+  const lessons = sum(t.slice(1));
+  const lastEntry = F.nlLast ? D.d.days.indexOf(F.nlLast) : -1;
+  note.textContent = [`Yeni kullanıcı başına ilk haftada sırayla tamamlanan ortalama ${L} dersi ${nf2.format(lessons / t[0])}; ${L} ders 1'i tamamlayan başına ${t[1] ? nf2.format(lessons / t[1]) : "—"} (15'te kesilmiş).`,
+    `Giriş = abonenin dashboard'u ilk kez gördüğü gün (d0) ve o anki seviyesi (english_level). Her kullanıcı bir kez sayılır; Tekil abone / Abone-gün seçimi bu görünümü değiştirmez.`,
+    lastEntry >= 0 && b > lastEntry ? `${dShort(D.d.days[lastEntry + 1])} ve sonrası kayıtlar henüz 7 günü doldurmadı, dahil değil.` : "", "Yalnız tüm aboneler; filtre uygulanmıyor."].filter(Boolean).join(" ");
+  // share of each entry day's new users who finished lesson 1, 3, 5 and 10 within their first week
+  const x = D.d.days.slice(a, Math.min(b, lastEntry < 0 ? b : lastEntry) + 1);
+  const Ls = [1, 3, 5, 10].filter((k) => steps[k]).map((k, j) => ({ id: "n" + k, name: `${L} ders ${k} / yeni kullanıcı`, color: COL[j % COL.length], vals: x.map((_, i) => (steps[0][a + i] ? (steps[k][a + i] ?? 0) / steps[0][a + i] : null)), fmt: (v) => fmt("pct", v), ma: null }));
+  card.querySelector(".lg-b").innerHTML = legendHtml(Ls);
+  lineChart(card.querySelector(".ch-a"), card, x, Ls, { yFmt: yFmtFor("pct"), pctMax: true, H: 260, aria: "İlk hafta ders tamamlama (giriş gününe göre)" });
+}
+document.addEventListener("change", (ev) => { const t = ev.target.closest(".fn-vs select[data-fl]"); if (!t) return; FN.lvl = t.value; REDRAW["k-funnel"]?.(); });
 // Funnel columns, left to right: one group per step, one bar per series; bar height = share of the series' first step,
 // the faint part above it = lost since the previous step. Labels: % of the first step and the count (one series only).
 function funnelChart(host, card, labels, series) {
@@ -1036,7 +1056,7 @@ function funnelChart(host, card, labels, series) {
   svg.addEventListener("pointerleave", () => { tip.style.display = "none"; });
 }
 document.addEventListener("click", (ev) => { const t = ev.target.closest(".fn-basis button"); if (!t) return; FN.basis = t.dataset.fb; REDRAW["k-funnel"]?.(); });
-document.addEventListener("change", (ev) => { const t = ev.target.closest(".fn-vs select"); if (!t) return; FN[t.dataset.fv === "a" ? "va" : "vb"] = t.value; REDRAW["k-funnel"]?.(); });
+document.addEventListener("change", (ev) => { const t = ev.target.closest(".fn-vs select[data-fv]"); if (!t) return; FN[t.dataset.fv === "a" ? "va" : "vb"] = t.value; REDRAW["k-funnel"]?.(); });
 // Kullanım: only the KPI cards (one grid, no labels); a string spec is a combined card (select / toggle)
 const USE_KPIS = ["act", "dwm", "stick", "node", ["chain_share_u", { own: "abone", withDen: true }], ["abandon_rate_u", { own: "abone", withDen: true }]];
 SECTIONS.kullanim = () => {
