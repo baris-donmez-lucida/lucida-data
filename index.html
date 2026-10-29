@@ -920,7 +920,7 @@ SECTIONS.kullanim = () => {
     const vals = st.map(([id]) => v(id));
     const pct = (a, b) => (a != null && b ? "%" + nf1.format((100 * a) / b) : "—");
     card.querySelector(".flow").innerHTML = st.map(([, l, e], j) => `${j ? `<span class="ar">→</span>` : ""}<div class="st"><span>${esc(l)}</span><b>${fmt("count", vals[j])}</b><small>${j === 2 ? "başlatma + zincir → sayfa " + pct(vals[2], (vals[1] || 0) + (v("chain_start") || 0)) : j ? pct(vals[j], vals[j - 1]) + " önceki adıma göre" : esc(e)}</small></div>`).join("")
-      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · zincir payı ${fmt("pct", v("chain_share_s"))} (session) / ${fmt("pct", v("chain_share_u"))} (user). Ders sayfası = node'dan başlatma + zincir − vazgeçilen (Başlatma → ders sayfası: ${fmt("pct", v("start_to_page"))}).</div>`;
+      + `<div class="loop">↺ <b>Sıradaki ders zinciri</b> (lesson_next_launched, anasayfayı atlar): ${fmt("count", v("chain_start"))} başlatma · zincir payı ${fmt("pct", v("chain_share_s"))} (session) / ${fmt("pct", v("chain_share_u"))} (user). </div>`;
   }, { sub: "Toplam adet. Oranlar adet bazında; bir node'a birden çok dokunuş ayrı sayılır." });
   const groups = {
     aktif: {
@@ -933,13 +933,12 @@ SECTIONS.kullanim = () => {
       ],
     },
     node: {
-      kpis: ["node", ["start_to_page", { own: "ders sayfası" }], "chain", ["node_done_rate"]],
+      kpis: ["node", "chain", ["node_done_rate"]],
       cards: [
         nodeFlow,
         trendCard("Node etkileşimi (session bazlı)", ["node_click_rate", "node_start_rate_s", "completion_rate_s"], [], { noMA: true, wide: true, key: "n-node", help: "Payda hepsinde o gün açılan session. Click = node'a tıklanan (pre_lesson_viewed) session; start = node'dan ders başlatılan (d_start_continue_lesson_bt) session; complete = ders tamamlanan (anm_c_lesson_completed) session." }),
         trendCard("Node tıklayan abone", ["node_tap_users"], ["node_tap_rate"], { help: "Node tıklama oranı = pre_lesson_viewed tekil / app açan (session_start) tekil." }),
         trendCard("Node tıklama → node'dan başlatma", ["node_tap", "node_start"], ["node_start_rate"]),
-        trendCard("Başlatma → ders sayfası", ["start_to_page"], [], { help: "Açılan ders sayfası (anm_conv_page_viewed, lessonTalk) / ders başlatma dokunuşları (node'dan d_start_continue_lesson_bt + zincirden lesson_next_launched). Adet bazında; başlatıp sayfa açılmadan vazgeçmeyi gösterir." }),
         trendCard("Node → tamamlama (1 gün içinde)", ["node_done_rate"], [], { help: "Funnel (günlük oran, Amplitude); dönem değeri günlük oranların ortalaması." }),
         mixCard("Node tipi karışımı (lesson_entry_type)", "entry_type_mix", { help: "Ders başlatmaların giriş tipi: current (sıradaki node), jump (ileri atlama), replay (tekrar), next (zincir)." }),
         trendCard("İlk kez tamamlanan node", ["lesson_completed_first"], []),
@@ -1340,6 +1339,7 @@ SECTIONS.diger = () => {
   const b = [
     trendCard("Online → Aktif (adet)", ["online", "openers", "active"], ["talk_rate"], { help: "Online = dashboard_page_viewed, app açan = session_start, Aktif = call_ok (tekil abone)." }),
     trendCard("Regular / Aktif ve North Star / Aktif", ["ns_rate", "regular_rate"], [], { help: "Eski genel bakış oranları (payda Aktif). Yeni genel bakışta payda Online." }),
+    trendCard("Başlatma → ders sayfası", ["start_to_page"], [], { help: "Açılan ders sayfası (anm_conv_page_viewed, lessonTalk) / ders başlatma dokunuşları (node'dan d_start_continue_lesson_bt + zincirden lesson_next_launched). Adet bazında; başlatıp sayfa açılmadan vazgeçmeyi gösterir." }),
     trendCard("Node akışı (adet)", ["node_tap", "node_start", "chain_start"], ["node_start_rate", "chain_share_s"]),
     trendCard("Ders başlatma ve tamamlama (adet, ders sayfası bazlı)", ["lesson_start", "lesson_completed"], ["completion_rate", "abandon_rate", "abandon_after_1min"], { wide: true }),
     trendCard("Konuşma dakikası, dk / aktif ve ders süresi", ["speech_min"], ["min_per_active", "lesson_duration"]),
