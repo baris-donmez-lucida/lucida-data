@@ -1403,7 +1403,7 @@ SECTIONS.detay = () => {
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
   const ul = userListCard(id);
   if (ul) b.push(ul);
-  return { html: head + `<div class="kpis big">${kpiCard(id, null, null, { mode: c.id.startsWith("rating") ? "week" : "day", own: simple(c.num) ? shortLabel(D.cat[c.num]).toLowerCase() : null, withDen: !!simple(c.den) })}</div><div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
+  return { html: head + `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
     draw: () => {
       b.forEach((x) => x.draw());
       // the main chart's filter also filters the user list
