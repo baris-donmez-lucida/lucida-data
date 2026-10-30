@@ -62,6 +62,16 @@
   .nav a[aria-current="page"] { color: var(--ink); background: var(--track); font-weight: 600; }
   .nav .grp { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; white-space: nowrap; align-self: center; }
   @media (min-width: 960px) { .nav .grp { padding: 18px 10px 4px; } }
+  .nav .more-btn { font: inherit; font-size: 13.5px; font-weight: 500; color: var(--muted); background: none; border: 0; border-radius: 8px; padding: 6px 10px; cursor: pointer; text-align: left; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  @media (min-width: 960px) { .nav .more-btn { margin-top: 14px; border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; padding-top: 12px; } }
+  .nav .more-btn:hover { color: var(--ink-2); }
+  .nav .more-btn::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+  .nav .more-btn[aria-expanded="true"]::after { transform: rotate(-135deg) translateY(-1px); }
+  .nav .more { display: flex; gap: 2px; }
+  .nav .more[hidden] { display: none; }
+  @media (min-width: 960px) { .nav .more { flex-direction: column; padding-left: 8px; } .nav .more .grp { align-self: flex-start; } }
+  .nav .more a:not([aria-current="page"]) { color: var(--muted); }
+  .nav .more a:not([aria-current="page"]):hover { color: var(--ink-2); }
   .nav a.old { color: var(--muted); }
   .nav a.old::after { content: " ↗"; font-size: 11px; }
 
@@ -1629,9 +1639,19 @@ SECTIONS.tanimlar = () => {
 
 // ---------- shell: nav, filters, routing ----------
 const OLD = [["genel.html", "Genel (eski)"], ["engagement.html", "Engagement (eski)"], ["dashboard.html", "Product Dashboard (eski)"]];
+const MAIN_TABS = ["genel", "retention", "kullanim"];
 function buildNav() {
-  document.getElementById("nav").innerHTML = D.d.tabs.map((t) => `<a href="#${t.id}" data-tab="${t.id}">${esc(t.label)}</a>`).join("")
-    + `<span class="grp">Eski veriler</span>` + OLD.map(([h, l]) => `<a class="old" href="${h}">${esc(l)}</a>`).join("");
+  const link = (t) => `<a href="#${t.id}" data-tab="${t.id}">${esc(t.label)}</a>`;
+  const nav = document.getElementById("nav");
+  nav.innerHTML = D.d.tabs.filter((t) => MAIN_TABS.includes(t.id)).map(link).join("")
+    + `<button type="button" class="more-btn" aria-expanded="false" aria-controls="nav-more">Diğer</button>`
+    + `<div class="more" id="nav-more" hidden>${D.d.tabs.filter((t) => !MAIN_TABS.includes(t.id)).map(link).join("")}`
+    + `<span class="grp">Eski veriler</span>${OLD.map(([h, l]) => `<a class="old" href="${h}">${esc(l)}</a>`).join("")}</div>`;
+  nav.querySelector(".more-btn").addEventListener("click", (ev) => setMore(ev.currentTarget.getAttribute("aria-expanded") !== "true"));
+}
+function setMore(open) {
+  document.querySelector("#nav .more-btn").setAttribute("aria-expanded", String(open));
+  document.getElementById("nav-more").hidden = !open;
 }
 function buildControls() {
   document.getElementById("range").innerHTML = [7, 14, 28, 90].map((r) => `<button type="button" data-r="${r}">${r} gün</button>`).join("");
@@ -1657,6 +1677,7 @@ function syncControls() {
   const fs = document.getElementById("f-sub"); fs.value = S.sub; fs.classList.toggle("on", S.sub !== "paid");
   const navTab = S.tab === "detay" ? S.from : S.tab;
   document.querySelectorAll("#nav a[data-tab]").forEach((a) => a.setAttribute("aria-current", a.dataset.tab === navTab ? "page" : "false"));
+  if (!MAIN_TABS.includes(navTab)) setMore(true);
   document.getElementById("title").textContent = S.tab === "detay" ? (S.group === "dwm" ? "DAU / WAU / MAU" : S.group === "users" ? "Aktif ve Online abone" : S.group === "node" ? "Node click / start / complete" : S.group === "ut" ? "Kullanıcı tipleri" : D.cat[S.metric].label) : D.d.tabs.find((t) => t.id === S.tab)?.label || "";
 }
 function toHash() {
