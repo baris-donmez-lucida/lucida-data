@@ -1667,7 +1667,7 @@ function buildControls() {
 }
 function syncControls() {
   document.querySelectorAll("#range button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.r) === S.range)));
-  const ownRanges = S.tab === "genel" || S.tab === "retention" || S.tab === "detay";
+  const ownRanges = ["genel", "retention", "kullanim", "detay"].includes(S.tab);
   document.querySelector(".ctl-row").hidden = ownRanges;
   const cmp = document.getElementById("cmp"), off = S.range === 90;
   cmp.checked = S.cmp && !off; cmp.disabled = off;
