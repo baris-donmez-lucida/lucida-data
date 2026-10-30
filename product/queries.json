@@ -17065,6 +17065,157 @@
    "parse": "HER SABAH yalnızca dün için (<DAY_START>/<DAY_END>; <ACT_PRE_END> = dün − 9 günün 23:59:59). nfun ile aynı 14 adım, paid aboneler ikiye ayrılır: activation = dashboard'u <ACT_PRE_END>'e kadar hiç görmemiş (ilk dashboard dün − 8 … dün, d0–d8), activated = daha önce görmüş. csvResponse: segment başına 'Total' satırı = o günün adım sayıları (sütun 3+3k). Nokta {d, activation:[14 sayı], activated:[14 sayı]} → product-history/node_funnel_act."
   },
   {
+   "id": "nfun_act3",
+   "chart": {
+    "kind": "funnel",
+    "name": "Product v2 · Node funnel · Activation / Activated (3 gün pencere)",
+    "steps": [
+     {
+      "event": "dashboard_page_viewed"
+     },
+     {
+      "event": "pre_lesson_viewed"
+     },
+     {
+      "event": "pre_lesson_lets_start"
+     },
+     {
+      "event": "anm_conv_page_viewed",
+      "where": [
+       {
+        "property": "conv_type",
+        "scope": "event",
+        "op": "is",
+        "values": [
+         "lessonTalk"
+        ]
+       }
+      ]
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     },
+     {
+      "event": "anm_c_lesson_completed"
+     }
+    ],
+    "conversion_window": {
+     "value": 3,
+     "unit": "day"
+    },
+    "measured_as": {
+     "as": "conversion"
+    },
+    "segments": [
+     {
+      "label": "activation",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "dashboard_page_viewed",
+        "op": "=",
+        "count": 0,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<D3_ACT_PRE_END>"
+        ]
+       }
+      ]
+     },
+     {
+      "label": "activated",
+      "where": [
+       {
+        "property": "gp:rc_subscription_status",
+        "scope": "user",
+        "op": "is",
+        "values": [
+         "active",
+         "intro",
+         "cancelled",
+         "grace_period",
+         "promotional"
+        ]
+       }
+      ],
+      "performed": [
+       {
+        "event": "dashboard_page_viewed",
+        "op": ">=",
+        "count": 1,
+        "time_type": "absolute",
+        "time_value": [
+         1704067200,
+         "<D3_ACT_PRE_END>"
+        ]
+       }
+      ]
+     }
+    ],
+    "date_range": {
+     "start": "<D3_START>",
+     "end": "<D3_END>",
+     "timezone": "UTC"
+    },
+    "interval": "day"
+   },
+   "groupByLimit": 10,
+   "parse": "HER SABAH yalnızca dün − 2 için (<D3_START>/<D3_END> = dün − 2 günün 00:00:00 / 23:59:59; <D3_ACT_PRE_END> = (dün − 2) − 9 günün 23:59:59): o gün dashboard'u gören paid abone, sonra 3 gün (72 saat) içinde node'a dokundu → Başla → ders sayfası → 1. … 15. ders tamamlandı (19 adım). Segmentler nfun_act ile aynı (activation / activated o güne göre). csvResponse: segment başına 'Total' satırı = adım sayıları (sütun 3+3k). Nokta {d: dün − 2, activation:[19 sayı], activated:[19 sayı]} → product-history/node_funnel_act3."
+  },
+  {
    "id": "nfun_w7",
    "definition": {
     "app": "773708",

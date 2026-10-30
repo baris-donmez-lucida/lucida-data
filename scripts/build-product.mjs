@@ -277,7 +277,7 @@ let nfun = null;
   const main = F("nfun", KEY.nfun);
   if (main?.paid) {
     // s / type: per step, unique subscribers per day; u[window][key]: unique subscribers over the last 7 / 30 / 90 days (the queries' Total rows)
-    nfun = { s: {}, type: {}, act: {}, u: {}, incomplete: [] };
+    nfun = { s: {}, type: {}, act: {}, act3: {}, u: {}, incomplete: [] };
     for (const [k, o] of Object.entries(main)) nfun.s[k] = onAxis(o);
     nfun.incomplete = main.paid.days.filter((d, i) => !main.paid.complete[i]);
     for (const [k, o] of Object.entries(F("nfun_ver", KEY.nfun_ver) || {})) nfun.s[k] = onAxis(o);
@@ -299,6 +299,12 @@ let nfun = null;
   const t = L.rawFunnel(load("nfun_act"), dataDate, dataDate, { countries: COUNTRIES, blockLabels: segLabels("nfun_act"), keyOf: (l) => (l === "activation" || l === "activated" ? l : null) });
   if (t?.activation?.total && t?.activated?.total) { hist.nact = hist.nact.filter((x) => x.d !== dataDate); hist.nact.push({ d: dataDate, activation: t.activation.total, activated: t.activated.total }); }
   if (!hist.nact.length) missing.push("history:node_funnel_act");
+  // same with a 3-day window: the point for dataDate − 2 (its 72 hours are complete), the rest from node_funnel_act3
+  hist.nact3 = readHist("node_funnel_act3") || [];
+  const d3 = new Date(Date.parse(dataDate + "T00:00:00Z") - 2 * 864e5).toISOString().slice(0, 10);
+  const t3 = L.rawFunnel(load("nfun_act3"), d3, d3, { countries: COUNTRIES, blockLabels: segLabels("nfun_act3"), keyOf: (l) => (l === "activation" || l === "activated" ? l : null) });
+  if (t3?.activation?.total && t3?.activated?.total) { hist.nact3 = hist.nact3.filter((x) => x.d !== d3); hist.nact3.push({ d: d3, activation: t3.activation.total, activated: t3.activated.total }); }
+  if (nfun) for (const g of ["activation", "activated"]) nfun.act3[g] = [...Array(Math.max(0, ...hist.nact3.map((p) => p[g]?.length || 0))).keys()].map((k) => byDay(hist.nact3, (p) => p[g]?.[k] ?? null));
   if (nfun) for (const g of ["activation", "activated"]) nfun.act[g] = [...Array(Math.max(0, ...hist.nact.map((p) => p[g]?.length || 0))).keys()].map((k) => byDay(hist.nact, (p) => p[g]?.[k] ?? null));
 }
 
