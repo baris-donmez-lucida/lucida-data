@@ -144,6 +144,7 @@
   table.ret tr.tot td { font-weight: 700; border-bottom: 2px solid var(--border); }
   table.daily { --pos: #22c55e; --neg: #ef4444; }
   table.daily td.dev { font-weight: 600; }
+  .tier-pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
   table.daily th .avg { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink); margin-top: 3px; font-variant-numeric: tabular-nums; }
   table.daily th:first-child .avg { color: var(--muted); font-weight: 500; }
   .spark path { fill: none; stroke: var(--s1); stroke-width: 1.5; }
@@ -1532,15 +1533,17 @@ function userGroup(id) {
   return G[M[id]] || null;
 }
 const STORE_ST = new Set(["active", "intro", "cancelled", "grace_period"]);
+const TIERS = ["North Star", "Regular", "Aktif", "Online"];
 function userListCard(id, key = "det-" + id, opts = {}) {
-  const g = userGroup(id), U = D.d.users;
+  const g = opts.group || userGroup(id), U = D.d.users;
   if (!g || !U) return null;
   const all = U.rows.map((r) => Object.fromEntries(U.cols.map((c, i) => [c, r[i]])));
   if (opts.stage) all.forEach((u) => { u.stage = u.done_y > 0 ? "Tamamladı" : u.nstart_y > 0 ? "Başlattı" : "Tıkladı"; });
   if (opts.onAct) all.forEach((u) => { u.dact = u.act_y > 0 ? "Aktif" : "Sadece online"; });
-  if (opts.tier) all.forEach((u) => { u.tier = u.done_y >= 2 ? "North Star" : u.done_y === 1 ? "Regular" : "Aktif"; });
+  // yesterday's user type, coloured like the user-type chart's lines (NS, Regular, Aktif) plus Online
+  if (opts.tier) all.forEach((u) => { u.tierRank = u.done_y >= 2 ? 0 : u.done_y === 1 ? 1 : u.act_y > 0 ? 2 : 3; });
   const n1 = (v) => (v == null ? "—" : nf.format(v)), dd = (v) => (v ? dShort(v) : "—");
-  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, ...(opts.tier ? [{ k: "tier", label: "Dün tip" }] : []), ...(opts.onAct ? [{ k: "dact", label: "Dün" }] : []), ...(opts.stage ? [{ k: "stage", label: "Dün en ileri adım" }] : []), { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
+  const cols = [{ k: "uid", label: "Kullanıcı ID", fmt: (v) => esc(v ?? "— (giriş yok)") }, ...(opts.tier ? [{ k: "tierRank", label: "Dün tip", fmt: (v) => `<span class="tier-pill" style="--c:${COL[v]}">${TIERS[v]}</span>` }] : []), ...(opts.onAct ? [{ k: "dact", label: "Dün" }] : []), ...(opts.stage ? [{ k: "stage", label: "Dün en ileri adım" }] : []), { k: "country", label: "Ülke", fmt: (v) => esc(TR_COUNTRY[v] || v || "—") }, { k: "platform", label: "Platform" }, { k: "version", label: "Sürüm" },
     { k: "status", label: "Abonelik" }, { k: "d0", label: "d0", fmt: dd }, { k: "last", label: "Son görülme", fmt: dd },
     { k: "on7", label: "Online gün (7g)", num: true, fmt: n1 }, { k: "act7", label: "Aktif gün (7g)", num: true, fmt: n1 }, { k: "done7", label: "Tamamlanan ders (7g)", num: true, fmt: n1 },
     { k: "page7", label: "Açılan ders (7g)", num: true, fmt: n1 }, { k: "min7", label: "Konuşma dk (7g)", num: true, fmt: (v) => (v ? nf1.format(v) : "—") },
@@ -1550,7 +1553,8 @@ function userListCard(id, key = "det-" + id, opts = {}) {
     const f = cardFilter(key);
     const rows = all.filter(g[0]).filter((u) => (f.dim === "platform" ? u.platform === f.val : f.dim === "country" ? u.country === f.val : f.dim === "version" ? u.version === f.val : true)
       && (f.sub === "store" ? STORE_ST.has(u.status) : f.sub === "web" ? u.status === "promotional" : true));
-    el.querySelector(".ul-sum").textContent = `${nf.format(rows.length)} abone · ${dLong(U.asOf)} · kullanım sütunları ${dShort(addDays(U.asOf, -6))}–${dShort(U.asOf)}`;
+    const byTier = opts.tier ? " · " + TIERS.map((t, i) => `${t} ${nf.format(rows.filter((u) => u.tierRank === i).length)}`).join(" · ") : "";
+    el.querySelector(".ul-sum").textContent = `${nf.format(rows.length)} abone${byTier} · ${dLong(U.asOf)} · kullanım sütunları ${dShort(addDays(U.asOf, -6))}–${dShort(U.asOf)}`;
     tbl = sortableTable(cols, rows, { sort: cols.findIndex((c) => c.k === "done7"), dir: -1, max: 640 });
     el.querySelector(".ul-host").innerHTML = tbl.html; tbl.bind();
   }, { help: "Liste dünün (son tam gün) pay grubundaki aboneleri gösterir. Kullanıcı ID = uygulamadaki sayısal ID (giriş yapmadan kullananlarda yok). Sütunlar son 7 günün toplamı; Abonelik = son aktif gündeki RevenueCat durumu; d0 = ilk dashboard günü (aktivasyondakiler için). Üstteki grafiğin filtresi listeye de uygulanır." });
@@ -1576,7 +1580,7 @@ SECTIONS.detay = () => {
     : trendCard(c.label, withOnline ? ["active", "online"] : [id], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
   if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut && !users && !node) b.push(trendCard(DET_TITLE[id] || `${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, ...(DET_EXTRA[id] || []), c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300, names: DET_NAMES }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
-  const ul = node ? userListCard("node_click_rate", "det-node-" + nb, { stage: true }) : users ? userListCard("online", "det-users", { onAct: true }) : dwm ? userListCard("active", "det-dwm") : ut ? userListCard("active", "det-ut", { tier: true }) : userListCard(id);
+  const ul = node ? userListCard("node_click_rate", "det-node-" + nb, { stage: true }) : users ? userListCard("online", "det-users", { onAct: true }) : dwm ? userListCard("active", "det-dwm") : ut ? userListCard("active", "det-ut", { tier: true, group: [(u) => u.on_y > 0 || u.act_y > 0, "Dün online ya da aktif olan aboneler (tipine göre)"] }) : userListCard(id);
   if (ul) b.push(ul);
   return { html: head + `<div class="cards ov">${b.map((x) => x.html).join("")}</div>`,
     draw: () => {
