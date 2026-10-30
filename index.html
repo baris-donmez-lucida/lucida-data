@@ -1006,18 +1006,21 @@ function funnelCard(key) {
   }, { key, days: 30, help, ctl: `<span class="seg-ctl fn-basis" role="group" aria-label="Sayım">${[["user", "Tekil abone"], ["day", "Abone-gün"]].map(([v, l]) => `<button type="button" data-fb="${v}" aria-pressed="${FN.basis === v}">${l}</button>`).join("")}</span>`, views: [["all", "Tek funnel"], ["lvl", "Yeni kullanıcı · seviye"], ["act", "Activation / Activated"], ["type", "Node tipi"], ["ver", "Sürüm karşılaştırması"]] });
 }
 // New-user level funnel: subscribers whose first dashboard view (d0) falls in the card's range and whose level at d0 is the
-// selected one, then that level's lesson 1, 2, … 15 completed in order within 7 days. Everyone enters once, so days add up.
+// selected one, then that level's lesson 1 opened (lessonTalk page), then lesson 1, 2, … 15 completed in order within 7 days.
+// Everyone enters once, so days add up. Data from before the start step was added has one step less (no start column).
 function levelFunnel(card, F, a, b) {
   const L = FN.lvl, l = L.toLowerCase(), steps = F.nl?.[L], fnEl = card.querySelector(".fn"), note = card.querySelector(".fn-note"), vs = card.querySelector(".fn-vs");
   vs.innerHTML = `Seviye <select data-fl>${["A1", "A2", "B1", "B2", "C1"].map((v) => `<option${v === L ? " selected" : ""}>${v}</option>`).join("")}</select>`;
   card.querySelector(".legend").innerHTML = "";
   const t = steps ? steps.map((v) => { let s = 0, any = false; for (let i = a; i <= b; i++) if (v[i] != null) { s += v[i]; any = true; } return any ? s : null; }) : null;
   if (!t || !t[0]) { fnEl.innerHTML = `<div class="chart-empty">Bu seçimde veri yok.</div>`; note.textContent = ""; return; }
-  const labels = [["Yeni kullanıcı", `ilk dashboard (d0), seviye ${L}`], ...steps.slice(1).map((_, k) => [`${L} ders ${k + 1}`, `live_lesson_*_${l}_${k + 1}`])];
+  const c1 = steps.length > 16 ? 2 : 1; // index of the first completion step
+  const labels = [["Yeni kullanıcı", `ilk dashboard (d0), seviye ${L}`], ...(c1 === 2 ? [[`${L} ders 1 başlattı`, `ders sayfası açıldı (lessonTalk), live_lesson_*_${l}_1`]] : []), ...steps.slice(c1).map((_, k) => [`${L} ders ${k + 1}`, `live_lesson_*_${l}_${k + 1} tamamlandı`])];
   funnelChart(fnEl, card, labels, [{ name: L, color: COL[0], t }]);
-  const lessons = sum(t.slice(1));
+  const lessons = sum(t.slice(c1));
   const lastEntry = F.nlLast ? D.d.days.indexOf(F.nlLast) : -1;
-  note.textContent = [`Yeni kullanıcı başına ilk haftada sırayla tamamlanan ortalama ${L} dersi ${nf2.format(lessons / t[0])}; ${L} ders 1'i tamamlayan başına ${t[1] ? nf2.format(lessons / t[1]) : "—"} (15'te kesilmiş).`,
+  note.textContent = [`Yeni kullanıcı başına ilk haftada sırayla tamamlanan ortalama ${L} dersi ${nf2.format(lessons / t[0])}; ${L} ders 1'i tamamlayan başına ${t[c1] ? nf2.format(lessons / t[c1]) : "—"} (15'te kesilmiş).`,
+    c1 === 2 ? `Ders 1 başlattı = d0'dan sonra 7 gün içinde ${L} ders 1'in ders sayfasını açtı (anm_conv_page_viewed, lessonTalk); ders adımları bu sırayla tamamlama.` : "",
     `Giriş = abonenin dashboard'u ilk kez gördüğü gün (d0) ve o anki seviyesi (english_level). Her kullanıcı bir kez sayılır; Tekil abone / Abone-gün seçimi bu görünümü değiştirmez.`,
     lastEntry >= 0 && b > lastEntry ? `${dShort(D.d.days[lastEntry + 1])} ve sonrası kayıtlar henüz 7 günü doldurmadı, dahil değil.` : "", "Yalnız tüm aboneler; filtre uygulanmıyor."].filter(Boolean).join(" ");
 }
