@@ -1570,14 +1570,19 @@ SECTIONS.detay = () => {
   const users = S.group === "users"; // abone-count card (Aktif / Online select) → one chart with both, no select
   const withOnline = users || (id === "active" && S.group === "act");
   const ut = S.group === "ut"; // user-type card → NS, Regular and Aktif per Online as plain lines in one chart
+  const dm = DET_MAIN[id], gid = (x) => (DET_G === "total" ? x : `${x}_${DET_G}`); // groups: Total / Activation / Activated select
   const dwm = S.group === "dwm"; // DAU / WAU / MAU card → one area chart with all three (DAU ⊂ WAU ⊂ MAU, so the areas overlap, not add up)
   const b = [ut ? trendCard("Kullanıcı tipleri / Online", ["ns_online", "regular_online", "talk_rate"], [], { key: "det-ut", days: 90, wide: true, noMA: true, H: 420, help: TIERS_HELP })
     : dwm ? trendCard("DAU / WAU / MAU", ["mau", "wau", "active"], [], { key: "det-dwm", days: 90, wide: true, noMA: true, H: 420, area: true, names: { active: "DAU", wau: "WAU", mau: "MAU" } })
     : node ? trendCard("Node click / start / complete rate", ["click", "start", "complete"].map((k) => NODE_IDS[nb][k]), [], { key: "det-node-" + nb, days: 90, wide: true, noMA: true, H: 420, area: true, ctl: detailCtl(),
         names: { [NODE_IDS[nb].click]: "Node click rate", [NODE_IDS[nb].start]: "Node start rate", [NODE_IDS[nb].complete]: "Node complete rate" } })
     : users ? trendCard("Aktif ve Online abone", ["active", "online"], [], { key: "det-users", days: 90, wide: true, noMA: true, H: 420, help: TIERS_HELP })
-    : trendCard(DET_MAIN[id]?.title || c.label, withOnline ? ["active", "online"] : [id, ...(DET_MAIN[id]?.with || [])], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
-  if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut && !users && !node) b.push(trendCard(DET_TITLE[id] || `${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, ...(DET_EXTRA[id] || []), c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300, names: DET_NAMES }));
+    : dm?.groups ? trendCard(dm.title, [id, ...dm.with].map(gid), [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: dm.title + detGroupSel(),
+        names: Object.fromEntries([id, ...dm.with].map((x) => [gid(x), D.cat[x].label])) })
+    : trendCard(dm?.title || c.label, withOnline ? ["active", "online"] : [id, ...(dm?.with || [])], [], { key: "det-" + id, days: 90, wide: true, noMA: true, H: 380, help: noteOf(c), ctl: detailCtl() })];
+  if (dm?.groups && DET_G !== "total") b.push(trendCard(`Ders tamamlama / Online ve Aktif abone · ${DET_GROUPS[DET_G]}`, ["lesson_completed", "active", "online"].map((k) => `${k}_${DET_G}`), [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300,
+    names: { [`lesson_completed_${DET_G}`]: "Ders tamamlama", [`active_${DET_G}`]: "Aktif abone", [`online_${DET_G}`]: "Online abone" } }));
+  else if (simple(c.num) && simple(c.den) && id !== "talk_rate" && !dwm && !ut && !users && !node) b.push(trendCard(DET_TITLE[id] || `${D.cat[c.num].label} / ${D.cat[c.den].label}`, [c.num, ...(DET_EXTRA[id] || []), c.den], [], { key: "det2-" + id, days: 90, wide: true, noMA: true, H: 300, names: DET_NAMES }));
   const head = `<a class="back" href="#${S.from}">← ${esc(back)}</a>`;
   const ul = node ? userListCard("node_click_rate", "det-node-" + nb, { stage: true }) : users ? userListCard("online", "det-users", { onAct: true }) : dwm ? userListCard("active", "det-dwm") : ut ? userListCard("active", "det-ut", { tier: true, group: [(u) => u.on_y > 0 || u.act_y > 0, "Dün online ya da aktif olan aboneler (tipine göre)"] }) : userListCard(id);
   if (ul) b.push(ul);
@@ -1596,7 +1601,12 @@ document.addEventListener("click", (ev) => {
   location.hash = `#detay?m=${encodeURIComponent(g === "dwm" || g === "users" ? "active" : g === "ut" ? "ns_online" : g === "node" ? NODE_IDS[NK.basis].click : k.dataset.mid)}&from=${S.tab}${g ? "&g=" + g : ""}`;
 });
 // extra lines on a detail page's main chart (per-Online lessons next to per-Aktif)
-const DET_MAIN = { lessons_per_online: { with: ["lessons_per_active"], title: "Online ve Aktif başına tamamlanan ders" } };
+const DET_MAIN = { lessons_per_online: { with: ["lessons_per_active"], title: "Online ve Aktif başına tamamlanan ders", groups: true } };
+// user group on such a chart: all subscribers or Activation / Activated Users (series <metric>_activation / _activated)
+const DET_GROUPS = { total: "Total", activation: "Activation Users", activated: "Activated Users" };
+let DET_G = "total";
+const detGroupSel = () => `<select class="ut-sel det-grp" aria-label="Kullanıcı grubu">${Object.entries(DET_GROUPS).map(([v, l]) => `<option value="${v}"${v === DET_G ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+document.addEventListener("change", (ev) => { if (ev.target.matches(".det-grp")) { DET_G = ev.target.value; renderSection(); } });
 // extra lines on a detail page's numerator / denominator chart (zincir: lessons started from a home-screen node, for comparison)
 const DET_EXTRA = { chain_share_u: ["node_start_users"], lessons_per_online: ["active"] };
 const DET_NAMES = { node_start_users: "Anasayfadan node ile başlatan abone" };

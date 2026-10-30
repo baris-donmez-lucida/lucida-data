@@ -184,3 +184,15 @@ test("userTable: rows keyed on Amplitude ID, day cell found anywhere, yesterday 
   assert.equal(u.on7, 2); assert.equal(u.act7, 2); assert.equal(u.done7, 2); assert.equal(u.min7, 3);
   assert.equal(u.done_y, 2); assert.equal(u.nstart_y, 1); assert.equal(u.min_y, 2); assert.equal(u.last, "2026-10-27");
 });
+
+test("lpoPoints: paid and Activation lessons / Online / Aktif per day, Activation segment chosen per day", () => {
+  const meta = [], ts = [];
+  for (const f of [0, 1, 2]) for (const seg of [0, 1, 2]) { meta.push({ segmentIndex: seg, formulaIndex: f }); ts.push([100 * f + 10 * seg + 1, 100 * f + 10 * seg + 2].map((value) => ({ value }))); }
+  const d = { jsonResponse: { timeSeries: ts, seriesMetadata: meta, xValuesForTimeSeries: ["2030-01-01T00:00:00", "2030-01-02T00:00:00"] } };
+  assert.deepEqual(L.lpoPoints(d, (i) => i + 1), [
+    { d: "2030-01-01", paid: [1, 101, 201], activation: [11, 111, 211] },
+    { d: "2030-01-02", paid: [2, 102, 202], activation: [22, 122, 222] },
+  ]);
+  assert.deepEqual(L.lpoPoints(d)[1].activation, [12, 112, 212]);
+  assert.deepEqual(L.lpoPoints(null), []);
+});

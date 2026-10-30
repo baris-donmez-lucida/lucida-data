@@ -308,6 +308,19 @@ let nfun = null;
   if (nfun) for (const g of ["activation", "activated"]) nfun.act[g] = [...Array(Math.max(0, ...hist.nact.map((p) => p[g]?.length || 0))).keys()].map((k) => byDay(hist.nact, (p) => p[g]?.[k] ?? null));
 }
 
+// ---------- lessons / Online / Aktif for Activation and Activated Users (history lessons_online_active, yesterday from lpo_act) ----------
+// Activated = paid − Activation from the same query, so the two add up to that query's paid numbers.
+{
+  hist.lpo = readHist("lessons_online_active") || [];
+  const p = L.lpoPoints(load("lpo_act")).find((x) => x.d === dataDate);
+  if (p && ![...p.paid, ...p.activation].includes(null)) { hist.lpo = hist.lpo.filter((x) => x.d !== dataDate); hist.lpo.push(p); }
+  if (!hist.lpo.length) missing.push("history:lessons_online_active");
+  ["lesson_completed", "online", "active"].forEach((k, j) => {
+    put(`${k}_activation`, "paid", "all", byDay(hist.lpo, (x) => x.activation[j]));
+    put(`${k}_activated`, "paid", "all", byDay(hist.lpo, (x) => x.paid[j] - x.activation[j]));
+  });
+}
+
 // ---------- catalog: metrics.json with num / den normalised to keys of m ----------
 const qSeries = (qid, e) => `${qid}.${queryById[qid].series[e]}`;
 const catalog = M.metrics.map((x) => {

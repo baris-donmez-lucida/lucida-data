@@ -212,6 +212,17 @@ export function stickDay(data, subs) {
   return o;
 }
 
+// Lessons completed / Online / Aktif (formula TOTALS(A); UNIQUES(B); UNIQUES(C)) with segment 0 = paid and segment k ≥ 1 =
+// Activation Users for one cutoff (first dashboard view in d0–d8). Day i reads its Activation numbers from segment segOf(i)
+// (daily query: 1; backfill: i + 1, one cutoff per day). Returns [{ d, paid: [l, o, a], activation: [l, o, a] }].
+export function lpoPoints(data, segOf = () => 1) {
+  const j = data?.jsonResponse;
+  if (!j || !Array.isArray(j.timeSeries)) return [];
+  const idx = new Map(j.seriesMetadata.map((m, k) => [`${m.segmentIndex}|${m.formulaIndex}`, k]));
+  const at = (seg, f, i) => (idx.has(`${seg}|${f}`) ? Number(j.timeSeries[idx.get(`${seg}|${f}`)][i]?.value) || 0 : null);
+  return j.xValuesForTimeSeries.map(day).map((d, i) => ({ d, paid: [0, 1, 2].map((f) => at(0, f, i)), activation: [0, 1, 2].map((f) => at(segOf(i), f, i)) }));
+}
+
 // lesson_id → { lang: "en", lvl: "A1", no: 3 } ("live_lesson_en_a1_3": target language, level, number);
 // null for ids without a level.
 export function lessonLevel(id) {
